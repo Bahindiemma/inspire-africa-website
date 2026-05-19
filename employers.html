@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>For Employers — INSPIRE AFRICA</title>
+<meta name="description" content="Hire faster. Pre-screened, job-ready African talent on a compliant platform. 2/3 cost reduction, 1/3 faster timelines." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<script>
+  // Prevent flash of unstyled content - apply theme BEFORE first paint
+  (function() {
+    try {
+      var t = localStorage.getItem('inspire-theme');
+      if (!t || !['light','dark','system'].includes(t)) t = 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+  </script>
+</head>
+<body>
+
+<header class="site-header" id="header">
+  <div class="container">
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html" class="brand"><span>INSPIRE</span><span class="africa">AFRICA</span></a>
+      <ul class="nav-links">
+        <li><a href="approach.html">Our Approach</a></li>
+        <li><a href="workers.html">Workers</a></li>
+        <li><a href="employers.html" class="active">Employers</a></li>
+        <li><a href="governments.html">Governments</a></li>
+        <li><a href="join.html" class="is-cta">Join the Community</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="theme-switch">
+        <button class="theme-switch-trigger" aria-label="Change theme" aria-haspopup="menu" aria-expanded="false">
+          <svg class="theme-icon theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-icon theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon theme-icon-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </button>
+        <div class="theme-switch-menu" role="menu">
+          <button class="theme-switch-option" role="menuitemradio" data-theme="light" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            Light
+          </button>
+          <button class="theme-switch-option" role="menuitemradio" data-theme="dark" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Dark
+          </button>
+          <button class="theme-switch-option" role="menuitemradio" data-theme="system" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            System
+          </button>
+        </div>
+      </div>
+      <div class="nav-cta">
+        <a class="btn btn--primary" href="#employers-form">Hire Talent</a>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-drawer"><span></span></button>
+    </nav>
+  </div>
+</header>
+
+<nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile">
+  <ul>
+    <li><a href="approach.html">Our Approach</a></li>
+    <li><a href="workers.html">Workers</a></li>
+    <li><a href="employers.html">Employers</a></li>
+    <li><a href="governments.html">Governments</a></li>
+    <li><a href="join.html">Join the Community</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a class="btn btn--primary" href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=mobile_drawer&utm_medium=website&utm_campaign=join_community">
+    Join the Community
+    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+  </a>
+</nav>
+
+<section class="hero" data-watermark="EMPLOYERS">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="eyebrow reveal">For employers</span>
+        <h1 class="reveal">
+          <span class="small-italic">Hire faster.</span>
+          Reduce cost.<br>
+          <span class="accent">Increase<br>certainty.</span>
+        </h1>
+        <p class="hero-lede reveal">
+          Access a reliable pipeline of pre-screened, job-ready African talent through a single, compliant platform.
+        </p>
+        <div class="hero-ctas reveal">
+          <a href="#employers-form" class="btn btn--primary">Hire Talent</a>
+          <a href="approach.html" class="btn btn--ghost">How it works</a>
+        </div>
+      </div>
+      <div class="hero-photo reveal">
+        <div class="hero-photo-img"><img src="images/inspire-woman-office.jpg" alt="Professional in a modern office environment" /></div>
+        <div class="hero-photo-caption"><strong>Ready Now</strong><span>Pre-screened, prepared, deployable</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem framing -->
+<section class="page-section page-section--alt">
+  <div class="container">
+    <div class="section-grid">
+      <div class="section-left">
+        <span class="eyebrow">The status quo</span>
+        <h2>International hiring is <span class="yellow">broken.</span></h2>
+        <p>You pay more — but outcomes don't improve. Legacy recruitment passes risk down the chain to you.</p>
+      </div>
+      <ul class="feature-list">
+        <li><span class="bullet is-bad">×</span><div><h3>Long hiring timelines</h3><p class="feature-body">Months lost between vacancy and arrival, while your roster runs short.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>High and unpredictable costs</h3><p class="feature-body">Fees scale with friction, not with quality. You don't know the final number until the invoice arrives.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>Poor candidate matching</h3><p class="feature-body">CVs aren't readiness. Mismatched hires drop out in the first 90 days.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>Opaque subcontractor networks</h3><p class="feature-body">You don't know who actually sourced the worker, or what they paid to get there.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- A better way -->
+<section class="page-section page-section--yellow">
+  <div class="container">
+    <div class="section-grid">
+      <div class="section-left">
+        <span class="eyebrow">A better way to hire</span>
+        <h2>Built for <span class="italic-accent">outcomes</span> — not transactions.</h2>
+        <p>INSPIRE AFRICA replaces fragmented recruitment with a structured, Africa-based talent pipeline. The model is transparent, ethical and measurable end to end.</p>
+      </div>
+      <ul class="feature-list">
+        <li><span class="bullet">✓</span><div><h3>Predictive screening</h3><p class="feature-body">Capability, behaviour and readiness assessed before any CV reaches you.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Centralised preparation</h3><p class="feature-body">Candidates arrive prepared for the workplace — language, documentation, expectations all handled.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Migration finance</h3><p class="feature-body">Salary-linked finance expands the pool of available talent without falling on you.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Compliance-first</h3><p class="feature-body">Audit-ready documentation. Aligned with international ethical-recruitment standards.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Early results -->
+<section class="proof">
+  <div class="container">
+    <div class="proof-head">
+      <span class="eyebrow">Early results</span>
+      <h2>What our partners <span class="yellow">are seeing.</span></h2>
+    </div>
+    <div class="numbers">
+      <div class="number"><div class="number-value">2/3</div><div class="number-label">Reduction in cost-per-hire</div></div>
+      <div class="number"><div class="number-value">~1/3</div><div class="number-label">Faster hiring timelines</div></div>
+      <div class="number"><div class="number-value">0</div><div class="number-label">Defaults on salary-linked plans</div></div>
+      <div class="number"><div class="number-value">7</div><div class="number-label">Destination corridors</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Simple, structured hiring -->
+<section class="page-section">
+  <div class="container">
+    <div class="section-grid">
+      <div class="section-left">
+        <span class="eyebrow">Simple, structured</span>
+        <h2>Five steps. <span class="yellow">No surprises.</span></h2>
+        <p>From defining your hiring needs to ongoing post-placement support — a coordinated, predictable process.</p>
+      </div>
+      <ol class="process-list">
+        <li><h3>Define your hiring needs</h3><p>Roles, sectors, locations, scale, timeline.</p></li>
+        <li><h3>Receive pre-screened candidates</h3><p>Predictive screening shortlists those who will actually arrive ready.</p></li>
+        <li><h3>Interview and select</h3><p>Your decision, on your timeline, with full context on each candidate.</p></li>
+        <li><h3>We manage deployment</h3><p>Documentation, compliance, relocation logistics — all coordinated.</p></li>
+        <li><h3>Ongoing support post-placement</h3><p>Aftercare reduces drop-outs and protects your investment in the hire.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- INQUIRY FORM -->
+<section class="form-section" id="employers-form">
+  <div class="container">
+    <div class="form-wrap">
+      <span class="eyebrow">Start a conversation</span>
+      <h2>Hire talent</h2>
+      <p>Tell us about your hiring needs. We'll come back within two working days.</p>
+      <p class="editor-note">⚠ Wix-editor note: replace this form block with the existing Wix Form — "Employers Inquiry — Hire Talent" (form ID 83cf4816-c7e5-4fc1-8502-556c4f8cc1a7)</p>
+      <form class="form-grid" onsubmit="event.preventDefault(); alert('In production, this form is replaced by the Wix Forms widget linked to form ID 83cf4816-c7e5-4fc1-8502-556c4f8cc1a7.');">
+        <div class="form-field"><label for="ef-name">Full name</label><input id="ef-name" type="text" required></div>
+        <div class="form-field"><label for="ef-company">Company</label><input id="ef-company" type="text" required></div>
+        <div class="form-field"><label for="ef-role">Role</label><input id="ef-role" type="text"></div>
+        <div class="form-field"><label for="ef-email">Work email</label><input id="ef-email" type="email" required></div>
+        <div class="form-field"><label for="ef-phone">Phone</label><input id="ef-phone" type="tel"></div>
+        <div class="form-field"><label for="ef-country">Hiring country</label><input id="ef-country" type="text"></div>
+        <div class="form-field full"><label for="ef-sector">Sector</label>
+          <select id="ef-sector"><option>Healthcare</option><option>Hospitality</option><option>Engineering</option><option>Mechanics</option><option>Mining</option><option>Construction</option><option>Care &amp; domestic</option><option>Other</option></select>
+        </div>
+        <div class="form-field full"><label for="ef-volume">Anticipated hiring volume (12 months)</label><input id="ef-volume" type="text" placeholder="e.g. 10–20 nurses, ramping to 50"></div>
+        <div class="form-field full"><label for="ef-message">Tell us about your hiring needs</label><textarea id="ef-message" required></textarea></div>
+        <div class="form-submit"><button type="submit" class="btn btn--primary">Send enquiry
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span>INSPIRE</span><span class="africa">AFRICA</span></a>
+        <p>Labour mobility infrastructure connecting Africa's workforce to global employers and governments.</p>
+        <a href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=footer&utm_medium=website&utm_campaign=join_community" class="footer-cta">Join the Community</a>
+      </div>
+      <div class="footer-col"><h4>Audiences</h4><ul><li><a href="workers.html">For Workers</a></li><li><a href="employers.html">For Employers</a></li><li><a href="governments.html">For Governments</a></li><li><a href="join.html">Join the Community</a></li></ul></div>
+      <div class="footer-col"><h4>The Platform</h4><ul><li><a href="approach.html">Our Approach</a></li><li><a href="contact.html">Contact</a></li><li><a href="#">Privacy &amp; Cookies</a></li><li><a href="#">Modern Slavery</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><div class="footer-contact"><div class="office"><strong>UK · Registered Office</strong>71–75 Shelton Street<br>London, WC2H 9JQ<br><a href="tel:+442070973943">+44 20 7097 3943</a></div><div class="office"><strong>Africa Office</strong><a href="tel:+254784041405">+254 784 041 405</a><br><a href="mailto:info@inspireafricans.com">info@inspireafricans.com</a></div></div></div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 Inspire Africa Platform Ltd. Registered in England and Wales (company no. 12759109).</div><div class="footer-legal"><a href="#">Privacy</a><a href="#">Cookies</a><a href="#">Terms</a></div></div>
+  </div>
+</footer>
+
+<button class="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script src="theme.js"></script>
+</body>
+</html>

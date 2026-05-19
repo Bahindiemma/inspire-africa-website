@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>For Workers — INSPIRE AFRICA</title>
+<meta name="description" content="Work abroad safely. Fair, structured pathways into international employment, with preparation and salary-linked finance." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<script>
+  // Prevent flash of unstyled content - apply theme BEFORE first paint
+  (function() {
+    try {
+      var t = localStorage.getItem('inspire-theme');
+      if (!t || !['light','dark','system'].includes(t)) t = 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+  </script>
+</head>
+<body>
+
+<header class="site-header" id="header">
+  <div class="container">
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html" class="brand"><span>INSPIRE</span><span class="africa">AFRICA</span></a>
+      <ul class="nav-links">
+        <li><a href="approach.html">Our Approach</a></li>
+        <li><a href="workers.html" class="active">Workers</a></li>
+        <li><a href="employers.html">Employers</a></li>
+        <li><a href="governments.html">Governments</a></li>
+        <li><a href="join.html" class="is-cta">Join the Community</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="theme-switch">
+        <button class="theme-switch-trigger" aria-label="Change theme" aria-haspopup="menu" aria-expanded="false">
+          <svg class="theme-icon theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-icon theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon theme-icon-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </button>
+        <div class="theme-switch-menu" role="menu">
+          <button class="theme-switch-option" role="menuitemradio" data-theme="light" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            Light
+          </button>
+          <button class="theme-switch-option" role="menuitemradio" data-theme="dark" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Dark
+          </button>
+          <button class="theme-switch-option" role="menuitemradio" data-theme="system" aria-checked="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            System
+          </button>
+        </div>
+      </div>
+      <div class="nav-cta">
+        <a class="btn btn--primary" href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=header_nav&utm_medium=website&utm_campaign=join_community">Join Community</a>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-drawer"><span></span></button>
+    </nav>
+  </div>
+</header>
+
+<nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile">
+  <ul>
+    <li><a href="approach.html">Our Approach</a></li>
+    <li><a href="workers.html">Workers</a></li>
+    <li><a href="employers.html">Employers</a></li>
+    <li><a href="governments.html">Governments</a></li>
+    <li><a href="join.html">Join the Community</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a class="btn btn--primary" href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=mobile_drawer&utm_medium=website&utm_campaign=join_community">
+    Join the Community
+    <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+  </a>
+</nav>
+
+<section class="hero" data-watermark="WORKERS">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="eyebrow reveal">For workers</span>
+        <h1 class="reveal">
+          <span class="small-italic">Work abroad.</span>
+          Earn more.<br>
+          <span class="accent">Change<br>your future.</span>
+        </h1>
+        <p class="hero-lede reveal">
+          Access real international job opportunities with fair recruitment, structured preparation and no large up-front costs.
+        </p>
+        <div class="hero-ctas reveal">
+          <a href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=workers_hero&utm_medium=website&utm_campaign=join_community" class="btn btn--primary">Join the Community</a>
+          <a href="approach.html" class="btn btn--ghost">How it works</a>
+        </div>
+      </div>
+      <div class="hero-photo reveal">
+        <div class="hero-photo-img"><img src="images/inspire-collaboration.jpg" alt="Two African professionals working together on a laptop" /></div>
+        <div class="hero-photo-caption"><strong>Fair · Transparent</strong><span>Protected at every step</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Problem framing -->
+<section class="page-section page-section--alt">
+  <div class="container">
+    <div class="section-grid">
+      <div class="section-left">
+        <span class="eyebrow">The reality</span>
+        <h2>The opportunity is real. <span class="yellow">The system is not.</span></h2>
+        <p>You should not have to risk everything to build a better future.</p>
+      </div>
+      <ul class="feature-list">
+        <li><span class="bullet is-bad">×</span><div><h3>Jobs exist abroad — but access is limited</h3><p class="feature-body">Opportunities are real but hard to reach from where you are today.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>Up-front costs are too high</h3><p class="feature-body">Most pathways demand savings or family loans before you've earned a single pound.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>Pathways are unclear or unsafe</h3><p class="feature-body">Information is fragmented, and unregulated agents fill the gap.</p></div></li>
+        <li><span class="bullet is-bad">×</span><div><h3>Too many take risks with irregular migration</h3><p class="feature-body">Without a legal route, people lose money, time and sometimes their safety.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- What INSPIRE provides -->
+<section class="page-section page-section--yellow">
+  <div class="container">
+    <div class="section-grid">
+      <div class="section-left">
+        <span class="eyebrow">A clear, supported pathway</span>
+        <h2>Everything you need <span class="italic-accent">to succeed.</span></h2>
+        <p>INSPIRE AFRICA provides a structured journey from job readiness to international employment, with support at every step.</p>
+      </div>
+      <ul class="feature-list">
+        <li><span class="bullet">✓</span><div><h3>Transparent process</h3><p class="feature-body">Clear steps from start to finish — no hidden stages, no surprise costs.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Interview &amp; workplace preparation</h3><p class="feature-body">Coaching so you arrive ready, not learning on the job.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Documentation &amp; relocation support</h3><p class="feature-body">We handle the paperwork so you can focus on the role.</p></div></li>
+        <li><span class="bullet">✓</span><div><h3>Access to migration finance</h3><p class="feature-body">Salary-linked plans where needed — no family loans, no predatory interest.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Fair. Transparent. Protected. -->
+<section class="page-section">
+  <div class="container">
+    <div class="proof-head proof-head--left">
+      <span class="eyebrow">Fair · Transparent · Protected</span>
+      <h2 class="proof-head-h2">You should not have to <span class="yellow">risk everything.</span></h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><h3>Employers pay the fees</h3><p>Recruitment fees are paid by employers — not workers. That principle is non-negotiable.</p></div>
+      <div class="step-card"><div class="step-num">02</div><h3>No hidden steps</h3><p>The process is documented end-to-end. You know what's next and what it costs.</p></div>
+      <div class="step-card"><div class="step-num">03</div><h3>Support throughout</h3><p>From preparation to deployment to aftercare — you are not left alone at any stage.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final">
+  <div class="container">
+    <div class="final-content">
+      <span class="final-eyebrow">Your future starts here</span>
+      <h2><span class="italic-accent">Take the first step —</span> Join the<br>community.</h2>
+      <p class="final-lede">Free membership. The single, supported route into INSPIRE's ecosystem.</p>
+      <div class="final-ctas">
+        <a href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=workers_final&utm_medium=website&utm_campaign=join_community" class="btn btn--dark">Join the Community — Free</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span>INSPIRE</span><span class="africa">AFRICA</span></a>
+        <p>Labour mobility infrastructure connecting Africa's workforce to global employers and governments.</p>
+        <a href="https://inspire-africa.mn.co/spaces/20105635?autojoin=1&utm_source=footer&utm_medium=website&utm_campaign=join_community" class="footer-cta">Join the Community</a>
+      </div>
+      <div class="footer-col"><h4>Audiences</h4><ul><li><a href="workers.html">For Workers</a></li><li><a href="employers.html">For Employers</a></li><li><a href="governments.html">For Governments</a></li><li><a href="join.html">Join the Community</a></li></ul></div>
+      <div class="footer-col"><h4>The Platform</h4><ul><li><a href="approach.html">Our Approach</a></li><li><a href="contact.html">Contact</a></li><li><a href="#">Privacy &amp; Cookies</a></li><li><a href="#">Modern Slavery</a></li></ul></div>
+      <div class="footer-col"><h4>Contact</h4><div class="footer-contact"><div class="office"><strong>UK · Registered Office</strong>71–75 Shelton Street<br>London, WC2H 9JQ<br><a href="tel:+442070973943">+44 20 7097 3943</a></div><div class="office"><strong>Africa Office</strong><a href="tel:+254784041405">+254 784 041 405</a><br><a href="mailto:info@inspireafricans.com">info@inspireafricans.com</a></div></div></div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 Inspire Africa Platform Ltd. Registered in England and Wales (company no. 12759109).</div><div class="footer-legal"><a href="#">Privacy</a><a href="#">Cookies</a><a href="#">Terms</a></div></div>
+  </div>
+</footer>
+
+<button class="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<script src="theme.js"></script>
+</body>
+</html>

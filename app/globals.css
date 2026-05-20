@@ -31,14 +31,19 @@
   --color-grey: #bfbfbf;
   --color-black: #000000;
 
-  /* Typography — Madimi One is the brand typeface and is applied to
-     every text role. `--font-madimi` is provided by next/font on
-     <html> at runtime; "Madimi One" is the Google Fonts CDN name;
-     "Madimi One Local" is the in-repo .ttf fallback. */
-  --font-display: var(--font-madimi), "Madimi One", "Madimi One Local", "Impact", sans-serif;
-  --font-serif: var(--font-madimi), "Madimi One", "Madimi One Local", Georgia, serif;
-  --font-body: var(--font-madimi), "Madimi One", "Madimi One Local", -apple-system,
-    BlinkMacSystemFont, sans-serif;
+  /* Typography — Madimi One is the brand typeface and is the ONLY
+     typeface used on this site (African, Google Fonts free-use,
+     https://fonts.google.com/specimen/Madimi+One). All three
+     `--font-*` role tokens collapse to the same Madimi One stack so
+     no element can ever inherit a different family — no Impact for
+     display, no Georgia for italic, no system-ui for body. The
+     fallback chain only contains the three Madimi One delivery
+     channels (next/font, Google Fonts CDN name, in-repo .ttf), with
+     `sans-serif` as the final safety-net family if every Madimi
+     One delivery path failed. */
+  --font-display: var(--font-madimi), "Madimi One", "Madimi One Local", sans-serif;
+  --font-serif: var(--font-madimi), "Madimi One", "Madimi One Local", sans-serif;
+  --font-body: var(--font-madimi), "Madimi One", "Madimi One Local", sans-serif;
 
   --breakpoint-xs: 540px;
   --breakpoint-sm: 640px;
@@ -195,18 +200,39 @@ main {
 section {
   overflow-x: clip;
 }
-/* Madimi One is applied to every text role — force-inherit the
-   brand typeface across all elements so any inline or third-party
-   styles still pick it up. */
+/* Madimi One is the only typeface allowed on this site.
+   The universal selector forces every element (and its pseudo-
+   elements) to use the brand stack, so nothing — not form
+   controls, not third-party widgets, not browser default UA
+   styles for <button>/<input>/<select>/<textarea>/<dialog> — can
+   ever render in a different family. This is intentionally
+   broader than `inherit` because some UA stylesheets set an
+   explicit `font-family` on form controls that breaks inheritance. */
+*,
+*::before,
+*::after {
+  font-family: var(--font-body);
+}
 body,
 button,
 input,
 select,
 textarea,
-optgroup {
+optgroup,
+fieldset,
+legend,
+label,
+dialog,
+output,
+meter,
+progress {
   font-family: var(--font-body);
 }
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6,
+.eyebrow,
+.brand,
+.italic-accent,
+.small-italic {
   font-family: var(--font-display);
 }
 img {

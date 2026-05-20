@@ -160,18 +160,28 @@ body {
   max-width: 100%;
   min-width: 0;
 }
-/* Stop long URLs / emails / unbroken tokens from forcing the viewport wider. */
+/* Stop long URLs / emails / unbroken tokens from forcing the viewport
+   wider — but only for body-copy elements where breaking mid-word is
+   acceptable for a long URL or email address. */
 a,
 p,
-li,
+li {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+/* Headings only break at word boundaries — never mid-character — so
+   display text like "YOUR FUTURE." can't be wrapped to "YOUR FUTUR / E."
+   The earlier `overflow-wrap: anywhere` rule was too aggressive for
+   display text; this still prevents very long words from overflowing
+   but leaves normal word wrapping intact. */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 /* Every top-level section should clip its own overflow as a safety net —
    prevents oversize watermarks, decorative pseudo-elements, or wide grids
@@ -410,6 +420,7 @@ button {
   position: relative;
   padding: 6px 0;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 .nav-links a::after {
   content: "";
@@ -936,10 +947,14 @@ body.menu-open {
 .hero h1 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(48px, 7.5vw, 108px);
-  line-height: 0.92;
+  /* Sized to match the original reference: at 1200–1400 px the headline
+     reads at ~72–84 px so the four lines (Work abroad. / EARN MORE. /
+     CHANGE / YOUR FUTURE.) sit beside the hero photo without "YOUR
+     FUTURE." overflowing or wrapping mid-word. */
+  font-size: clamp(40px, 5.8vw, 84px);
+  line-height: 0.95;
   letter-spacing: -0.01em;
-  margin: 28px 0 26px;
+  margin: 24px 0 22px;
   text-transform: uppercase;
   color: var(--text);
   /* `balance` re-flows the heading so every line is roughly the same

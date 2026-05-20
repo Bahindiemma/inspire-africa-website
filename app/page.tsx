@@ -64,7 +64,10 @@ export default function HomePage() {
             <span className="accent">
               Change
               <br />
-              your future.
+              {/* Non-breaking space locks "your" and "future" on one line
+                  so text-wrap: balance can't split the phrase apart at
+                  narrow widths. */}
+              your{" "}future.
             </span>
           </>
         }

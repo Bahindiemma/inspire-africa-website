@@ -7,6 +7,8 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
 import { buildMetadata } from "@/lib/seo";
+import { getLegalDocument, formatLegalDate } from "@/lib/cms/legal";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
@@ -29,28 +31,27 @@ const TOC = [
   { id: "contact", label: "Contact" },
 ];
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const [doc, settings] = await Promise.all([
+    getLegalDocument("privacy"),
+    getSiteSettings(),
+  ]);
   return (
     <>
       <Hero
         watermark="PRIVACY"
-        eyebrow="Legal · Data protection"
-        heading={
-          <>
-            <span className="small-italic">Your data —</span>
-            <span className="accent">handled with care.</span>
-          </>
-        }
-        lede="This policy explains what personal data INSPIRE AFRICA collects, why we collect it, how we use and share it, and the rights you have over it."
+        eyebrow={doc.eyebrow}
+        heading={<span dangerouslySetInnerHTML={{ __html: doc.headingHtml }} />}
+        lede={doc.lede}
         centered
       />
 
       <LegalMeta
         items={[
-          { label: "Version", value: "2.1" },
-          { label: "Last updated", value: "12 May 2026" },
-          { label: "Controller", value: SITE.legalName },
-          { label: "Contact", value: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a> },
+          { label: "Version", value: doc.version },
+          { label: "Last updated", value: formatLegalDate(doc.lastUpdated) },
+          { label: "Controller", value: doc.controllerName ?? settings.legalName },
+          { label: "Contact", value: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a> },
         ]}
       />
 
@@ -63,14 +64,14 @@ export default function PrivacyPage() {
 
         <LegalHeading num="01" id="who-we-are">Who we are</LegalHeading>
         <p>
-          <strong>{SITE.legalName}</strong> (company no. {SITE.company.number}) is the data controller for personal data
-          processed through this website and our pathways. Our registered office is {SITE.company.address.street},{" "}
-          {SITE.company.address.city}, {SITE.company.address.postalCode}, {SITE.company.address.country}.
+          <strong>{settings.legalName}</strong> (company no. {settings.companyNumber}) is the data controller for personal data
+          processed through this website and our pathways. Our registered office is {settings.companyAddress.street},{" "}
+          {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}.
           Our regional office handles operations across our African corridors.
         </p>
         <p>
           For data-protection enquiries, contact our legal team at{" "}
-          <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a>.
+          <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a>.
         </p>
 
         <LegalHeading num="02" id="data-we-collect">Data we collect</LegalHeading>
@@ -193,7 +194,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           To exercise these rights, email{" "}
-          <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a>. We respond within one month,
+          <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a>. We respond within one month,
           extendable by two months for complex requests.
         </p>
 
@@ -215,9 +216,9 @@ export default function PrivacyPage() {
         <LegalHeading num="11" id="contact">Contact</LegalHeading>
         <p>For any question about this policy or your personal data:</p>
         <ul>
-          <li>Email: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a></li>
-          <li>Post: {SITE.legalName}, {SITE.company.address.street}, {SITE.company.address.city}, {SITE.company.address.postalCode}, {SITE.company.address.country}</li>
-          <li>Phone: <a href={`tel:${SITE.contact.ukPhone.replace(/\s+/g, "")}`}>{SITE.contact.ukPhone}</a></li>
+          <li>Email: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a></li>
+          <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
+          <li>Phone: <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a></li>
         </ul>
       </LegalLayout>
 

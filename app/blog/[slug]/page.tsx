@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { BLOG_POSTS, formatBlogDate, getBlogPost, getRelatedPosts } from "@/lib/blogs";
+import { getBlogPosts, getBlogPost, getRelatedPosts, formatBlogDate } from "@/lib/cms/blogs";
 import { buildMetadata } from "@/lib/seo";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
@@ -14,14 +14,15 @@ interface RouteParams {
   params: Promise<{ slug: string }>;
 }
 
-/** Pre-render every known post at build time. */
-export function generateStaticParams() {
-  return BLOG_POSTS.map((p) => ({ slug: p.slug }));
+/** Pre-render every known post at build time, sourcing slugs from the CMS. */
+export async function generateStaticParams() {
+  const posts = await getBlogPosts(100);
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) {
     return buildMetadata({
       title: "Article not found",
@@ -39,10 +40,10 @@ export async function generateMetadata({ params }: RouteParams): Promise<Metadat
 
 export default async function BlogDetailPage({ params }: RouteParams) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) notFound();
 
-  const related = getRelatedPosts(post.slug, 2);
+  const related = await getRelatedPosts(post.slug, 2);
 
   return (
     <>

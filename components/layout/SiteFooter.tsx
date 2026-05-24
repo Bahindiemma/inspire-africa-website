@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Brand } from "@/components/ui/Brand";
 import { SITE } from "@/lib/site";
-import { joinUrl } from "@/lib/utm";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
+import { getSiteSettings } from "@/lib/cms/site-settings";
+import { buildJoinUrl } from "@/lib/cms/utm";
 
 const audienceLinks = [
   { href: "/workers", label: "For Workers" },
@@ -23,8 +24,11 @@ const legalLinks = [
   { href: "/modern-slavery", label: "Modern Slavery" },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const settings = await getSiteSettings();
   const year = new Date().getFullYear();
+  const linkedinUrl = settings.socialLinks.find((s) => s.platform === "linkedin")?.url ?? "#";
+  const facebookUrl = settings.socialLinks.find((s) => s.platform === "facebook")?.url ?? "#";
   return (
     <footer className="site-footer">
       <div className="container">
@@ -35,7 +39,7 @@ export function SiteFooter() {
               Labour mobility infrastructure connecting Africa&apos;s workforce to global employers and governments —
               through governed pathways, predictive screening and migration finance.
             </p>
-            <a className="footer-cta" href={joinUrl({ source: "footer" })}>
+            <a className="footer-cta" href={buildJoinUrl(settings.communityBaseUrl, { source: "footer" })}>
               Join the Community
               <ArrowIcon />
             </a>
@@ -65,24 +69,24 @@ export function SiteFooter() {
             <div className="footer-contact">
               <div className="office">
                 <strong>UK · Registered Office</strong>
-                {SITE.company.address.street}
+                {settings.companyAddress.street}
                 <br />
-                {SITE.company.address.city}, {SITE.company.address.postalCode}
+                {settings.companyAddress.city}, {settings.companyAddress.postalCode}
                 <br />
-                <a href={`tel:${SITE.contact.ukPhone.replace(/\s+/g, "")}`}>{SITE.contact.ukPhone}</a>
+                <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a>
               </div>
               <div className="office">
                 <strong>Africa · Regional Office</strong>
-                <a href={`tel:${SITE.contact.africaPhone.replace(/\s+/g, "")}`}>{SITE.contact.africaPhone}</a>
+                <a href={`tel:${settings.contactAfricaPhone.replace(/\s+/g, "")}`}>{settings.contactAfricaPhone}</a>
                 <br />
-                <a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a>
+                <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
               </div>
             </div>
             <div className="footer-socials">
-              <a href={SITE.social.linkedin} className="footer-social" aria-label="LinkedIn" rel="noopener">
+              <a href={linkedinUrl} className="footer-social" aria-label="LinkedIn" rel="noopener">
                 LI
               </a>
-              <a href={SITE.social.facebook} className="footer-social" aria-label="Facebook" rel="noopener">
+              <a href={facebookUrl} className="footer-social" aria-label="Facebook" rel="noopener">
                 FB
               </a>
             </div>
@@ -90,7 +94,7 @@ export function SiteFooter() {
         </div>
         <div className="footer-bottom">
           <div>
-            © {year} {SITE.legalName}. Registered in England and Wales (company no. {SITE.company.number}).
+            © {year} {settings.legalName}. Registered in England and Wales (company no. {settings.companyNumber}).
           </div>
           <div className="footer-legal">
             {legalLinks.map((l) => (

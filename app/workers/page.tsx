@@ -7,7 +7,10 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { buildMetadata } from "@/lib/seo";
-import { joinUrl } from "@/lib/utm";
+import { getSiteSettings } from "@/lib/cms/site-settings";
+import { buildJoinUrl } from "@/lib/cms/utm";
+import { getPage } from "@/lib/cms/pages";
+import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
 export const metadata: Metadata = buildMetadata({
   title: "For Workers",
@@ -36,7 +39,11 @@ const PROTECTION = [
   { marker: "03", title: "Support throughout", body: "From preparation to deployment to aftercare — you are not left alone at any stage." },
 ];
 
-export default function WorkersPage() {
+export default async function WorkersPage() {
+  // CMS-driven render (preferred). Falls back to the inline TSX below
+  // if Strapi is unreachable AND no Page document exists at /workers.
+  const [settings, page] = await Promise.all([getSiteSettings(), getPage("workers")]);
+  if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
       <Hero
@@ -57,7 +64,7 @@ export default function WorkersPage() {
         lede="Access real international job opportunities with fair recruitment, structured preparation and no large up-front costs."
         ctas={
           <>
-            <ButtonLink href={joinUrl({ source: "workers_hero" })} variant="primary" withArrow>
+            <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "workers_hero" })} variant="primary" withArrow>
               Join the Community
             </ButtonLink>
             <ButtonLink href="/approach" variant="ghost">
@@ -130,7 +137,7 @@ export default function WorkersPage() {
         }
         lede="Free membership. The single, supported route into INSPIRE's ecosystem."
       >
-        <ButtonLink href={joinUrl({ source: "workers_final" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "workers_final" })} variant="dark" withArrow>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

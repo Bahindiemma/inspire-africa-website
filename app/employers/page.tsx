@@ -8,6 +8,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { EmployersForm } from "@/components/forms/EmployersForm";
 import { buildMetadata } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/cms/site-settings";
+import { getPage } from "@/lib/cms/pages";
+import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
 export const metadata: Metadata = buildMetadata({
   title: "For Employers",
@@ -45,7 +48,11 @@ const PROCESS = [
   { title: "Ongoing support post-placement", body: "Aftercare reduces drop-outs and protects your investment in the hire." },
 ];
 
-export default function EmployersPage() {
+export default async function EmployersPage() {
+  // CMS-driven render (preferred). Falls back to inline TSX below
+  // if Strapi is unreachable AND no Page document exists at /employers.
+  const [settings, page] = await Promise.all([getSiteSettings(), getPage("employers")]);
+  if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
       <Hero

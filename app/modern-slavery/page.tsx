@@ -7,6 +7,8 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
 import { buildMetadata } from "@/lib/seo";
+import { getLegalDocument, formatLegalDate } from "@/lib/cms/legal";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Modern Slavery Statement",
@@ -29,28 +31,27 @@ const TOC = [
   { id: "approval", label: "Board approval" },
 ];
 
-export default function ModernSlaveryPage() {
+export default async function ModernSlaveryPage() {
+  const [doc, settings] = await Promise.all([
+    getLegalDocument("modern-slavery"),
+    getSiteSettings(),
+  ]);
   return (
     <>
       <Hero
         watermark="ETHICS"
-        eyebrow="Legal · Anti-slavery statement"
-        heading={
-          <>
-            <span className="small-italic">Mobility, not exploitation —</span>
-            <span className="accent">our standing commitment.</span>
-          </>
-        }
-        lede="Published in accordance with the UK Modern Slavery Act 2026. This statement sets out the steps INSPIRE AFRICA has taken to prevent modern slavery and human trafficking in our operations and supply chains during the most recent financial year."
+        eyebrow={doc.eyebrow}
+        heading={<span dangerouslySetInnerHTML={{ __html: doc.headingHtml }} />}
+        lede={doc.lede}
         centered
       />
 
       <LegalMeta
         items={[
           { label: "Statement period", value: "1 April 2025 — 31 March 2026" },
-          { label: "Published", value: "12 May 2026" },
+          { label: "Published", value: formatLegalDate(doc.lastUpdated) },
           { label: "Approved by", value: "Board of Directors" },
-          { label: "Contact", value: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a> },
+          { label: "Contact", value: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a> },
         ]}
       />
 
@@ -69,7 +70,7 @@ export default function ModernSlaveryPage() {
 
         <LegalHeading num="01" id="introduction">Introduction</LegalHeading>
         <p>
-          This statement is published by {SITE.legalName} (company no. {SITE.company.number}) on behalf of itself
+          This statement is published by {settings.legalName} (company no. {settings.companyNumber}) on behalf of itself
           and its group company WorkMax Africa Ltd. It covers the financial year ended 31 March 2026 and is made
           in accordance with section 54 of the UK Modern Slavery Act 2026.
         </p>
@@ -161,8 +162,8 @@ export default function ModernSlaveryPage() {
         <LegalHeading num="09" id="whistleblowing">Reporting concerns</LegalHeading>
         <p>Workers, employers, partners and members of the public can report concerns confidentially via our Speak-Up channel. Concerns can be raised in any of our operating languages, and we do not tolerate retaliation against anyone reporting in good faith.</p>
         <ul>
-          <li>Email: <a href={`mailto:${SITE.contact.speakupEmail}`}>{SITE.contact.speakupEmail}</a></li>
-          <li>Post: Compliance Officer, {SITE.legalName}, {SITE.company.address.street}, {SITE.company.address.city}, {SITE.company.address.postalCode}, {SITE.company.address.country}</li>
+          <li>Email: <a href={`mailto:${settings.contactSpeakupEmail}`}>{settings.contactSpeakupEmail}</a></li>
+          <li>Post: Compliance Officer, {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
         </ul>
 
         <LegalHeading num="10" id="future">Looking ahead</LegalHeading>
@@ -175,11 +176,11 @@ export default function ModernSlaveryPage() {
         </ul>
 
         <LegalHeading num="11" id="approval">Board approval</LegalHeading>
-        <p>This statement was reviewed and approved by the Board of Directors of {SITE.legalName} on 12 May 2026. It will be reviewed annually and updated as required by law and by changes to our operations.</p>
+        <p>This statement was reviewed and approved by the Board of Directors of {settings.legalName} on 12 May 2026. It will be reviewed annually and updated as required by law and by changes to our operations.</p>
         <p style={{ marginTop: 24 }}>
           <strong>Signed —</strong> on behalf of the Board
           <br />
-          {SITE.legalName}
+          {settings.legalName}
           <br />
           12 May 2026
         </p>
@@ -203,7 +204,7 @@ export default function ModernSlaveryPage() {
         }
         style={{ paddingTop: "clamp(48px,5vw,72px)", paddingBottom: "clamp(48px,5vw,72px)" }}
       >
-        <ButtonLink href={`mailto:${SITE.contact.speakupEmail}`} variant="dark" withArrow>
+        <ButtonLink href={`mailto:${settings.contactSpeakupEmail}`} variant="dark" withArrow>
           Report Confidentially
         </ButtonLink>
       </FinalCta>

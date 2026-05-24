@@ -8,7 +8,10 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { buildMetadata } from "@/lib/seo";
-import { joinUrl } from "@/lib/utm";
+import { getSiteSettings } from "@/lib/cms/site-settings";
+import { buildJoinUrl } from "@/lib/cms/utm";
+import { getPage } from "@/lib/cms/pages";
+import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
 export const metadata: Metadata = buildMetadata({
   title: "Join the Community",
@@ -39,7 +42,11 @@ const AUDIENCES = [
   { marker: "C", title: "Employers", body: "Direct line to readiness-screened candidates. Build your pipeline from inside the community, not above it." },
 ];
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  // CMS-driven render (preferred). Falls back to inline TSX below
+  // if Strapi is unreachable AND no Page document exists at /join.
+  const [settings, page] = await Promise.all([getSiteSettings(), getPage("join")]);
+  if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
       <Hero
@@ -60,7 +67,7 @@ export default function JoinPage() {
         lede="Free membership. Direct route into the INSPIRE ecosystem. Meet recruiters, employers and fellow workers already on the path."
         ctas={
           <>
-            <ButtonLink href={joinUrl({ source: "join_page_main" })} variant="primary" withArrow>
+            <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "join_page_main" })} variant="primary" withArrow>
               Join — It&apos;s Free
             </ButtonLink>
             <ButtonLink href="/workers" variant="ghost">
@@ -131,7 +138,7 @@ export default function JoinPage() {
         }
         lede="Free membership. No card. No commitment."
       >
-        <ButtonLink href={joinUrl({ source: "join_page_main" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "join_page_main" })} variant="dark" withArrow>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

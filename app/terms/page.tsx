@@ -7,6 +7,8 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
 import { buildMetadata } from "@/lib/seo";
+import { getLegalDocument, formatLegalDate } from "@/lib/cms/legal";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Terms of Use",
@@ -33,28 +35,27 @@ const TOC = [
   { id: "contact", label: "Contact" },
 ];
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const [doc, settings] = await Promise.all([
+    getLegalDocument("terms"),
+    getSiteSettings(),
+  ]);
   return (
     <>
       <Hero
         watermark="TERMS"
-        eyebrow="Legal · Terms of use"
-        heading={
-          <>
-            <span className="small-italic">Plain terms —</span>
-            <span className="accent">for serious work.</span>
-          </>
-        }
-        lede="These terms govern your use of the INSPIRE AFRICA website, community and platform. They apply to all visitors and registered members."
+        eyebrow={doc.eyebrow}
+        heading={<span dangerouslySetInnerHTML={{ __html: doc.headingHtml }} />}
+        lede={doc.lede}
         centered
       />
 
       <LegalMeta
         items={[
-          { label: "Version", value: "3.0" },
-          { label: "Last updated", value: "12 May 2026" },
+          { label: "Version", value: doc.version },
+          { label: "Last updated", value: formatLegalDate(doc.lastUpdated) },
           { label: "Governing law", value: "England and Wales" },
-          { label: "Contact", value: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a> },
+          { label: "Contact", value: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a> },
         ]}
       />
 
@@ -67,8 +68,8 @@ export default function TermsPage() {
 
         <LegalHeading num="01" id="acceptance">Acceptance of these terms</LegalHeading>
         <p>
-          These Terms of Use form a binding agreement between you and {SITE.legalName} (company no.{" "}
-          {SITE.company.number}), referred to as <strong>&quot;INSPIRE&quot;</strong>, <strong>&quot;we&quot;</strong>{" "}
+          These Terms of Use form a binding agreement between you and {settings.legalName} (company no.{" "}
+          {settings.companyNumber}), referred to as <strong>&quot;INSPIRE&quot;</strong>, <strong>&quot;we&quot;</strong>{" "}
           or <strong>&quot;us&quot;</strong>. By using the website, the community or any of our services, you
           confirm that you have read, understood and agreed to be bound by these terms and our{" "}
           <Link href="/privacy">Privacy Policy</Link>.
@@ -148,9 +149,9 @@ export default function TermsPage() {
         <LegalHeading num="15" id="contact">Contact</LegalHeading>
         <p>Questions about these terms:</p>
         <ul>
-          <li>Email: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a></li>
-          <li>Post: {SITE.legalName}, {SITE.company.address.street}, {SITE.company.address.city}, {SITE.company.address.postalCode}, {SITE.company.address.country}</li>
-          <li>Phone: <a href={`tel:${SITE.contact.ukPhone.replace(/\s+/g, "")}`}>{SITE.contact.ukPhone}</a></li>
+          <li>Email: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a></li>
+          <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
+          <li>Phone: <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a></li>
         </ul>
       </LegalLayout>
 

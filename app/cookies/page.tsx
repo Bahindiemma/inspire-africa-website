@@ -7,6 +7,8 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { SITE } from "@/lib/site";
 import { buildMetadata } from "@/lib/seo";
+import { getLegalDocument, formatLegalDate } from "@/lib/cms/legal";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Cookie Policy",
@@ -26,28 +28,27 @@ const TOC = [
   { id: "contact", label: "Contact" },
 ];
 
-export default function CookiesPage() {
+export default async function CookiesPage() {
+  const [doc, settings] = await Promise.all([
+    getLegalDocument("cookies"),
+    getSiteSettings(),
+  ]);
   return (
     <>
       <Hero
         watermark="COOKIES"
-        eyebrow="Legal · Cookie policy"
-        heading={
-          <>
-            <span className="small-italic">No surprises —</span>
-            <span className="accent">just essentials.</span>
-          </>
-        }
-        lede="This policy explains how INSPIRE AFRICA uses cookies and similar technologies on this website — what they do, why we use them, and how you can control them."
+        eyebrow={doc.eyebrow}
+        heading={<span dangerouslySetInnerHTML={{ __html: doc.headingHtml }} />}
+        lede={doc.lede}
         centered
       />
 
       <LegalMeta
         items={[
-          { label: "Version", value: "1.4" },
-          { label: "Last updated", value: "12 May 2026" },
+          { label: "Version", value: doc.version },
+          { label: "Last updated", value: formatLegalDate(doc.lastUpdated) },
           { label: "Scope", value: "inspireafricans.com and sub-domains" },
-          { label: "Contact", value: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a> },
+          { label: "Contact", value: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a> },
         ]}
       />
 
@@ -131,7 +132,7 @@ export default function CookiesPage() {
         <p>
           When you first visit the site, a cookie banner asks for your consent to non-essential cookies. You may
           withdraw or change consent at any time by clearing the <strong>ia_consent</strong> cookie in your browser,
-          or by emailing us at <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a>.
+          or by emailing us at <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a>.
         </p>
 
         <LegalHeading num="08" id="changes">Changes to this policy</LegalHeading>
@@ -140,8 +141,8 @@ export default function CookiesPage() {
         <LegalHeading num="09" id="contact">Contact</LegalHeading>
         <p>For any question about cookies on this site, contact:</p>
         <ul>
-          <li>Email: <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a></li>
-          <li>Post: {SITE.legalName}, {SITE.company.address.street}, {SITE.company.address.city}, {SITE.company.address.postalCode}, {SITE.company.address.country}</li>
+          <li>Email: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a></li>
+          <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
         </ul>
         <p>For the full scope of personal-data handling, see our <Link href="/privacy">Privacy Policy</Link>.</p>
       </LegalLayout>

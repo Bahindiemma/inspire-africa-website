@@ -8,6 +8,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SITE } from "@/lib/site";
 import { joinUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact",
@@ -16,7 +17,8 @@ export const metadata: Metadata = buildMetadata({
   path: "/contact",
 });
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
   return (
     <>
       <Hero
@@ -55,22 +57,22 @@ export default function ContactPage() {
 
                 <div className="contact-info-row">
                   <strong>UK · Registered Office</strong>
-                  {SITE.legalName}
+                  {settings.legalName}
                   <br />
-                  {SITE.company.address.street}
+                  {settings.companyAddress.street}
                   <br />
-                  {SITE.company.address.city}, {SITE.company.address.postalCode}
+                  {settings.companyAddress.city}, {settings.companyAddress.postalCode}
                   <br />
-                  {SITE.company.address.country}
+                  {settings.companyAddress.country}
                   <br />
-                  <a href={`tel:${SITE.contact.ukPhone.replace(/\s+/g, "")}`}>{SITE.contact.ukPhone}</a>
+                  <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a>
                 </div>
 
                 <div className="contact-info-row">
                   <strong>Africa · Regional Office</strong>
-                  <a href={`tel:${SITE.contact.africaPhone.replace(/\s+/g, "")}`}>{SITE.contact.africaPhone}</a>
+                  <a href={`tel:${settings.contactAfricaPhone.replace(/\s+/g, "")}`}>{settings.contactAfricaPhone}</a>
                   <br />
-                  <a href={`mailto:${SITE.contact.email}`}>{SITE.contact.email}</a>
+                  <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
                 </div>
 
                 <div className="contact-info-row">
@@ -84,7 +86,7 @@ export default function ContactPage() {
 
                 <div className="contact-info-row">
                   <strong>Legal &amp; data protection</strong>
-                  <a href={`mailto:${SITE.contact.legalEmail}`}>{SITE.contact.legalEmail}</a>
+                  <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a>
                 </div>
               </div>
             </aside>

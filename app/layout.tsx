@@ -9,6 +9,7 @@ import { BackToTop } from "@/components/layout/BackToTop";
 import { RevealController } from "@/components/layout/RevealController";
 import { SITE } from "@/lib/site";
 import { organizationJsonLd } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/cms/site-settings";
 
 /**
  * Madimi One — the brand typeface. Loaded via three independent paths so
@@ -37,36 +38,39 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: {
-    default: `${SITE.name} — ${SITE.tagline}`,
-    template: `%s — ${SITE.name}`,
-  },
-  description: SITE.description,
-  applicationName: SITE.name,
-  generator: "Next.js",
-  authors: [{ name: SITE.legalName }],
-  category: "business",
-  openGraph: {
-    type: "website",
-    locale: SITE.locale,
-    siteName: SITE.name,
-    title: `${SITE.name} — ${SITE.tagline}`,
-    description: SITE.description,
-    url: SITE.url,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${SITE.name} — ${SITE.tagline}`,
-    description: SITE.description,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSiteSettings();
+  return {
+    metadataBase: new URL(s.baseUrl),
+    title: {
+      default: `${s.name} — ${s.tagline}`,
+      template: `%s — ${s.name}`,
+    },
+    description: s.description,
+    applicationName: s.name,
+    generator: "Next.js",
+    authors: [{ name: s.legalName }],
+    category: "business",
+    openGraph: {
+      type: "website",
+      locale: s.locale,
+      siteName: s.name,
+      title: `${s.name} — ${s.tagline}`,
+      description: s.description,
+      url: s.baseUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${s.name} — ${s.tagline}`,
+      description: s.description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+    },
+  };
+}
 
 // Inline, blocking script that runs before the first paint. Does two
 // things:

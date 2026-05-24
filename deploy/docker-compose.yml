@@ -1,0 +1,97 @@
+# INSPIRE AFRICA — production stack for a single Contabo host (bare IP).
+#
+#   web  : Next.js site        -> published on host port 80
+#   cms  : Strapi v5 admin/API -> published on host port 1337
+#   db   : MySQL 8             -> internal only (no host port)
+#
+# Images are pulled from GHCR (built by each repo's GitHub Actions workflow).
+# Copy .env.production.example -> .env and fill it in before `docker compose up`.
+
+name: inspire-africa
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: >-
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [internal]
+
+  cms:
+    image: ghcr.io/bahindiemma/inspire-africa-cms:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 1337
+      PUBLIC_URL: ${CMS_PUBLIC_URL}
+      IS_PROXIED: "false"
+      # --- database ---
+      DATABASE_CLIENT: mysql
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_SSL: "false"
+      # --- secrets ---
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      # --- media: store uploads on a local volume (no S3/Cloudinary) ---
+      MEDIA_PROVIDER: local
+      # --- CORS: origins allowed to call the API from a browser ---
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      # --- revalidation webhook back into the Next.js app (internal network) ---
+      FRONTEND_REVALIDATE_URL: http://web:3000/api/revalidate
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    volumes:
+      - cms_uploads:/app/public/uploads
+    ports:
+      - "1337:1337"
+    networks: [internal]
+
+  web:
+    image: ghcr.io/bahindiemma/inspire-africa-website:latest
+    restart: unless-stopped
+    depends_on:
+      - cms
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Server-side fetches go over the internal docker network (fast, no egress).
+      STRAPI_BASE_URL: http://cms:1337
+      STRAPI_PUBLIC_TOKEN: ${STRAPI_PUBLIC_TOKEN}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+    ports:
+      - "80:3000"
+    networks: [internal]
+
+volumes:
+  db_data:
+  cms_uploads:
+
+networks:
+  internal:
+    driver: bridge

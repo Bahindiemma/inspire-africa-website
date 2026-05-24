@@ -8,6 +8,23 @@ import { Brand } from "@/components/ui/Brand";
 import { NAV_LINKS } from "@/lib/site";
 import { joinUrl } from "@/lib/utm";
 
+interface MobileNavLinkInput {
+  href: string;
+  label: string;
+  cta?: boolean;
+}
+
+interface MobileNavProps {
+  /**
+   * Pre-built join URL passed in from the server (SiteHeader) so we
+   * don't have to fetch site settings on the client. Falls back to the
+   * static joinUrl() if no prop was provided.
+   */
+  joinHref?: string;
+  /** Header nav items from the CMS. Falls back to static NAV_LINKS. */
+  links?: MobileNavLinkInput[];
+}
+
 function HamburgerIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -27,7 +44,9 @@ function CloseIcon() {
   );
 }
 
-export function MobileNav() {
+export function MobileNav({ joinHref, links }: MobileNavProps = {}) {
+  const resolvedJoinHref = joinHref ?? joinUrl({ source: "mobile_drawer" });
+  const navItems = links ?? [...NAV_LINKS];
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -111,7 +130,7 @@ export function MobileNav() {
         </div>
 
         <ul className="mobile-drawer-list">
-          {NAV_LINKS.map((link) => {
+          {navItems.map((link) => {
             const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
             return (
               <li key={link.href}>
@@ -134,7 +153,7 @@ export function MobileNav() {
 
         <div className="mobile-drawer-cta">
           <ButtonLink
-            href={joinUrl({ source: "mobile_drawer" })}
+            href={resolvedJoinHref}
             variant="primary"
             withArrow
             onClick={close}

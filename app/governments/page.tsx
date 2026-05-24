@@ -7,6 +7,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { GovernmentsForm } from "@/components/forms/GovernmentsForm";
 import { buildMetadata } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/cms/site-settings";
+import { getPage } from "@/lib/cms/pages";
+import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
 export const metadata: Metadata = buildMetadata({
   title: "For Governments",
@@ -37,7 +40,11 @@ const PROCESS = [
   { title: "Enable return and reintegration", body: "Skills transfer, savings deployment, second-stage opportunities at home." },
 ];
 
-export default function GovernmentsPage() {
+export default async function GovernmentsPage() {
+  // CMS-driven render (preferred). Falls back to inline TSX below
+  // if Strapi is unreachable AND no Page document exists at /governments.
+  const [settings, page] = await Promise.all([getSiteSettings(), getPage("governments")]);
+  if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
       <Hero

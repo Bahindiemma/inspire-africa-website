@@ -7,10 +7,11 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { CORRIDOR_SECTORS, SITE } from "@/lib/site";
+import { SITE } from "@/lib/site";
 import { joinUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
-import { BLOG_POSTS, formatBlogDate } from "@/lib/blogs";
+import { getCorridors } from "@/lib/cms/corridors";
+import { getBlogPosts, formatBlogDate } from "@/lib/cms/blogs";
 
 export const metadata: Metadata = buildMetadata({
   title: `${SITE.name} — ${SITE.tagline}`,
@@ -50,7 +51,13 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetched in parallel from the Strapi CMS. Both fall back to
+  // the legacy in-repo constants if the CMS is unreachable.
+  const [CORRIDOR_SECTORS, BLOG_POSTS] = await Promise.all([
+    getCorridors(),
+    getBlogPosts(3),
+  ]);
   return (
     <>
       <Hero

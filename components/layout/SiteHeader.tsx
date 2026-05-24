@@ -1,26 +1,35 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Brand } from "@/components/ui/Brand";
 import { ThemeSwitch } from "@/components/theme/ThemeSwitch";
-import { joinUrl } from "@/lib/utm";
+import { getSiteSettings, getNavigation } from "@/lib/cms/site-settings";
+import { buildJoinUrl } from "@/lib/cms/utm";
 import { HeaderScroll } from "./HeaderScroll";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const [settings, nav] = await Promise.all([getSiteSettings(), getNavigation()]);
+  const headerJoin = buildJoinUrl(settings.communityBaseUrl, { source: "header_nav" });
+  const drawerJoin = buildJoinUrl(settings.communityBaseUrl, { source: "mobile_drawer" });
+  // Sort by `order` and map to the NavLink shape NavLinks + MobileNav expect.
+  const links = (nav.headerLinks ?? [])
+    .slice()
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((l) => ({ href: l.href, label: l.label, cta: !!l.isCta }));
   return (
     <header className="site-header" id="header">
       <HeaderScroll />
       <div className="container">
         <nav className="nav" aria-label="Primary">
           <Brand />
-          <NavLinks />
+          <NavLinks links={links} />
           <ThemeSwitch />
           <div className="nav-cta">
-            <ButtonLink href={joinUrl({ source: "header_nav" })} variant="primary" withArrow>
+            <ButtonLink href={headerJoin} variant="primary" withArrow>
               Join Community
             </ButtonLink>
           </div>
-          <MobileNav />
+          <MobileNav joinHref={drawerJoin} links={links} />
         </nav>
       </div>
     </header>

@@ -7,12 +7,11 @@
 FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-# Pin npm to the version that generated package-lock.json so `npm ci`'s strict
-# lock validation resolves the dependency tree identically to local dev
-# (the base image's bundled npm rejects the lock otherwise).
-RUN npm install -g npm@10.9.8
 COPY package.json package-lock.json ./
-RUN npm ci
+# Use `npm install` rather than `npm ci`: the lock pins versions, but different
+# npm releases hoist transitive deps (e.g. picomatch) differently, and `npm ci`
+# aborts on any such layout mismatch. `npm install` reconciles it and builds.
+RUN npm install --no-audit --no-fund
 
 # ---------- 2. Builder ----------
 FROM node:22-alpine AS builder

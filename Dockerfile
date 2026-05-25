@@ -7,6 +7,10 @@
 FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
+# Pin npm to the version that generated package-lock.json so `npm ci`'s strict
+# lock validation resolves the dependency tree identically to local dev
+# (the base image's bundled npm rejects the lock otherwise).
+RUN npm install -g npm@10.9.8
 COPY package.json package-lock.json ./
 RUN npm ci
 

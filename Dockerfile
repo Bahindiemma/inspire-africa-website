@@ -21,7 +21,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 # Public site URL is inlined into the client bundle at build time.
-ARG NEXT_PUBLIC_SITE_URL=http://37.60.225.220
+ARG NEXT_PUBLIC_SITE_URL=https://inspireafricans.com
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 RUN npm run build
 

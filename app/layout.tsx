@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BackToTop } from "@/components/layout/BackToTop";
 import { RevealController } from "@/components/layout/RevealController";
 import { SITE } from "@/lib/site";
-import { organizationJsonLd } from "@/lib/seo";
+import { organizationJsonLd, websiteJsonLd, SITE_KEYWORDS } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/cms/site-settings";
 
 /**
@@ -50,7 +50,12 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: s.name,
     generator: "Next.js",
     authors: [{ name: s.legalName }],
+    creator: s.legalName,
+    publisher: s.legalName,
+    keywords: SITE_KEYWORDS,
     category: "business",
+    formatDetection: { email: false, address: false, telephone: false },
+    alternates: { canonical: s.baseUrl },
     openGraph: {
       type: "website",
       locale: s.locale,
@@ -58,11 +63,20 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${s.name} — ${s.tagline}`,
       description: s.description,
       url: s.baseUrl,
+      images: [
+        {
+          url: "/images/inspire-healthcare-team.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${s.name} — ${s.tagline}`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${s.name} — ${s.tagline}`,
       description: s.description,
+      images: ["/images/inspire-healthcare-team.jpg"],
     },
     robots: {
       index: true,
@@ -122,6 +136,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
       </head>
       {/* suppressHydrationWarning on <body> because browser extensions

@@ -49,6 +49,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_SITE_URL=http://37.60.225.220
+            NEXT_PUBLIC_SITE_URL=https://inspireafricans.com
           cache-from: type=gha
           cache-to: type=gha,mode=max

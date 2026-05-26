@@ -430,6 +430,17 @@ button {
 .brand--on-dark img {
   filter: invert(1) brightness(1.1);
 }
+/* Header logo: black wordmark on a brand-yellow badge so it stands out in
+   the top-left corner (per Katie, May 2026). Applies in light and dark. */
+.site-header .brand--logo {
+  background: var(--yellow);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.site-header .brand--logo img,
+[data-theme="dark"] .site-header .brand--logo img {
+  filter: brightness(0);
+}
 .nav-links {
   display: flex;
   gap: 26px;

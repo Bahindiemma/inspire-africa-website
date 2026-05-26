@@ -35,7 +35,7 @@ const SOLUTION = [
 
 const STATS = [
   { value: "2/3", label: "Reduction in cost-per-hire" },
-  { value: "~1/3", label: "Faster hiring timelines" },
+  { value: "1/3", label: "Faster hiring timelines" },
   { value: "0", label: "Defaults on salary-linked plans" },
   { value: "7", label: "Destination corridors" },
 ];

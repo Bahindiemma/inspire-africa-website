@@ -35,7 +35,8 @@ function readStored(): Theme {
     const v = window.localStorage.getItem(STORAGE_KEY);
     if (v === "light" || v === "dark" || v === "system") return v;
   } catch {}
-  return "light";
+  // Default mode when the visitor has no stored preference: follow the OS.
+  return "system";
 }
 
 function apply(resolved: Resolved) {
@@ -43,7 +44,7 @@ function apply(resolved: Resolved) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("system");
   const [resolved, setResolved] = useState<Resolved>("light");
 
   // Hydrate from localStorage on mount.

@@ -95,7 +95,7 @@ const themeInitScript = `
   } catch(e){}
   try{
     var t = localStorage.getItem('inspire-theme');
-    if (t !== 'light' && t !== 'dark' && t !== 'system') t = 'light';
+    if (t !== 'light' && t !== 'dark' && t !== 'system') t = 'system';
     var resolved = t;
     if (t === 'system' && window.matchMedia){
       resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

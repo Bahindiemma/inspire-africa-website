@@ -184,8 +184,8 @@ export default async function HomePage() {
             <article className="audience-card">
               <div className="audience-card-photo">
                 <Image
-                  src="/images/inspire-handshake-interview.jpg"
-                  alt="Professional in a corporate environment"
+                  src="/images/inspire-healthcare-team.jpg"
+                  alt="African healthcare professionals collaborating at work"
                   fill
                   sizes="(max-width: 980px) 100vw, 33vw"
                   style={{ objectFit: "cover" }}
@@ -194,10 +194,9 @@ export default async function HomePage() {
               </div>
               <div className="audience-card-body">
                 <div className="audience-card-num">02</div>
-                <h3>Hire ethically</h3>
+                <h3>Hire with confidence</h3>
                 <p>
-                  Pre-screened, job-ready African talent deployed compliantly. Faster, cheaper, more reliable than
-                  legacy recruitment.
+                  Pre-qualified African talent. Ethical recruitment with faster mobilisation.
                 </p>
                 <Link href="/employers" className="audience-card-cta">
                   Talk to Us
@@ -215,14 +214,13 @@ export default async function HomePage() {
                   sizes="(max-width: 980px) 100vw, 33vw"
                   style={{ objectFit: "cover" }}
                 />
-                <span className="audience-card-photo-tag">Governments</span>
+                <span className="audience-card-photo-tag">For Governments</span>
               </div>
               <div className="audience-card-body">
                 <div className="audience-card-num">03</div>
-                <h3>Govern mobility</h3>
+                <h3>Build mobility systems</h3>
                 <p>
-                  Build transparent, scalable migration pathways aligned with national strategy and
-                  ethical-recruitment standards.
+                  Structured, ethical labour pathways aligned with national strategy and long-term capability.
                 </p>
                 <Link href="/governments" className="audience-card-cta">
                   Explore a Partnership
@@ -286,7 +284,7 @@ export default async function HomePage() {
               </h2>
             </div>
             <p className="reveal insights-head-lede">
-              Reporting and analysis from inside the labour-mobility platform — policy shifts, market signals and the structural reasons they matter.
+              Analysis and insight from inside the labour mobility system within and without Africa. Policy shifts, market signals and the structural forces shaping workforce migration.
             </p>
           </div>
 

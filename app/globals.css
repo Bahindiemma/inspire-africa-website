@@ -1360,7 +1360,9 @@ body.menu-open {
 }
 .audiences-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  /* Equal columns so all three audience cards + photos are the same size
+     (CEO note: card 1 was larger than 2 & 3). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 .audience-card {

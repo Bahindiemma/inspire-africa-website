@@ -113,7 +113,7 @@ export default async function TermsPage() {
         </LegalCallout>
 
         <LegalHeading num="06" id="ip">Intellectual property</LegalHeading>
-        <p>The platform, including its design, code, text, graphics and trademarks, is owned by INSPIRE or licensed to us. You receive a limited, non-exclusive, non-transferable licence to use the platform for its intended purpose. You may not copy, modify, distribute or create derivative works without our prior written consent.</p>
+        <p>The platform, including its design, code, text, graphics and trademarks, is owned by Inspire Africa Platform Ltd or licensed to us. You receive a limited, non-exclusive, non-transferable licence to use the platform for its intended purpose. You may not copy, modify, distribute or create derivative works without our prior written consent.</p>
         <p>Content you submit — such as your CV, profile or community posts — remains yours. You grant us a worldwide, non-exclusive licence to host, process and display that content as necessary to deliver the platform.</p>
 
         <LegalHeading num="07" id="third-party">Third-party services</LegalHeading>

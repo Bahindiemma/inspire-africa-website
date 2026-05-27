@@ -166,7 +166,7 @@ export default async function PrivacyPage() {
 
         <LegalHeading num="06" id="international">International transfers</LegalHeading>
         <p>
-          Because INSPIRE AFRICA operates across the UK, EU, USA, Canada, Australia, Mauritius, Saudi Arabia and
+          Because INSPIRE AFRICA operates across the UK, EU, USA, Canada, Australia, Saudi Arabia and
           African corridor countries, your personal data may be transferred outside your country of residence.
           Where it is, we use appropriate safeguards such as the UK International Data Transfer Agreement, EU
           Standard Contractual Clauses, or adequacy regulations.

@@ -83,7 +83,7 @@ export default async function ModernSlaveryPage() {
         <LegalHeading num="02" id="structure">Our structure</LegalHeading>
         <p>
           INSPIRE AFRICA is a labour-mobility infrastructure business connecting African workers to ethical
-          employers and governments. We operate across the UK, EU, USA, Canada, Australia, Mauritius, Saudi Arabia
+          employers through government-recognised pathways. We operate across the UK, EU, USA, Canada, Australia, Saudi Arabia
           and African corridor countries. Our key functions include:
         </p>
         <ul>

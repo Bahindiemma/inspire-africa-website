@@ -16,14 +16,14 @@ import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 export const metadata: Metadata = buildMetadata({
   title: "Join the Community",
   description:
-    "Free membership. A vibrant network of African professionals, recruiters and employers — your direct route into the INSPIRE ecosystem.",
+    "Free membership. Your direct route into the INSPIRE AFRICA ecosystem. Connect with employers, opportunities and fellow professionals already on the journey.",
   path: "/join",
 });
 
 const BENEFITS = [
   { marker: "✓", title: "A vibrant international network", body: "Connect with African professionals, recruiters and employers already on the path abroad." },
   { marker: "✓", title: "Live opportunities", body: "Real jobs from verified employers — not aggregated scraping from the wider web." },
-  { marker: "✓", title: "Country-specific guidance", body: "Practical know-how on UK, EU, USA, Canada, Australia, Mauritius and Saudi Arabia — from people who actually went." },
+  { marker: "✓", title: "Country-specific guidance", body: "Practical know-how on UK, EU, USA, Canada, Australia and Saudi Arabia — from people who actually went." },
   { marker: "✓", title: "Peer support", body: "Ask questions, share experience, build relationships that outlast a single placement." },
   { marker: "✓", title: "Events and learning", body: "Webinars, AMAs, language sessions, interview prep — scheduled across time zones." },
   { marker: "✓", title: "Free, lifetime access", body: "No paywalls. No hidden fees. Membership is genuinely free." },
@@ -64,7 +64,7 @@ export default async function JoinPage() {
             </span>
           </>
         }
-        lede="Free membership. Direct route into the INSPIRE ecosystem. Meet recruiters, employers and fellow workers already on the path."
+        lede="Free membership. Your direct route into the INSPIRE AFRICA ecosystem. Connect with employers, opportunities and fellow professionals already on the journey."
         ctas={
           <>
             <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "join_page_main" })} variant="primary" withArrow>

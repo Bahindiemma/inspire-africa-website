@@ -14,7 +14,7 @@ import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 export const metadata: Metadata = buildMetadata({
   title: "For Governments",
   description:
-    "Build transparent, scalable labour mobility pathways. Data-driven workforce planning aligned with national development priorities.",
+    "Build transparent, scalable and circular labour mobility pathways. Data-driven workforce planning aligned with national development priorities.",
   path: "/governments",
 });
 
@@ -58,7 +58,7 @@ export default async function GovernmentsPage() {
             <span className="accent">economy.</span>
           </>
         }
-        lede="INSPIRE AFRICA provides the tools and infrastructure to build transparent, scalable labour mobility pathways."
+        lede="INSPIRE AFRICA provides the tools and infrastructure to build transparent, scalable and circular labour mobility pathways."
         ctas={
           <>
             <ButtonLink href="#governments-form" variant="primary" withArrow>

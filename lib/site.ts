@@ -52,7 +52,6 @@ export const CORRIDORS = [
   "USA",
   "Canada",
   "Australia",
-  "Mauritius",
   "Saudi Arabia",
 ] as const;
 
@@ -62,6 +61,5 @@ export const CORRIDOR_SECTORS: ReadonlyArray<{ country: string; sectors: string 
   { country: "USA", sectors: "Tech · Hospitality" },
   { country: "Canada", sectors: "Care · Construction" },
   { country: "Australia", sectors: "Care · Mining" },
-  { country: "Mauritius", sectors: "Hospitality" },
   { country: "Saudi Arabia", sectors: "Construction · Care" },
 ];

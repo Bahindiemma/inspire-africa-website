@@ -30,7 +30,7 @@ const SOLUTION = [
   { marker: "✓", title: "Predictive screening", body: "Capability, behaviour and readiness assessed before any CV reaches you." },
   { marker: "✓", title: "Centralised preparation", body: "Candidates arrive prepared for the workplace — language, documentation, expectations all handled." },
   { marker: "✓", title: "Migration finance", body: "Salary-linked finance expands the pool of available talent without falling on you." },
-  { marker: "✓", title: "Compliance-first", body: "Audit-ready documentation. Aligned with international ethical-recruitment standards." },
+  { marker: "✓", title: "Compliance-first", body: "Audit-ready documentation. Aligned with the IOM's IRIS and other international ethical recruitment standards." },
 ];
 
 const STATS = [
@@ -117,7 +117,7 @@ export default async function EmployersPage() {
           >
             <p>
               INSPIRE AFRICA replaces fragmented recruitment with a structured, Africa-based talent pipeline. The
-              model is transparent, ethical and measurable end to end.
+              model is transparent, ethical and measurable from end to end.
             </p>
           </SectionLeft>
           <FeatureList items={SOLUTION} />

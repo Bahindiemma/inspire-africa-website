@@ -22,12 +22,12 @@ const PRINCIPLES = [
   {
     title: "Ethical",
     body:
-      "Worker protection built in. Workers do not pay recruitment fees — employers do. Aligned with international ethical-recruitment standards.",
+      "Worker protection built in. Workers do not pay recruitment fees — employers do. Aligned with the IOM's IRIS and other international ethical recruitment standards.",
   },
   {
     title: "Circular",
     body:
-      "Earn-Learn-Return. Workers build income, skills and experience that flow back to African economies through remittances and reintegration.",
+      "Earn-Learn-Return. Labour mobility designed so skills, capital and opportunity flow back into African economies over time.",
   },
   {
     title: "Structured",
@@ -35,7 +35,7 @@ const PRINCIPLES = [
       "Every journey follows a predictable, repeatable pipeline. Readiness, finance, deployment and aftercare coordinated as one system.",
   },
   {
-    title: "Worker-Centered",
+    title: "Worker-Centred",
     body:
       "Built around the worker's journey, not the recruiter's deal flow. Outcomes are measured in worker progression — not placement count.",
   },
@@ -48,7 +48,7 @@ const JOURNEY = [
   { title: "Enable", body: "Where required, access to structured migration cost solutions allows candidates to proceed without prohibitive up-front barriers." },
   { title: "Deploy", body: "Documentation, compliance and relocation coordinated to ensure a smooth transition into employment." },
   { title: "Support", body: "Ongoing support maintains stability, performance and integration in the workplace." },
-  { title: "Return & Progress", body: "Workers build experience, savings and skills that are reinvested into long-term careers and home economies." },
+  { title: "Return & Progress", body: "Workers build experience, savings and skills that are reinvested into long-term careers, entrepreneurship and home economies." },
 ];
 
 export default async function ApproachPage() {
@@ -67,7 +67,7 @@ export default async function ApproachPage() {
             <span className="accent">Infrastructure.</span>
           </>
         }
-        lede="A structured system for global labour mobility — built around four principles: ethical, circular, structured, worker-centered."
+        lede="A structured system for global labour mobility — built around four principles: ethical, circular, structured, worker-centred."
         ctas={
           <>
             <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "approach_hero" })} variant="primary" withArrow>
@@ -131,7 +131,7 @@ export default async function ApproachPage() {
             community.
           </>
         }
-        lede="Free membership. Direct route into the INSPIRE ecosystem."
+        lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
       >
         <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "approach_cta" })} variant="dark" withArrow>
           Join the Community — Free

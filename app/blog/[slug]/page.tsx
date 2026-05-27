@@ -208,7 +208,7 @@ export default async function BlogDetailPage({ params }: RouteParams) {
             community.
           </>
         }
-        lede="Free membership. Direct route into the INSPIRE ecosystem."
+        lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
       >
         <ButtonLink href={joinUrl({ source: `blog_${post.slug}` })} variant="dark" withArrow>
           Join the Community — Free

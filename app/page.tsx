@@ -342,7 +342,7 @@ export default async function HomePage() {
             community.
           </>
         }
-        lede="Free membership. Direct route into the INSPIRE ecosystem."
+        lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
         secondary={
           <>
             <Link href="/employers">For Employers</Link>

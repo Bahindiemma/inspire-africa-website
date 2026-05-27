@@ -3,6 +3,9 @@ import { Madimi_One } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ConsentProvider } from "@/components/consent/ConsentProvider";
+import { CookieConsent } from "@/components/consent/CookieConsent";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BackToTop } from "@/components/layout/BackToTop";
@@ -151,11 +154,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           all child component hydration is still validated normally. */}
       <body suppressHydrationWarning>
         <ThemeProvider>
-          <SiteHeader />
-          <main>{children}</main>
-          <SiteFooter />
-          <BackToTop />
-          <RevealController />
+          <ConsentProvider>
+            <SiteHeader />
+            <main>{children}</main>
+            <SiteFooter />
+            <BackToTop />
+            <RevealController />
+            <CookieConsent />
+            <AnalyticsTracker />
+          </ConsentProvider>
         </ThemeProvider>
       </body>
     </html>

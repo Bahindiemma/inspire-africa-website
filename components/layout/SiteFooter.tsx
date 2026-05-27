@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Brand } from "@/components/ui/Brand";
+import { CookieSettingsLink } from "@/components/consent/CookieSettingsLink";
 import { SITE } from "@/lib/site";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { getSiteSettings } from "@/lib/cms/site-settings";
@@ -102,6 +103,7 @@ export async function SiteFooter() {
                 {l.label}
               </Link>
             ))}
+            <CookieSettingsLink />
           </div>
         </div>
       </div>

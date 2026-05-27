@@ -64,6 +64,10 @@ services:
       # --- revalidation webhook back into the Next.js app (internal network) ---
       FRONTEND_REVALIDATE_URL: http://web:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      # --- visitor analytics (consent-gated, first-party) ---
+      ANALYTICS_INGEST_TOKEN: ${ANALYTICS_INGEST_TOKEN}
+      ANALYTICS_IP_SALT: ${ANALYTICS_IP_SALT}
+      ANALYTICS_RETENTION_MONTHS: ${ANALYTICS_RETENTION_MONTHS:-14}
     volumes:
       - cms_uploads:/app/public/uploads
     ports:
@@ -84,6 +88,9 @@ services:
       STRAPI_PUBLIC_TOKEN: ${STRAPI_PUBLIC_TOKEN}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+      # --- visitor analytics: server-side ingest proxy → CMS (internal network) ---
+      ANALYTICS_INGEST_URL: http://cms:1337/api/analytics/collect
+      ANALYTICS_INGEST_TOKEN: ${ANALYTICS_INGEST_TOKEN}
     ports:
       - "80:3000"
     networks: [internal]

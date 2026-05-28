@@ -125,9 +125,8 @@ export function organizationJsonLd() {
       },
       {
         "@type": "ContactPoint",
-        contactType: "customer service",
+        contactType: "WhatsApp",
         telephone: SITE.contact.africaPhone,
-        areaServed: "Africa",
         availableLanguage: ["en"],
       },
     ],

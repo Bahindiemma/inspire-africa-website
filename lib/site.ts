@@ -16,12 +16,13 @@ export const SITE = {
     },
   },
   contact: {
-    // Single WhatsApp Business contact used for both office cards (UK +
-    // Africa) and the WhatsApp social-icon link. WhatsApp-only — no calls.
-    // Live values are served from the Strapi `site-setting` single type;
-    // these are static fallbacks if the CMS is unreachable. Update via
-    // Strapi admin (site-setting) and DB-direct UPDATEs are already in sync.
-    ukPhone: "+256 750 329 751",
+    // The single UK · Registered Office card displays two phones:
+    //   ukPhone     → London landline (callable, normal tel: link)
+    //   africaPhone → WhatsApp Business number (wa.me link, "WhatsApp only · no calls")
+    // The schema names are historical; `africaPhone` was repurposed as the
+    // WhatsApp number when the Africa Regional Office card was retired.
+    // Live values come from the Strapi `site-setting` single type.
+    ukPhone: "+44 20 7097 3943",
     africaPhone: "+256 750 329 751",
     email: "info@inspireafricans.com",
     legalEmail: "legal@inspireafrica.onmicrosoft.com",

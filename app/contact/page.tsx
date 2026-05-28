@@ -47,9 +47,9 @@ export default async function ContactPage() {
 
             <aside>
               <div className="contact-info-block">
-                <Eyebrow>Offices</Eyebrow>
+                <Eyebrow>Office</Eyebrow>
                 <h3 style={{ marginTop: 14 }}>
-                  Two locations.
+                  One office.
                   <br />
                   One team.
                 </h3>
@@ -65,20 +65,9 @@ export default async function ContactPage() {
                   <br />
                   {settings.companyAddress.country}
                   <br />
-                  <a
-                    href={`https://wa.me/${settings.contactUkPhone.replace(/\D+/g, "")}`}
-                    target="_blank"
-                    rel="noopener"
-                  >
+                  <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>
                     {settings.contactUkPhone}
                   </a>
-                  <br />
-                  <small style={{ opacity: 0.75 }}>WhatsApp only · no calls</small>
-                </div>
-
-                <div className="contact-info-row">
-                  <strong>Africa · Regional Office (The Gambia)</strong>
-                  WorkMax Africa Ltd
                   <br />
                   <a
                     href={`https://wa.me/${settings.contactAfricaPhone.replace(/\D+/g, "")}`}

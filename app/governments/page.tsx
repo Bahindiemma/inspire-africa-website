@@ -22,20 +22,20 @@ const PROBLEMS = [
   { marker: "×", bad: true, title: "Irregular migration creates risk and instability", body: "Without legal channels, citizens move anyway — often through dangerous, exploitative routes." },
   { marker: "×", bad: true, title: "Limited oversight of recruitment pathways", body: "Informal agents dominate. Government visibility is partial at best." },
   { marker: "×", bad: true, title: "Lost opportunities for skills development and return", body: "Workers leave without a return plan. Skills don't flow back." },
-  { marker: "×", bad: true, title: "Remittances are not fully leveraged", body: "Capital arrives at the household level but rarely connects to national development priorities." },
+  { marker: "×", bad: true, title: "Remittances are flows. Development needs systems.", body: "Remittances to individual households improve welfare but bypass skills systems, enterprise growth and national investment priorities." },
 ];
 
 const SOLUTION = [
   { marker: "✓", title: "Transparent sourcing and selection", body: "Every candidate is traceable end-to-end. No informal subcontracting." },
   { marker: "✓", title: "Worker protection and ethical recruitment", body: "Aligned with international ethical-recruitment standards. Workers pay no fees." },
-  { marker: "✓", title: "Data-driven workforce planning", body: "Visibility into who is moving, where, and what they do — across the full lifecycle." },
+  { marker: "✓", title: "Data-driven workforce planning", body: "Visibility into who is moving, where and what they do — across the full lifecycle." },
   { marker: "✓", title: "Scalable international partnerships", body: "Bilateral pathways designed once, repeatable across corridors and sectors." },
 ];
 
 const PROCESS = [
-  { title: "Define priority sectors and corridors", body: "Where the national interest sits, and which destination markets align." },
+  { title: "Define priority sectors and corridors", body: "Where the national interest sits, and with which destination markets to align." },
   { title: "Establish transparent pathways", body: "Rules-based, documented, auditable — replacing informal channels." },
-  { title: "Prepare and deploy workers", body: "Readiness, finance, compliance — coordinated by INSPIRE, monitored by government." },
+  { title: "Prepare and deploy workers", body: "Readiness, finance, compliance — operated by INSPIRE AFRICA, monitored by government." },
   { title: "Monitor outcomes abroad", body: "Welfare, performance, integration — tracked across the journey." },
   { title: "Enable return and reintegration", body: "Skills transfer, savings deployment, second-stage opportunities at home." },
 ];
@@ -90,7 +90,7 @@ export default async function GovernmentsPage() {
             }
           >
             <p>
-              Unmanaged migration creates risk for citizens, lost opportunity for economies, and limited oversight
+              Unmanaged migration creates risk for citizens, lost opportunity for economies and limited oversight
               for governments.
             </p>
           </SectionLeft>

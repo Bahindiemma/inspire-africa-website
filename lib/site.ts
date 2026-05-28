@@ -16,27 +16,24 @@ export const SITE = {
     },
   },
   contact: {
-    // The single UK · Registered Office card displays two phones:
-    //   ukPhone     → London landline (callable, normal tel: link)
-    //   africaPhone → WhatsApp Business number (wa.me link, "WhatsApp only · no calls")
-    // The schema names are historical; `africaPhone` was repurposed as the
-    // WhatsApp number when the Africa Regional Office card was retired.
-    // Live values come from the Strapi `site-setting` single type.
-    ukPhone: "+44 20 7097 3943",
+    // The UK · Registered Office card displays a single WhatsApp Business
+    // contact (no more landline per CEO direction 2026-05-28). Both schema
+    // fields hold the same value so legacy callers continue to work; the
+    // UI renders only `africaPhone`. Live values come from Strapi.
+    ukPhone: "+256 750 329 751",
     africaPhone: "+256 750 329 751",
     email: "info@inspireafricans.com",
     legalEmail: "legal@inspireafrica.onmicrosoft.com",
     speakupEmail: "speakup@inspireafrica.onmicrosoft.com",
   },
   social: {
-    // Placeholder handles for X, Instagram and TikTok — confirm + update once
-    // accounts are claimed. WhatsApp Business uses the UK contact number's
-    // wa.me link (built dynamically in the footer).
+    // Confirmed handles 2026-05-28.
     linkedin: "https://uk.linkedin.com/company/inspire-africans",
     facebook: "https://www.facebook.com/INSPIREAFRICAN",
-    x: "https://x.com/inspireafricans",
-    instagram: "https://www.instagram.com/inspireafricans",
-    tiktok: "https://www.tiktok.com/@inspireafricans",
+    x: "https://x.com/INSPIRE_AFRICAN",
+    instagram: "https://www.instagram.com/inspire_africans/",
+    tiktok: "https://www.tiktok.com/@inspire_africans",
+    youtube: "https://www.youtube.com/@InspireGroupTV",
   },
   community: {
     baseUrl: "https://inspire-africa.mn.co/spaces/20105635",

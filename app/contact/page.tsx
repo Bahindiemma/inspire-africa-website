@@ -65,9 +65,7 @@ export default async function ContactPage() {
                   <br />
                   {settings.companyAddress.country}
                   <br />
-                  <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>
-                    {settings.contactUkPhone}
-                  </a>
+                  <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
                   <br />
                   <a
                     href={`https://wa.me/${settings.contactAfricaPhone.replace(/\D+/g, "")}`}
@@ -78,8 +76,6 @@ export default async function ContactPage() {
                   </a>
                   <br />
                   <small style={{ opacity: 0.75 }}>WhatsApp only · no calls</small>
-                  <br />
-                  <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
                 </div>
 
                 <div className="contact-info-row">

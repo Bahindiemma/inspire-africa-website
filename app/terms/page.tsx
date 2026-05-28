@@ -151,7 +151,6 @@ export default async function TermsPage() {
         <ul>
           <li>Email: <a href={`mailto:${settings.contactLegalEmail}`}>{settings.contactLegalEmail}</a></li>
           <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
-          <li>Phone: <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a></li>
           <li>WhatsApp (no calls): <a href={`https://wa.me/${settings.contactAfricaPhone.replace(/\D+/g, "")}`} target="_blank" rel="noopener">{settings.contactAfricaPhone}</a></li>
         </ul>
       </LegalLayout>

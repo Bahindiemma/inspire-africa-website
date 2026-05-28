@@ -106,6 +106,7 @@ export function organizationJsonLd() {
       SITE.social.x,
       SITE.social.instagram,
       SITE.social.tiktok,
+      SITE.social.youtube,
     ],
     address: {
       "@type": "PostalAddress",
@@ -118,9 +119,8 @@ export function organizationJsonLd() {
       {
         "@type": "ContactPoint",
         contactType: "customer service",
-        telephone: SITE.contact.ukPhone,
         email: SITE.contact.email,
-        areaServed: "GB",
+        telephone: SITE.contact.africaPhone,
         availableLanguage: ["en"],
       },
       {

@@ -142,7 +142,7 @@ export default async function ModernSlaveryPage() {
         <LegalHeading num="07" id="training">Training</LegalHeading>
         <p>All staff complete an annual modern-slavery and ethical-recruitment training module. Targeted training is provided to roles in direct candidate contact, compliance and partner management. Recruitment partners are required to evidence equivalent training within their own organisations.</p>
 
-        <LegalHeading num="08" id="kpis">KPIs &amp; outcomes</LegalHeading>
+        <LegalHeading num="08" id="kpis">KPI<span style={{ textTransform: "none" }}>s</span> &amp; outcomes</LegalHeading>
         <p>We measure progress through a small number of operational indicators. The figures below reflect the statement period:</p>
         <div className="legal-table-wrap">
           <table className="legal-table">

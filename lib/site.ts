@@ -16,13 +16,13 @@ export const SITE = {
     },
   },
   contact: {
-    // Both phone numbers are surfaced on the site as WhatsApp-only (no calls).
-    // Live values are served from the Strapi `site-setting` single type; these
-    // are static fallbacks if the CMS is unreachable. Update via Strapi admin.
-    ukPhone: "+44 20 7097 3943",
-    // Gambia · WorkMax Africa Ltd (placeholder — swap to the registered
-    // Gambian WhatsApp SIM once provisioned).
-    africaPhone: "+220 000 0000",
+    // Single WhatsApp Business contact used for both office cards (UK +
+    // Africa) and the WhatsApp social-icon link. WhatsApp-only — no calls.
+    // Live values are served from the Strapi `site-setting` single type;
+    // these are static fallbacks if the CMS is unreachable. Update via
+    // Strapi admin (site-setting) and DB-direct UPDATEs are already in sync.
+    ukPhone: "+256 750 329 751",
+    africaPhone: "+256 750 329 751",
     email: "info@inspireafricans.com",
     legalEmail: "legal@inspireafrica.onmicrosoft.com",
     speakupEmail: "speakup@inspireafrica.onmicrosoft.com",

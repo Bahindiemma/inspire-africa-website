@@ -74,11 +74,29 @@ export async function SiteFooter() {
                 <br />
                 {settings.companyAddress.city}, {settings.companyAddress.postalCode}
                 <br />
-                <a href={`tel:${settings.contactUkPhone.replace(/\s+/g, "")}`}>{settings.contactUkPhone}</a>
+                <a
+                  href={`https://wa.me/${settings.contactUkPhone.replace(/\D+/g, "")}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {settings.contactUkPhone}
+                </a>
+                <br />
+                <small style={{ opacity: 0.75 }}>WhatsApp only · no calls</small>
               </div>
               <div className="office">
-                <strong>Africa · Regional Office</strong>
-                <a href={`tel:${settings.contactAfricaPhone.replace(/\s+/g, "")}`}>{settings.contactAfricaPhone}</a>
+                <strong>Africa · Regional Office (The Gambia)</strong>
+                WorkMax Africa Ltd
+                <br />
+                <a
+                  href={`https://wa.me/${settings.contactAfricaPhone.replace(/\D+/g, "")}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {settings.contactAfricaPhone}
+                </a>
+                <br />
+                <small style={{ opacity: 0.75 }}>WhatsApp only · no calls</small>
                 <br />
                 <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
               </div>

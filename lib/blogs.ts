@@ -42,8 +42,8 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-05-12",
     readMinutes: 7,
-    heroImage: "/images/inspire-handshake-interview.jpg",
-    heroAlt: "Two African professionals in conversation across a desk",
+    heroImage: "/images/blog/ilo-minimum-wages-africa.jpg",
+    heroAlt: "ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (International Labour Organization, 2025)",
     tags: ["Worker protection", "Recruitment fees", "Gulf corridor", "Policy"],
     body: [
       {
@@ -117,8 +117,8 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-04-28",
     readMinutes: 8,
-    heroImage: "/images/inspire-healthcare-team.jpg",
-    heroAlt: "A team of African healthcare professionals smiling together",
+    heroImage: "/images/blog/pa-uk-visa.jpg",
+    heroAlt: "UK Home Office · UK Visas & Immigration signage (photo: PA)",
     tags: ["United Kingdom", "Healthcare", "Visa policy", "NHS"],
     body: [
       {
@@ -188,8 +188,8 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-03-31",
     readMinutes: 9,
-    heroImage: "/images/inspire-farmer-agriculture.jpg",
-    heroAlt: "An African farmer in a field, symbolising returning skills and capital",
+    heroImage: "/images/blog/ilo-minimum-wages-africa.jpg",
+    heroAlt: "ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (International Labour Organization, 2025)",
     tags: ["Remittances", "Circular migration", "Policy", "Economic development"],
     body: [
       {

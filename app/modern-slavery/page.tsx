@@ -71,7 +71,7 @@ export default async function ModernSlaveryPage() {
         <LegalHeading num="01" id="introduction">Introduction</LegalHeading>
         <p>
           This statement is published by {settings.legalName} (company no. {settings.companyNumber}) on behalf of itself
-          and its group company WorkMax Africa Ltd. It covers the financial year ended 31 March 2026 and is made
+          and other companies in the group. It covers the financial year ended 31 March 2026 and is made
           in accordance with section 54 of the UK Modern Slavery Act 2026.
         </p>
         <p>

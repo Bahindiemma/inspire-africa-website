@@ -22,7 +22,26 @@ interface StrapiBlogPost {
   body?: any[];
 }
 
+// Per-slug fallback hero images for posts whose Strapi heroImage media
+// hasn't been uploaded yet. Keeps the live site in sync with the static
+// `lib/blogs.ts` fallback so editors don't see the wrong photo.
+const HERO_FALLBACK_BY_SLUG: Record<string, { url: string; alt: string }> = {
+  'uk-care-visa-2026-what-african-workers-need-to-know': {
+    url: '/images/blog/pa-uk-visa.jpg',
+    alt: 'UK Home Office · UK Visas & Immigration signage (photo: PA)',
+  },
+  'from-remittance-to-reinvestment-earn-learn-return': {
+    url: '/images/blog/ilo-minimum-wages-africa.jpg',
+    alt: 'ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (ILO, 2025)',
+  },
+  'the-real-cost-of-free-migration': {
+    url: '/images/blog/ilo-minimum-wages-africa.jpg',
+    alt: 'ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (ILO, 2025)',
+  },
+};
+
 function adapt(s: StrapiBlogPost): BlogPost {
+  const fallback = HERO_FALLBACK_BY_SLUG[s.slug];
   return {
     slug: s.slug,
     title: s.title,
@@ -32,8 +51,8 @@ function adapt(s: StrapiBlogPost): BlogPost {
     authorRole: s.author?.role ?? 'INSPIRE AFRICA',
     date: (s.publishedAt ?? '').slice(0, 10),
     readMinutes: s.readMinutes ?? 5,
-    heroImage: s.heroImage?.url ?? '/images/inspire-healthcare-team.jpg',
-    heroAlt: s.heroAlt ?? s.title,
+    heroImage: s.heroImage?.url ?? fallback?.url ?? '/images/inspire-healthcare-team.jpg',
+    heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : (fallback?.alt ?? s.heroAlt ?? s.title),
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape
     body: (s.body ?? []).map(adaptBlock).filter(Boolean) as any[],

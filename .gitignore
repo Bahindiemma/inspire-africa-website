@@ -40,3 +40,8 @@ next-env.d.ts.bak
 
 # Vercel
 .vercel
+
+# Sensitive deployment docs — contain server password, DB passwords & all secrets.
+# NEVER commit these (this repo is PUBLIC).
+INSPIRE-AFRICA-DEPLOYMENT.docx
+INSPIRE-AFRICA-DEPLOYMENT.md

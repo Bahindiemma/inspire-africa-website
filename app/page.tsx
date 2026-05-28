@@ -26,30 +26,32 @@ const STATS = [
   { value: "7", label: "Destination corridors" },
 ];
 
-const TESTIMONIALS = [
-  {
-    photo: "/nhs_001.jpg",
-    flag: "Worker voice",
-    quote: "The route felt honest. At every step I knew what was coming next.",
-    name: "Community member",
-    role: "Healthcare · Pathway to UK",
-  },
-  {
-    photo: "/nhs_002.jpg",
-    flag: "Employer voice",
-    quote: "We get candidates who arrive prepared. Drop-outs stopped almost completely.",
-    name: "HR Director",
-    role: "UK Care Group",
-  },
-  {
-    photo: "/nhs_003.jpg",
-    flag: "Government voice",
-    quote:
-      "What we engage INSPIRE for is transparency. We see worker outcomes, not just placement counts.",
-    name: "Ministry official",
-    role: "West Africa",
-  },
-];
+// Testimonials hidden until approved client photos + quotes are available.
+// Re-enable by un-commenting this block and the testimonials-grid JSX below.
+// const TESTIMONIALS = [
+//   {
+//     photo: "/nhs_001.jpg",
+//     flag: "Worker voice",
+//     quote: "The route felt honest. At every step I knew what was coming next.",
+//     name: "Community member",
+//     role: "Healthcare · Pathway to UK",
+//   },
+//   {
+//     photo: "/nhs_002.jpg",
+//     flag: "Employer voice",
+//     quote: "We get candidates who arrive prepared. Drop-outs stopped almost completely.",
+//     name: "HR Director",
+//     role: "UK Care Group",
+//   },
+//   {
+//     photo: "/nhs_003.jpg",
+//     flag: "Government voice",
+//     quote:
+//       "What we engage INSPIRE for is transparency. We see worker outcomes, not just placement counts.",
+//     name: "Ministry official",
+//     role: "West Africa",
+//   },
+// ];
 
 export default async function HomePage() {
   // Fetched in parallel from the Strapi CMS. Both fall back to
@@ -143,7 +145,7 @@ export default async function HomePage() {
         <div className="container">
           <div className="audiences-head">
             <div>
-              <Eyebrow>Who is INSPIRE for</Eyebrow>
+              <Eyebrow>Built for workers, employers and governments</Eyebrow>
               <h2 className="reveal">
                 Three audiences.
                 <br />
@@ -243,6 +245,8 @@ export default async function HomePage() {
 
           <Numbers stats={STATS} />
 
+          {/* Testimonials hidden until approved client photos + quotes are available.
+              Re-enable by un-commenting this block and the TESTIMONIALS array above.
           <div className="testimonials-grid">
             {TESTIMONIALS.map((t) => (
               <div className="testimonial-card reveal" key={t.name + t.role}>
@@ -269,6 +273,7 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+          */}
         </div>
       </section>
 
@@ -342,7 +347,7 @@ export default async function HomePage() {
             community.
           </>
         }
-        lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
+        lede="Free membership. Your direct route into the INSPIRE AFRICA ecosystem. Connect with employers, opportunities and fellow professionals already on the journey."
         secondary={
           <>
             <Link href="/employers">For Employers</Link>

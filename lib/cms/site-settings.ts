@@ -122,7 +122,8 @@ function fromStatic(): SiteSettings {
     socialLinks: [
       { platform: 'linkedin', label: 'LinkedIn', url: STATIC_SITE.social.linkedin, iconKey: 'linkedin', order: 1 },
       { platform: 'facebook', label: 'Facebook', url: STATIC_SITE.social.facebook, iconKey: 'facebook', order: 2 },
-      { platform: 'x', label: 'X (Twitter)', url: STATIC_SITE.social.x, iconKey: 'x', order: 3 },
+      // Stored as 'twitter' (CMS enum predates the X rename); footer maps both keys.
+      { platform: 'twitter', label: 'X (Twitter)', url: STATIC_SITE.social.x, iconKey: 'x', order: 3 },
       { platform: 'instagram', label: 'Instagram', url: STATIC_SITE.social.instagram, iconKey: 'instagram', order: 4 },
       { platform: 'tiktok', label: 'TikTok', url: STATIC_SITE.social.tiktok, iconKey: 'tiktok', order: 5 },
       {

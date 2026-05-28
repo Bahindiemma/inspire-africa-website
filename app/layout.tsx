@@ -68,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: s.baseUrl,
       images: [
         {
-          url: "/images/inspire-healthcare-team.jpg",
+          url: "/images/home-hero-healthcare.jpg",
           width: 1200,
           height: 630,
           alt: `${s.name} — ${s.tagline}`,
@@ -79,7 +79,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: `${s.name} — ${s.tagline}`,
       description: s.description,
-      images: ["/images/inspire-healthcare-team.jpg"],
+      images: ["/images/home-hero-healthcare.jpg"],
     },
     robots: {
       index: true,

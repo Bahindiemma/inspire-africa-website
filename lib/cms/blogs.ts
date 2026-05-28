@@ -35,8 +35,8 @@ const HERO_FALLBACK_BY_SLUG: Record<string, { url: string; alt: string }> = {
     alt: 'ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (ILO, 2025)',
   },
   'the-real-cost-of-free-migration': {
-    url: '/images/blog/ilo-minimum-wages-africa.jpg',
-    alt: 'ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (ILO, 2025)',
+    url: '/images/blog/gulf-corridor-rebar.jpg',
+    alt: 'Nigerian construction workers erecting rebar columns — the source-side reality of the labour pipelines feeding Gulf-corridor recruitment',
   },
 };
 
@@ -51,7 +51,7 @@ function adapt(s: StrapiBlogPost): BlogPost {
     authorRole: s.author?.role ?? 'INSPIRE AFRICA',
     date: (s.publishedAt ?? '').slice(0, 10),
     readMinutes: s.readMinutes ?? 5,
-    heroImage: s.heroImage?.url ?? fallback?.url ?? '/images/inspire-healthcare-team.jpg',
+    heroImage: s.heroImage?.url ?? fallback?.url ?? '/images/home-hero-healthcare.jpg',
     heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : (fallback?.alt ?? s.heroAlt ?? s.title),
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape

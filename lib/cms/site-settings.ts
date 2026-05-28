@@ -120,8 +120,18 @@ function fromStatic(): SiteSettings {
     contactLegalEmail: STATIC_SITE.contact.legalEmail,
     contactSpeakupEmail: STATIC_SITE.contact.speakupEmail,
     socialLinks: [
-      { platform: 'linkedin', label: 'LinkedIn', url: STATIC_SITE.social.linkedin, iconKey: 'LI' },
-      { platform: 'facebook', label: 'Facebook', url: STATIC_SITE.social.facebook, iconKey: 'FB' },
+      { platform: 'linkedin', label: 'LinkedIn', url: STATIC_SITE.social.linkedin, iconKey: 'linkedin', order: 1 },
+      { platform: 'facebook', label: 'Facebook', url: STATIC_SITE.social.facebook, iconKey: 'facebook', order: 2 },
+      { platform: 'x', label: 'X (Twitter)', url: STATIC_SITE.social.x, iconKey: 'x', order: 3 },
+      { platform: 'instagram', label: 'Instagram', url: STATIC_SITE.social.instagram, iconKey: 'instagram', order: 4 },
+      { platform: 'tiktok', label: 'TikTok', url: STATIC_SITE.social.tiktok, iconKey: 'tiktok', order: 5 },
+      {
+        platform: 'whatsapp',
+        label: 'WhatsApp Business',
+        url: `https://wa.me/${STATIC_SITE.contact.ukPhone.replace(/\D+/g, '')}`,
+        iconKey: 'whatsapp',
+        order: 6,
+      },
     ],
     communityBaseUrl: STATIC_SITE.community.baseUrl,
   };

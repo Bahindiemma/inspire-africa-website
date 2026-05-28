@@ -73,8 +73,8 @@ export default async function WorkersPage() {
           </>
         }
         photo={{
-          src: "/images/inspire-handshake-interview.jpg",
-          alt: "Two African professionals working together on a laptop",
+          src: "/images/workers-hero-nurse.jpg",
+          alt: "African nurse measuring a patient's blood pressure during a clinical assessment",
           captionTitle: "Fair · Transparent",
           captionSub: "Protected at every step",
         }}

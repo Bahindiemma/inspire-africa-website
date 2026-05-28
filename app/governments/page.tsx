@@ -70,8 +70,8 @@ export default async function GovernmentsPage() {
           </>
         }
         photo={{
-          src: "/images/inspire-farmer-agriculture.jpg",
-          alt: "Architectural sketch of infrastructure — INSPIRE's systemic approach to migration",
+          src: "/images/governments-hero-market.jpg",
+          alt: "Busy Senegalese market scene — traders and buyers moving goods through a working commercial corridor",
           captionTitle: "Systems-led",
           captionSub: "From migration to mobility infrastructure",
         }}

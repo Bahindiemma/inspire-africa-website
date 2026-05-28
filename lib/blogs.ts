@@ -42,8 +42,8 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-05-12",
     readMinutes: 7,
-    heroImage: "/images/blog/ilo-minimum-wages-africa.jpg",
-    heroAlt: "ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (International Labour Organization, 2025)",
+    heroImage: "/images/blog/gulf-corridor-rebar.jpg",
+    heroAlt: "Nigerian construction workers erecting rebar columns — the source-side reality of the labour pipelines feeding Gulf-corridor recruitment",
     tags: ["Worker protection", "Recruitment fees", "Gulf corridor", "Policy"],
     body: [
       {

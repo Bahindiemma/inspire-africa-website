@@ -79,8 +79,8 @@ export default async function ApproachPage() {
           </>
         }
         photo={{
-          src: "/images/inspire-farmer-agriculture.jpg",
-          alt: "Architectural sketch of infrastructure — the visual metaphor for INSPIRE's mobility platform",
+          src: "/images/approach-hero-tailor.jpg",
+          alt: "African tailor focused on a stitching task — skilled, hands-on work being built into a career",
           captionTitle: "Earn · Learn · Return",
           captionSub: "The circular model",
         }}

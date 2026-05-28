@@ -28,8 +28,14 @@ export const SITE = {
     speakupEmail: "speakup@inspireafrica.onmicrosoft.com",
   },
   social: {
+    // Placeholder handles for X, Instagram and TikTok — confirm + update once
+    // accounts are claimed. WhatsApp Business uses the UK contact number's
+    // wa.me link (built dynamically in the footer).
     linkedin: "https://uk.linkedin.com/company/inspire-africans",
     facebook: "https://www.facebook.com/INSPIREAFRICAN",
+    x: "https://x.com/inspireafricans",
+    instagram: "https://www.instagram.com/inspireafricans",
+    tiktok: "https://www.tiktok.com/@inspireafricans",
   },
   community: {
     baseUrl: "https://inspire-africa.mn.co/spaces/20105635",

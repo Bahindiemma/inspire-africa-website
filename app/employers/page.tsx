@@ -82,8 +82,8 @@ export default async function EmployersPage() {
           </>
         }
         photo={{
-          src: "/images/inspire-chef-square.jpg",
-          alt: "Professional in a modern office environment",
+          src: "/images/employers-hero-kitchen.jpg",
+          alt: "Brigade of African chefs working through service in a busy professional kitchen",
           captionTitle: "Ready Now",
           captionSub: "Pre-screened, prepared, deployable",
         }}

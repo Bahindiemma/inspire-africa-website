@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SITE } from "./site";
 
-const DEFAULT_OG_IMAGE = "/images/inspire-healthcare-team.jpg";
+const DEFAULT_OG_IMAGE = "/images/home-hero-healthcare.jpg";
 
 /** Niche keywords reused as the default for every page. */
 export const SITE_KEYWORDS = [
@@ -100,7 +100,13 @@ export function organizationJsonLd() {
     logo: new URL("/inspire-africa-logo.png", SITE.url).toString(),
     image: new URL(DEFAULT_OG_IMAGE, SITE.url).toString(),
     foundingLocation: SITE.company.address.country,
-    sameAs: [SITE.social.linkedin, SITE.social.facebook],
+    sameAs: [
+      SITE.social.linkedin,
+      SITE.social.facebook,
+      SITE.social.x,
+      SITE.social.instagram,
+      SITE.social.tiktok,
+    ],
     address: {
       "@type": "PostalAddress",
       streetAddress: SITE.company.address.street,

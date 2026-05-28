@@ -92,8 +92,8 @@ export default async function HomePage() {
           </>
         }
         photo={{
-          src: "/images/inspire-healthcare-team.jpg",
-          alt: "African professional in a modern workplace, confident and looking into camera",
+          src: "/images/home-hero-healthcare.jpg",
+          alt: "African doctor walking a patient through their diagnosis in a hospital corridor",
           captionTitle: "Ready Now",
           captionSub: "3-tier readiness pipeline",
           priority: true,
@@ -161,8 +161,8 @@ export default async function HomePage() {
             <article className="audience-card audience-card--primary">
               <div className="audience-card-photo">
                 <Image
-                  src="/images/inspire-farmer-square.jpg"
-                  alt="Two African professionals collaborating at a laptop"
+                  src="/images/home-card-workers-construction.jpg"
+                  alt="African construction worker focused on hammering nails into a wooden frame"
                   fill
                   sizes="(max-width: 980px) 100vw, 33vw"
                   style={{ objectFit: "cover" }}
@@ -186,8 +186,8 @@ export default async function HomePage() {
             <article className="audience-card">
               <div className="audience-card-photo">
                 <Image
-                  src="/images/inspire-healthcare-team.jpg"
-                  alt="African healthcare professionals collaborating at work"
+                  src="/images/home-card-employers-hospitality.jpg"
+                  alt="Three Ugandan chefs cooking over an open flame in a busy hospitality kitchen"
                   fill
                   sizes="(max-width: 980px) 100vw, 33vw"
                   style={{ objectFit: "cover" }}
@@ -210,8 +210,8 @@ export default async function HomePage() {
             <article className="audience-card">
               <div className="audience-card-photo">
                 <Image
-                  src="/images/inspire-chef-hospitality.jpg"
-                  alt="Architectural sketch representing infrastructure"
+                  src="/images/home-card-governments-agriculture.jpg"
+                  alt="Wide view of Nigerian farmers working together across a rice field — workforce at scale"
                   fill
                   sizes="(max-width: 980px) 100vw, 33vw"
                   style={{ objectFit: "cover" }}

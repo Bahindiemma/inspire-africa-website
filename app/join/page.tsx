@@ -76,8 +76,8 @@ export default async function JoinPage() {
           </>
         }
         photo={{
-          src: "/images/inspire-healthcare-portrait.jpg",
-          alt: "Two African professionals collaborating in a working session",
+          src: "/images/join-hero-construction-team.jpg",
+          alt: "African construction crew in safety gear working together on a building site",
           captionTitle: "Free Forever",
           captionSub: "No paywalls. No hidden fees.",
         }}

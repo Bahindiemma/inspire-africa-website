@@ -2400,6 +2400,7 @@ body.menu-open {
 }
 .footer-socials {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 12px;
 }
@@ -2407,12 +2408,15 @@ body.menu-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Lock to a fixed 36x36 box — `flex: 0 0 36px` stops the row from
+     shrinking the tiles when they don't all fit, which would squash the
+     circle into a vertical oval. Equal sides + 50% radius = a true circle,
+     matching the other rounded controls (theme switch, back-to-top). */
+  flex: 0 0 36px;
   width: 36px;
   height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  /* Equal-sided tile + pill radius = a perfect circle, matching the other
-     rounded controls (theme switch, back-to-top) and the pill buttons. */
-  border-radius: var(--radius-pill);
+  border-radius: 50%;
   color: rgba(255, 255, 255, 0.7);
   font-family: var(--font-body);
   font-size: 11px;

@@ -45,6 +45,16 @@
   --font-serif: var(--font-madimi), "Madimi One", "Madimi One Local", sans-serif;
   --font-body: var(--font-madimi), "Madimi One", "Madimi One Local", sans-serif;
 
+  /* Rounded geometry — echoes the soft, rounded letterforms of Madimi One.
+     Every image frame and image-bearing card uses these tokens so the
+     curvature of the layout matches the curvature of the typeface, giving
+     the site its warm, rounded "African" character. `--radius-media` is the
+     canonical frame/card radius; the `-lg` variant is for large hero/cover
+     frames and the `-sm` variant for small badges and inset chips. */
+  --radius-media: 20px;
+  --radius-media-lg: 28px;
+  --radius-media-sm: 12px;
+
   --breakpoint-xs: 540px;
   --breakpoint-sm: 640px;
   --breakpoint-md: 880px;
@@ -435,7 +445,7 @@ button {
 .site-header .brand--logo {
   background: var(--yellow);
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-media-sm);
 }
 .site-header .brand--logo img,
 [data-theme="dark"] .site-header .brand--logo img {
@@ -1043,6 +1053,7 @@ body.menu-open {
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-card);
+  border-radius: var(--radius-media-lg);
 }
 .hero-photo-img {
   flex: 1;
@@ -1376,6 +1387,7 @@ body.menu-open {
   transition: transform 0.35s ease, border-color 0.35s ease,
     background 0.3s ease, box-shadow 0.35s ease;
   box-shadow: var(--shadow-card);
+  border-radius: var(--radius-media);
 }
 .audience-card:hover {
   transform: translateY(-6px);
@@ -1628,6 +1640,7 @@ body.menu-open {
   border: 1px solid var(--line-strong);
   box-shadow: var(--shadow-card);
   transition: transform 0.35s ease, box-shadow 0.35s ease;
+  border-radius: var(--radius-media);
 }
 .testimonial-card:hover {
   transform: translateY(-4px);
@@ -2940,6 +2953,7 @@ body.menu-open {
   box-shadow: var(--shadow-card);
   transition: transform 0.4s ease, border-color 0.4s ease,
     box-shadow 0.4s ease;
+  border-radius: var(--radius-media);
 }
 .insight-row:hover .insight-row-media {
   transform: translateY(-4px);
@@ -3095,6 +3109,7 @@ body.menu-open {
     box-shadow 0.35s ease;
   box-shadow: var(--shadow-card);
   min-width: 0;
+  border-radius: var(--radius-media);
 }
 .insight-card:hover {
   transform: translateY(-4px);
@@ -3364,6 +3379,7 @@ body.menu-open {
   border: 2px solid var(--yellow);
   box-shadow: var(--shadow-card);
   background: var(--surface-2);
+  border-radius: var(--radius-media-lg);
 }
 .blog-cover-frame img {
   object-fit: cover;

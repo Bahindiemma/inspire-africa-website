@@ -54,6 +54,13 @@
   --radius-media: 20px;
   --radius-media-lg: 28px;
   --radius-media-sm: 12px;
+  /* Fully-rounded "stadium" shape for buttons/CTAs — the strongest echo of
+     Madimi One's rounded terminals. */
+  --radius-pill: 999px;
+  /* Rounded end-caps for text underlines (CTA accent bars + in-text link
+     underlines). Set to the underline thickness so the bar ends read as
+     round caps rather than square cuts. */
+  --radius-underline: 2px;
 
   --breakpoint-xs: 540px;
   --breakpoint-sm: 640px;
@@ -331,6 +338,7 @@ button {
   min-height: 48px;
   cursor: pointer;
   border: 2px solid transparent;
+  border-radius: var(--radius-pill);
 }
 .btn:hover {
   transform: translateY(-1px);
@@ -1490,6 +1498,7 @@ body.menu-open {
   text-transform: uppercase;
   color: var(--text);
   border-bottom: 2px solid var(--yellow);
+  border-radius: var(--radius-underline);
   padding-bottom: 6px;
   align-self: flex-start;
   transition: gap 0.2s ease;
@@ -1580,6 +1589,11 @@ body.menu-open {
   margin-bottom: 64px;
   background: var(--surface);
   box-shadow: var(--shadow-card);
+  /* Curve only the extreme left + right edges of the band — the inner
+     cell dividers stay straight because overflow:hidden clips the first
+     cell's left corners and the last cell's right corners to this radius. */
+  border-radius: var(--radius-media);
+  overflow: hidden;
 }
 .number {
   padding: 32px 22px;
@@ -2331,6 +2345,7 @@ body.menu-open {
   text-transform: uppercase;
   color: var(--yellow);
   border-bottom: 2px solid var(--yellow);
+  border-radius: var(--radius-underline);
   padding-bottom: 6px;
   transition: gap 0.2s ease;
 }
@@ -2567,6 +2582,7 @@ body.menu-open {
 .contact-info-row a {
   color: var(--text);
   border-bottom: 1px solid var(--line-strong);
+  border-radius: var(--radius-underline);
 }
 .contact-info-row a:hover {
   border-bottom-color: var(--yellow);
@@ -2636,6 +2652,7 @@ body.menu-open {
 .legal-meta-item a {
   color: var(--text);
   border-bottom: 1px solid var(--line-strong);
+  border-radius: var(--radius-underline);
 }
 .legal-meta-item a:hover {
   border-bottom-color: var(--yellow);
@@ -2795,6 +2812,7 @@ body.menu-open {
 .legal-body a {
   color: var(--text);
   border-bottom: 1px solid var(--line-strong);
+  border-radius: var(--radius-underline);
 }
 .legal-body a:hover {
   border-bottom-color: var(--yellow);
@@ -3056,6 +3074,7 @@ body.menu-open {
   text-transform: uppercase;
   color: var(--text);
   border-bottom: 2px solid var(--yellow);
+  border-radius: var(--radius-underline);
   padding-bottom: 6px;
   align-self: flex-start;
   transition: gap 0.2s ease;
@@ -3225,6 +3244,7 @@ body.menu-open {
   text-transform: uppercase;
   color: var(--text);
   border-bottom: 2px solid var(--yellow);
+  border-radius: var(--radius-underline);
   padding-bottom: 6px;
   align-self: flex-start;
   transition: gap 0.2s ease;

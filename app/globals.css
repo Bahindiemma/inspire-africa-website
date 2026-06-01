@@ -2410,6 +2410,9 @@ body.menu-open {
   width: 36px;
   height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.18);
+  /* Equal-sided tile + pill radius = a perfect circle, matching the other
+     rounded controls (theme switch, back-to-top) and the pill buttons. */
+  border-radius: var(--radius-pill);
   color: rgba(255, 255, 255, 0.7);
   font-family: var(--font-body);
   font-size: 11px;

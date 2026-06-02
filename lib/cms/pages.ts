@@ -30,8 +30,15 @@ export interface CmsPage {
 
 // Per-component populate fragment. Strapi v5 needs each Dynamic Zone
 // variant declared explicitly under `populate[sections][on][…]`.
+// NB: Strapi v5 does NOT accept the comma shorthand (`populate=photo,ctas`)
+// for populating multiple fields of a component — that form errors and the
+// fields come back empty (which silently dropped the hero image, falling
+// back to photoUrl). Multiple fields must use the object form
+// (`populate[photo]=true&populate[ctas]=true`). Single-field populates
+// (`populate=stats`) are fine.
 const SECTION_POPULATE = [
-  'populate[sections][on][sections.hero][populate]=photo,ctas',
+  'populate[sections][on][sections.hero][populate][photo]=true',
+  'populate[sections][on][sections.hero][populate][ctas]=true',
   'populate[sections][on][sections.audiences][populate][cards][populate]=photo',
   'populate[sections][on][sections.corridors-marquee][populate][corridors][populate]=flagIcon',
   'populate[sections][on][sections.numbers][populate]=stats',
@@ -41,7 +48,8 @@ const SECTION_POPULATE = [
   'populate[sections][on][sections.step-cards][populate]=items',
   'populate[sections][on][sections.insights-strip][populate]=filterTag',
   'populate[sections][on][sections.form-block]=true',
-  'populate[sections][on][sections.final-cta][populate]=primaryCta,secondaryLinks',
+  'populate[sections][on][sections.final-cta][populate][primaryCta]=true',
+  'populate[sections][on][sections.final-cta][populate][secondaryLinks]=true',
   'populate[seo][populate]=ogImage',
 ].join('&');
 

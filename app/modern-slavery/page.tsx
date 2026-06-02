@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/sections/Hero";
 import { LegalLayout, LegalHeading, LegalCallout } from "@/components/legal/LegalLayout";
+import { LegalBlocks } from "@/components/legal/LegalBlocks";
 import { LegalMeta } from "@/components/legal/LegalMeta";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
@@ -55,7 +56,17 @@ export default async function ModernSlaveryPage() {
         ]}
       />
 
-      <LegalLayout toc={TOC}>
+      <LegalLayout
+        toc={
+          doc.tocAnchors && doc.tocAnchors.length > 0
+            ? doc.tocAnchors.map((a) => ({ id: a.anchorId, label: a.label }))
+            : TOC
+        }
+      >
+        {doc.body && doc.body.length > 0 ? (
+          <LegalBlocks blocks={doc.body} settings={settings} />
+        ) : (
+        <>
         <p className="lede">
           INSPIRE AFRICA exists to make international labour mobility ethical, structured and worker-first.
           Preventing modern slavery and human trafficking is not a compliance afterthought — it is the operating
@@ -184,6 +195,8 @@ export default async function ModernSlaveryPage() {
           <br />
           12 May 2026
         </p>
+        </>
+        )}
       </LegalLayout>
 
       <FinalCta

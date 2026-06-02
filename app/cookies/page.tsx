@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/sections/Hero";
 import { LegalLayout, LegalHeading, LegalCallout } from "@/components/legal/LegalLayout";
+import { LegalBlocks } from "@/components/legal/LegalBlocks";
 import { LegalMeta } from "@/components/legal/LegalMeta";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
@@ -52,7 +53,17 @@ export default async function CookiesPage() {
         ]}
       />
 
-      <LegalLayout toc={TOC}>
+      <LegalLayout
+        toc={
+          doc.tocAnchors && doc.tocAnchors.length > 0
+            ? doc.tocAnchors.map((a) => ({ id: a.anchorId, label: a.label }))
+            : TOC
+        }
+      >
+        {doc.body && doc.body.length > 0 ? (
+          <LegalBlocks blocks={doc.body} settings={settings} />
+        ) : (
+        <>
         <p className="lede">
           We use cookies and similar technologies to keep the site working, to remember preferences such as your
           theme choice, and to understand how visitors use the platform so we can improve it. We do not use cookies
@@ -145,6 +156,8 @@ export default async function CookiesPage() {
           <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
         </ul>
         <p>For the full scope of personal-data handling, see our <Link href="/privacy">Privacy Policy</Link>.</p>
+        </>
+        )}
       </LegalLayout>
 
       <FinalCta

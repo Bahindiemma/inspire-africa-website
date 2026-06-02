@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/sections/Hero";
 import { LegalLayout, LegalHeading, LegalCallout } from "@/components/legal/LegalLayout";
+import { LegalBlocks } from "@/components/legal/LegalBlocks";
 import { LegalMeta } from "@/components/legal/LegalMeta";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
@@ -55,7 +56,17 @@ export default async function PrivacyPage() {
         ]}
       />
 
-      <LegalLayout toc={TOC}>
+      <LegalLayout
+        toc={
+          doc.tocAnchors && doc.tocAnchors.length > 0
+            ? doc.tocAnchors.map((a) => ({ id: a.anchorId, label: a.label }))
+            : TOC
+        }
+      >
+        {doc.body && doc.body.length > 0 ? (
+          <LegalBlocks blocks={doc.body} settings={settings} />
+        ) : (
+        <>
         <p className="lede">
           INSPIRE AFRICA operates labour mobility infrastructure across multiple jurisdictions. Protecting the
           personal data of workers, employers and government partners is foundational to our model — not an
@@ -220,6 +231,8 @@ export default async function PrivacyPage() {
           <li>Post: {settings.legalName}, {settings.companyAddress.street}, {settings.companyAddress.city}, {settings.companyAddress.postalCode}, {settings.companyAddress.country}</li>
           <li>WhatsApp (no calls): <a href={`https://wa.me/${settings.contactAfricaPhone.replace(/\D+/g, "")}`} target="_blank" rel="noopener">{settings.contactAfricaPhone}</a></li>
         </ul>
+        </>
+        )}
       </LegalLayout>
 
       <FinalCta

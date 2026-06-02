@@ -9,6 +9,7 @@ import { SITE } from "@/lib/site";
 import { joinUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/cms/site-settings";
+import { getPage } from "@/lib/cms/pages";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact",
@@ -18,19 +19,38 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ContactPage() {
-  const settings = await getSiteSettings();
+  const [settings, page] = await Promise.all([
+    getSiteSettings(),
+    getPage("contact"),
+  ]);
+
+  // Editable prose comes from the CMS `contact` page doc (hero +
+  // form-block sections); we keep the bespoke two-column layout and the
+  // settings-driven office aside. Each value falls back to the original
+  // copy when the CMS is unreachable or the section is absent.
+  const sections = page?.sections ?? [];
+  const heroSec = sections.find((s) => s.__component === "sections.hero");
+  const formSec = sections.find((s) => s.__component === "sections.form-block");
+
   return (
     <>
       <Hero
         watermark="CONTACT"
-        eyebrow="Get in touch"
+        eyebrow={heroSec?.eyebrow ?? "Get in touch"}
         heading={
-          <>
-            <span className="small-italic">Let&apos;s talk —</span>
-            <span className="accent">on your terms.</span>
-          </>
+          heroSec?.headingHtml ? (
+            <span dangerouslySetInnerHTML={{ __html: heroSec.headingHtml }} />
+          ) : (
+            <>
+              <span className="small-italic">Let&apos;s talk —</span>
+              <span className="accent">on your terms.</span>
+            </>
+          )
         }
-        lede="Enquiries from workers, employers, governments and partners. We respond within two working days."
+        lede={
+          heroSec?.lede ??
+          "Enquiries from workers, employers, governments and partners. We respond within two working days."
+        }
         centered
         className="hero--compact"
       />
@@ -39,9 +59,16 @@ export default async function ContactPage() {
         <div className="container">
           <div className="contact-split">
             <div className="form-wrap" style={{ maxWidth: "none", margin: 0 }}>
-              <Eyebrow>Send a message</Eyebrow>
-              <h2 style={{ marginTop: 14 }}>How can we help?</h2>
-              <p>Tell us who you are and what you&apos;re looking for. We&apos;ll route your message to the right person.</p>
+              <Eyebrow>{formSec?.eyebrow ?? "Send a message"}</Eyebrow>
+              {formSec?.headingHtml ? (
+                <h2 style={{ marginTop: 14 }} dangerouslySetInnerHTML={{ __html: formSec.headingHtml }} />
+              ) : (
+                <h2 style={{ marginTop: 14 }}>How can we help?</h2>
+              )}
+              <p>
+                {formSec?.lede ??
+                  "Tell us who you are and what you're looking for. We'll route your message to the right person."}
+              </p>
               <ContactForm />
             </div>
 

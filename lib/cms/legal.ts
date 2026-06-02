@@ -10,6 +10,11 @@
  */
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
 
+export interface LegalTocAnchor {
+  label: string;
+  anchorId: string;
+}
+
 export interface LegalDocumentMeta {
   slug: string;
   title: string;
@@ -19,7 +24,24 @@ export interface LegalDocumentMeta {
   version: string;
   lastUpdated: string; // ISO date e.g. "2026-05-12"
   controllerName?: string;
+  /** CMS-authored body — a Strapi dynamic zone of `blocks.*` components.
+   *  Empty/undefined → the page falls back to its in-repo JSX body. */
+  body?: Array<{ __component: string; [k: string]: any }>;
+  /** Sticky-TOC entries; empty → the page uses its in-repo TOC. */
+  tocAnchors?: LegalTocAnchor[];
 }
+
+// Verbose populate for the body dynamic zone + TOC anchors.
+const LEGAL_POPULATE = [
+  'populate[tocAnchors]=true',
+  'populate[body][on][blocks.lede]=true',
+  'populate[body][on][blocks.heading]=true',
+  'populate[body][on][blocks.paragraph]=true',
+  'populate[body][on][blocks.list]=true',
+  'populate[body][on][blocks.callout]=true',
+  'populate[body][on][blocks.table]=true',
+  'populate[body][on][blocks.quote]=true',
+].join('&');
 
 const FALLBACKS: Record<string, LegalDocumentMeta> = {
   privacy: {
@@ -82,7 +104,7 @@ export async function getLegalDocument(slug: LegalSlug): Promise<LegalDocumentMe
   if (!isStrapiAvailable()) return fallback;
   try {
     const { data } = await strapiFetch<LegalDocumentMeta[]>(
-      `/legal-documents?filters[slug][$eq]=${slug}`,
+      `/legal-documents?filters[slug][$eq]=${slug}&${LEGAL_POPULATE}`,
       { revalidate: 300, tags: [`legal-document:${slug}`, 'legal-document'] }
     );
     return data[0] ?? fallback;

@@ -12,6 +12,8 @@ import { joinUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
 import { getCorridors } from "@/lib/cms/corridors";
 import { getBlogPosts, formatBlogDate } from "@/lib/cms/blogs";
+import { getPage } from "@/lib/cms/pages";
+import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
 export const metadata: Metadata = buildMetadata({
   title: `${SITE.name} — ${SITE.tagline}`,
@@ -54,12 +56,29 @@ const STATS = [
 // ];
 
 export default async function HomePage() {
-  // Fetched in parallel from the Strapi CMS. Both fall back to
+  // Fetched in parallel from the Strapi CMS. All three fall back to
   // the legacy in-repo constants if the CMS is unreachable.
-  const [CORRIDOR_SECTORS, BLOG_POSTS] = await Promise.all([
+  const [home, CORRIDOR_SECTORS, BLOG_POSTS] = await Promise.all([
+    getPage("home"),
     getCorridors(),
     getBlogPosts(3),
   ]);
+
+  // CMS-driven path: render the editable `home` document. Editors control
+  // every section (hero text + image, audience cards, stats, insights,
+  // final CTA) from Strapi, and a publish triggers instant revalidation.
+  if (home && home.sections?.length) {
+    return (
+      <DynamicZoneRenderer
+        sections={home.sections}
+        corridors={CORRIDOR_SECTORS}
+        posts={BLOG_POSTS}
+      />
+    );
+  }
+
+  // Fallback: the original in-repo layout, used only when Strapi is
+  // unreachable or the home document is missing/empty.
   return (
     <>
       <Hero

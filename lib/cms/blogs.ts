@@ -4,6 +4,7 @@
  * in-repo BLOG_POSTS array if the CMS is unreachable.
  */
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
+import { strapiMedia } from '@/lib/cms/media';
 import { BLOG_POSTS as STATIC_POSTS, type BlogPost } from '@/lib/blogs';
 
 interface StrapiBlogPost {
@@ -51,7 +52,7 @@ function adapt(s: StrapiBlogPost): BlogPost {
     authorRole: s.author?.role ?? 'INSPIRE AFRICA',
     date: (s.publishedAt ?? '').slice(0, 10),
     readMinutes: s.readMinutes ?? 5,
-    heroImage: s.heroImage?.url ?? fallback?.url ?? '/images/home-hero-healthcare.jpg',
+    heroImage: strapiMedia(s.heroImage?.url) ?? fallback?.url ?? '/images/home-hero-healthcare.jpg',
     heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : (fallback?.alt ?? s.heroAlt ?? s.title),
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape

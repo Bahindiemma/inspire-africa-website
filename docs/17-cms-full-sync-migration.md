@@ -102,12 +102,59 @@ land together**, or the homepage briefly regresses.
 - Change the company address in `site-setting` → every legal page's
   interpolated address updates (token substitution).
 
+## Ready-to-run deploy (2026-06-02 — MERGED to main, images built)
+
+Both repos are merged to `main` and the web + CMS images are built and
+pushed to GHCR by CI. Images now live in the Strapi Media Library too:
+`src/bootstrap/seed-media.ts` uploads everything under
+`public/seed-media/` on (re)seed and links it to the home hero, audience
+cards, all sub-page heroes, and blog hero images (`photoUrl` kept only as
+a last-resort fallback). The remaining steps need the VPS (SSH :2021, 2FA):
+
+```bash
+# 0. SSH in
+ssh -p 2021 <user>@37.60.225.220
+cd /opt/inspire-africa
+
+# 1. Web env — ensure the public media host is set (matches remotePatterns)
+#    Edit the web service env (.env / compose) and add, if not present:
+#      STRAPI_MEDIA_URL=http://37.60.225.220:1337
+#    Confirm on the CMS env: FRONTEND_REVALIDATE_URL=http://web:3000/api/revalidate
+#    and REVALIDATE_SECRET matches the web's value.
+
+# 2. CMS FIRST — pull the new image and reseed (uploads media + faithful docs)
+docker compose -f docker-compose.yml pull cms      # or build on-host if GHCR pkg is private
+RESEED_CONTENT=true docker compose -f docker-compose.yml up -d --force-recreate cms
+docker compose -f docker-compose.yml logs -f cms   # watch for: [seed-media] … images, [seed-content] DONE
+# then clear the reseed flag:
+docker compose -f docker-compose.yml up -d --force-recreate cms
+
+# 3. WEB SECOND — pull + restart (now renders the CMS home/legal/contact docs)
+docker compose -f docker-compose.yml pull web
+docker compose -f docker-compose.yml up -d web
+```
+
+**Order matters:** reseed the CMS *before* restarting web, or the web app
+renders the OLD home doc (no Numbers section / no hero photo) for a window.
+
+## Verification
+
+- Home, /privacy, /terms, /cookies, /modern-slavery, /contact render
+  identically to before (CMS now drives them; hero/card images served from
+  the Strapi Media Library, not /public).
+- In Strapi admin → Media Library, replace the home hero image (or change
+  it on the home page's hero section) and **Publish** → the homepage
+  updates within seconds via the revalidate webhook, with no redeploy.
+- Edit a legal version/date or a paragraph → publish → page updates.
+- Change the company address in `site-setting` → every legal page's
+  interpolated address updates (token substitution).
+
 ## Notes / follow-ups
 
-- Audience-card and hero images still use `photoUrl` (`/images/*`) as a
-  seed fallback; uploading to the `photo` field in admin now overrides
-  them. To fully move images into the Media Library, upload each and clear
-  `photoUrl`.
-- The legal pages keep their in-repo JSX as a fallback (used only if the
-  CMS body is empty/unreachable). Safe to remove once CMS rendering is
-  confirmed in production.
+- Images now live in the CMS Media Library; `photoUrl` (`/images/*`)
+  remains only as a safety fallback (frontend reads `photo.url ?? photoUrl`).
+- The home / legal / sub-page / contact pages keep their in-repo JSX as a
+  **dormant safety net** — it renders ONLY if Strapi is unreachable; in
+  normal operation 100% of content comes from the CMS. Once the live CMS
+  render is confirmed post-deploy, these fallbacks can be stripped so no
+  static visitor-facing content remains in the repo at all.

@@ -22,7 +22,7 @@ const PROBLEMS = [
   { marker: "×", bad: true, title: "Irregular migration creates risk and instability", body: "Without legal channels, citizens move anyway — often through dangerous, exploitative routes." },
   { marker: "×", bad: true, title: "Limited oversight of recruitment pathways", body: "Informal agents dominate. Government visibility is partial at best." },
   { marker: "×", bad: true, title: "Lost opportunities for skills development and return", body: "Workers leave without a return plan. Skills don't flow back." },
-  { marker: "×", bad: true, title: "Remittances are flows. Development needs systems.", body: "Remittances to individual households improve welfare but bypass skills systems, enterprise growth and national investment priorities." },
+  { marker: "×", bad: true, title: "Remittances are flows. Development needs systems", body: "Remittances to individual households improve welfare but bypass skills systems, enterprise growth and national investment priorities." },
 ];
 
 const SOLUTION = [

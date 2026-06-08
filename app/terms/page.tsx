@@ -137,7 +137,7 @@ export default async function TermsPage() {
         <p>The platform is provided <strong>&quot;as is&quot;</strong> and <strong>&quot;as available&quot;</strong>. While we work hard to maintain availability and accuracy, we do not warrant that the platform will be uninterrupted, error-free or meet your specific requirements. Nothing in these terms excludes liability that cannot be excluded by law — including liability for death or personal injury caused by negligence and liability for fraud.</p>
 
         <LegalHeading num="10" id="liability">Limitation of liability</LegalHeading>
-        <p>To the maximum extent permitted by law, INSPIRE is not liable for:</p>
+        <p>To the maximum extent permitted by law, {settings.legalName} is not liable for:</p>
         <ul>
           <li>Indirect, consequential or special losses</li>
           <li>Loss of profit, revenue, business, opportunity, goodwill or anticipated savings</li>
@@ -146,7 +146,7 @@ export default async function TermsPage() {
         <p>Our aggregate liability arising out of or in connection with these terms is limited to the greater of (a) the fees you have paid us in the twelve months preceding the event giving rise to the claim, or (b) £100.</p>
 
         <LegalHeading num="11" id="indemnity">Indemnity</LegalHeading>
-        <p>You agree to indemnify and hold INSPIRE harmless from claims, damages and costs arising from your breach of these terms, your misuse of the platform, or your violation of any law or third-party right.</p>
+        <p>You agree to indemnify and hold {settings.legalName} harmless from claims, damages and costs arising from your breach of these terms, your misuse of the platform, or your violation of any law or third-party right.</p>
 
         <LegalHeading num="12" id="termination">Suspension &amp; termination</LegalHeading>
         <p>We may suspend or terminate your access to the platform — with or without notice — if we reasonably believe you have breached these terms, posed a risk to other users, or acted contrary to ethical-recruitment standards. You may stop using the platform at any time; sections relating to intellectual property, liability and governing law survive termination.</p>

@@ -94,7 +94,7 @@ export default async function JoinPage() {
             }
           >
             <p>
-              The Inspire community on Mighty Networks is your free entry point — a structured, peer-rich space
+              The Inspire community is your free entry point — a structured, peer-rich space
               designed to help you move from preparation to placement.
             </p>
           </SectionLeft>

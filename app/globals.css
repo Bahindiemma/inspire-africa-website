@@ -1980,6 +1980,10 @@ body.menu-open {
 .page-section--yellow .feature-list li {
   border-color: rgba(0, 0, 0, 0.15);
 }
+.feature-list li.no-marker {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
 .feature-list li:first-child {
   padding-top: 0;
 }

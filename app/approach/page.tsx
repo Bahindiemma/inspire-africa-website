@@ -64,7 +64,7 @@ export default async function ApproachPage() {
         heading={
           <>
             <span className="small-italic">Not recruitment.</span>
-            <span className="accent">Infrastructure.</span>
+            <span className="accent">Infrastructure</span>
           </>
         }
         lede="A structured system for global labour mobility — built around four principles: ethical, circular, structured, worker-centred."

@@ -2130,13 +2130,11 @@ body.menu-open {
   list-style: none;
   padding: 0;
   margin: 0;
-  counter-reset: step;
 }
 .process-list li {
-  padding: 26px 0 26px 84px;
+  padding: 26px 0;
   position: relative;
   border-bottom: 1px solid var(--line);
-  counter-increment: step;
 }
 .process-list li:first-child {
   padding-top: 0;
@@ -2144,26 +2142,8 @@ body.menu-open {
 .process-list li:last-child {
   border-bottom: none;
 }
-.process-list li::before {
-  content: counter(step, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 26px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 44px;
-  color: var(--accent-display);
-  line-height: 0.85;
-  width: 64px;
-}
-.page-section--yellow .process-list li::before {
-  color: #0a0a0a;
-}
 .page-section--yellow .process-list li {
   border-color: rgba(0, 0, 0, 0.15);
-}
-.process-list li:first-child::before {
-  top: 0;
 }
 .process-list h3 {
   font-family: var(--font-display);
@@ -2188,15 +2168,7 @@ body.menu-open {
 }
 @media (max-width: 540px) {
   .process-list li {
-    padding: 22px 0 22px 56px;
-  }
-  .process-list li::before {
-    font-size: 32px;
-    width: 48px;
-    top: 22px;
-  }
-  .process-list li:first-child::before {
-    top: 0;
+    padding: 22px 0;
   }
   .process-list h3 {
     font-size: 19px;

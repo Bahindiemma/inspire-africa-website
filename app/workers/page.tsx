@@ -72,12 +72,7 @@ export default async function WorkersPage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/workers-hero-nurse.jpg",
-          alt: "African nurse measuring a patient's blood pressure during a clinical assessment",
-          captionTitle: "Fair · Transparent",
-          captionSub: "Protected at every step",
-        }}
+        /* No static hero image — Strapi-down fallback renders text-only. */
       />
 
       <PageSection tone="alt">

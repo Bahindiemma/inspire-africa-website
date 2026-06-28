@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { SITE } from "./site";
 
-const DEFAULT_OG_IMAGE = "/images/home-hero-healthcare.jpg";
+// The site ships NO static images — the default share/OG image and the
+// brand logo are served from the Strapi Media Library. `app/layout.tsx`
+// reads them live from the CMS for the global default; sync call sites
+// (per-page `buildMetadata`, JSON-LD) read the absolute CMS URLs from
+// these public env vars (point them at the CMS Media Library URLs).
+// When unset, the image is simply omitted — never a bundled fallback.
+const DEFAULT_OG_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_OG_IMAGE ?? "";
+const BRAND_LOGO_URL = process.env.NEXT_PUBLIC_BRAND_LOGO_URL ?? "";
 
 /** Niche keywords reused as the default for every page. */
 export const SITE_KEYWORDS = [
@@ -24,7 +31,9 @@ export interface PageSeoInput {
   title: string;
   description: string;
   path: string;
-  image?: string;
+  /** Absolute CMS Media Library URL, or null/undefined to use the
+   *  env-configured default (NEXT_PUBLIC_DEFAULT_OG_IMAGE). */
+  image?: string | null;
   keywords?: string[];
   type?: "website" | "article";
   publishedTime?: string;
@@ -42,7 +51,9 @@ export function buildMetadata({
   modifiedTime,
 }: PageSeoInput): Metadata {
   const url = new URL(path, SITE.url).toString();
-  const ogImage = new URL(image ?? DEFAULT_OG_IMAGE, SITE.url).toString();
+  // Absolute CMS image, env default, or none — never a bundled file.
+  const rawOg = image || DEFAULT_OG_IMAGE;
+  const ogImage = rawOg ? new URL(rawOg, SITE.url).toString() : null;
   const fullTitle = title.includes(SITE.name) ? title : `${title} — ${SITE.name}`;
 
   return {
@@ -75,7 +86,9 @@ export function buildMetadata({
       title: fullTitle,
       description,
       locale: SITE.locale,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${SITE.name} — ${SITE.tagline}` }],
+      ...(ogImage
+        ? { images: [{ url: ogImage, width: 1200, height: 630, alt: `${SITE.name} — ${SITE.tagline}` }] }
+        : {}),
       ...(type === "article" && (publishedTime || modifiedTime)
         ? { publishedTime, modifiedTime }
         : {}),
@@ -84,12 +97,21 @@ export function buildMetadata({
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [ogImage],
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
 
-export function organizationJsonLd() {
+/**
+ * Organization JSON-LD. `logo`/`image` are served from the CMS — pass the
+ * resolved absolute Media Library URLs from a server component (layout
+ * reads them via getSiteSettings). When not provided, falls back to the
+ * env-configured URLs, and the field is omitted entirely if still empty
+ * (no static /public asset is ever referenced).
+ */
+export function organizationJsonLd(opts?: { logoUrl?: string | null; imageUrl?: string | null }) {
+  const logoUrl = opts?.logoUrl || BRAND_LOGO_URL;
+  const imageUrl = opts?.imageUrl || DEFAULT_OG_IMAGE;
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -97,8 +119,8 @@ export function organizationJsonLd() {
     alternateName: SITE.name,
     url: SITE.url,
     description: SITE.description,
-    logo: new URL("/inspire-africa-logo.png", SITE.url).toString(),
-    image: new URL(DEFAULT_OG_IMAGE, SITE.url).toString(),
+    ...(logoUrl ? { logo: new URL(logoUrl, SITE.url).toString() } : {}),
+    ...(imageUrl ? { image: new URL(imageUrl, SITE.url).toString() } : {}),
     foundingLocation: SITE.company.address.country,
     sameAs: [
       SITE.social.linkedin,

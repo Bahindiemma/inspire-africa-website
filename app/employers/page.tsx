@@ -81,12 +81,7 @@ export default async function EmployersPage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/employers-hero-kitchen.jpg",
-          alt: "Brigade of African chefs working through service in a busy professional kitchen",
-          captionTitle: "Ready Now",
-          captionSub: "Pre-screened, prepared, deployable",
-        }}
+        /* No static hero image — Strapi-down fallback renders text-only. */
       />
 
       <PageSection tone="alt">

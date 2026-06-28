@@ -25,7 +25,9 @@ export interface BlogPost {
   /** ISO date, e.g. "2026-05-12" */
   date: string;
   readMinutes: number;
-  heroImage: string;
+  /** Strapi Media Library URL, or null when no CMS image is set (no
+   *  static fallback — the renderer shows a neutral placeholder). */
+  heroImage: string | null;
   heroAlt: string;
   tags: string[];
   body: BlogSection[];
@@ -42,7 +44,7 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-05-12",
     readMinutes: 7,
-    heroImage: "/images/blog/gulf-corridor-rebar.jpg",
+    heroImage: null, // was /images/blog/gulf-corridor-rebar.jpg — now CMS-only
     heroAlt: "Nigerian construction workers erecting rebar columns — the source-side reality of the labour pipelines feeding Gulf-corridor recruitment",
     tags: ["Worker protection", "Recruitment fees", "Gulf corridor", "Policy"],
     body: [
@@ -117,7 +119,7 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-04-28",
     readMinutes: 8,
-    heroImage: "/images/blog/pa-uk-visa.jpg",
+    heroImage: null, // was /images/blog/pa-uk-visa.jpg — now CMS-only
     heroAlt: "UK Home Office · UK Visas & Immigration signage (photo: PA)",
     tags: ["United Kingdom", "Healthcare", "Visa policy", "NHS"],
     body: [
@@ -188,7 +190,7 @@ export const BLOG_POSTS: BlogPost[] = [
     authorRole: "INSPIRE AFRICA",
     date: "2026-03-31",
     readMinutes: 9,
-    heroImage: "/images/blog/ilo-minimum-wages-africa.jpg",
+    heroImage: null, // was /images/blog/ilo-minimum-wages-africa.jpg — now CMS-only
     heroAlt: "ILO report cover — Minimum wages in Africa: wage disparities and the redistributive potential of minimum wages (International Labour Organization, 2025)",
     tags: ["Remittances", "Circular migration", "Policy", "Economic development"],
     body: [

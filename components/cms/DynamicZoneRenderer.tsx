@@ -86,11 +86,12 @@ function SectionSwitch({
   switch (s.__component) {
     // ─────────────────────────────────────────────────────────────
     case "sections.hero": {
-      // Uploaded Media Library image (`photo`) wins over the seed's
-      // `photoUrl` fallback, so an editor swapping the hero image in
-      // Strapi takes effect immediately. URLs are made absolute so
-      // relative `/uploads/...` paths resolve against Strapi, not Next.
-      const photoSrc: string | null = strapiMedia(s.photo?.url ?? s.photoUrl ?? null);
+      // Image comes exclusively from the Strapi Media Library (`photo`).
+      // The legacy `photoUrl` static fallback is intentionally NOT read —
+      // the app ships no static images. URLs are made absolute so relative
+      // `/uploads/...` paths resolve against Strapi, not Next. If the CMS
+      // has no photo, the hero simply renders without one (no blank box).
+      const photoSrc: string | null = strapiMedia(s.photo?.url ?? null);
       return (
         <Hero
           watermark={s.watermark ?? ""}
@@ -360,7 +361,7 @@ function SectionSwitch({
 
             <div className="audiences-grid">
               {cards.map((c, j) => {
-                const src = strapiMedia(c.photo?.url ?? c.photoUrl ?? null);
+                const src = strapiMedia(c.photo?.url ?? null);
                 return (
                   <article
                     className={`audience-card${c.isPrimary ? " audience-card--primary" : ""}`}
@@ -423,7 +424,9 @@ function SectionSwitch({
             </div>
 
             <div className="insights-rows">
-              {list.map((post, j) => (
+              {list.map((post, j) => {
+                const heroSrc = strapiMedia(post.heroImage);
+                return (
                 <article
                   className={`insight-row reveal${j % 2 === 1 ? " insight-row--reverse" : ""}`}
                   key={post.slug}
@@ -434,13 +437,17 @@ function SectionSwitch({
                     aria-hidden="true"
                     tabIndex={-1}
                   >
-                    <Image
-                      src={strapiMedia(post.heroImage) ?? post.heroImage}
-                      alt=""
-                      fill
-                      sizes="(max-width: 880px) 100vw, 45vw"
-                      style={{ objectFit: "cover" }}
-                    />
+                    {heroSrc ? (
+                      <Image
+                        src={heroSrc}
+                        alt=""
+                        fill
+                        sizes="(max-width: 880px) 100vw, 45vw"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span className="insight-row-media-placeholder" aria-hidden="true" />
+                    )}
                     <span className="insight-row-tag">{post.category}</span>
                   </Link>
                   <div className="insight-row-content">
@@ -461,7 +468,8 @@ function SectionSwitch({
                     </Link>
                   </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

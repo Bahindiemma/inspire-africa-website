@@ -3,7 +3,7 @@ import { Brand } from "@/components/ui/Brand";
 import { CookieSettingsLink } from "@/components/consent/CookieSettingsLink";
 import { SITE } from "@/lib/site";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
-import { getSiteSettings } from "@/lib/cms/site-settings";
+import { getSiteSettings, brandLogoFrom } from "@/lib/cms/site-settings";
 import { buildJoinUrl } from "@/lib/cms/utm";
 
 // Inline brand glyphs (24px viewBox) — keeps icon weight tiny vs. importing a
@@ -86,7 +86,7 @@ export async function SiteFooter() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Brand onDark height={48} />
+            <Brand onDark height={48} logo={brandLogoFrom(settings)} />
             <p>
               Labour mobility infrastructure connecting Africa&apos;s workforce to global employers and governments —
               through governed pathways, predictive screening and migration finance.

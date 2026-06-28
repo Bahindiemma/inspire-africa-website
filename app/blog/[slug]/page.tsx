@@ -78,20 +78,22 @@ export default async function BlogDetailPage({ params }: RouteParams) {
           </div>
         </header>
 
-        <div className="blog-cover">
-          <div className="container">
-            <div className="blog-cover-frame">
-              <Image
-                src={post.heroImage}
-                alt={post.heroAlt}
-                fill
-                priority
-                sizes="(max-width: 1100px) 100vw, 1100px"
-                style={{ objectFit: "cover" }}
-              />
+        {post.heroImage ? (
+          <div className="blog-cover">
+            <div className="container">
+              <div className="blog-cover-frame">
+                <Image
+                  src={post.heroImage}
+                  alt={post.heroAlt}
+                  fill
+                  priority
+                  sizes="(max-width: 1100px) 100vw, 1100px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         <section className="blog-body-section">
           <div className="container">
@@ -166,13 +168,17 @@ export default async function BlogDetailPage({ params }: RouteParams) {
                       aria-hidden="true"
                       tabIndex={-1}
                     >
-                      <Image
-                        src={r.heroImage}
-                        alt=""
-                        fill
-                        sizes="(max-width: 980px) 100vw, 50vw"
-                        style={{ objectFit: "cover" }}
-                      />
+                      {r.heroImage ? (
+                        <Image
+                          src={r.heroImage}
+                          alt=""
+                          fill
+                          sizes="(max-width: 980px) 100vw, 50vw"
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <span className="insight-card-media-placeholder" aria-hidden="true" />
+                      )}
                       <span className="insight-card-tag">{r.category}</span>
                     </Link>
                     <div className="insight-card-body">

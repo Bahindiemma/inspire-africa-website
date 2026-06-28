@@ -110,13 +110,8 @@ export default async function HomePage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/home-hero-healthcare.jpg",
-          alt: "African doctor walking a patient through their diagnosis in a hospital corridor",
-          captionTitle: "Ready Now",
-          captionSub: "3-tier readiness pipeline",
-          priority: true,
-        }}
+        /* No static hero image — this fallback layout renders only when
+           Strapi is unreachable (the CMS path above carries the photo). */
       />
 
       <div
@@ -178,16 +173,6 @@ export default async function HomePage() {
 
           <div className="audiences-grid">
             <article className="audience-card audience-card--primary">
-              <div className="audience-card-photo">
-                <Image
-                  src="/images/home-card-workers-construction.jpg"
-                  alt="African construction worker focused on hammering nails into a wooden frame"
-                  fill
-                  sizes="(max-width: 980px) 100vw, 33vw"
-                  style={{ objectFit: "cover" }}
-                />
-                <span className="audience-card-photo-tag">For Workers</span>
-              </div>
               <div className="audience-card-body">
                 <div className="audience-card-num">01</div>
                 <h3>Access global work</h3>
@@ -203,16 +188,6 @@ export default async function HomePage() {
             </article>
 
             <article className="audience-card">
-              <div className="audience-card-photo">
-                <Image
-                  src="/images/home-card-employers-hospitality.jpg"
-                  alt="Three Ugandan chefs cooking over an open flame in a busy hospitality kitchen"
-                  fill
-                  sizes="(max-width: 980px) 100vw, 33vw"
-                  style={{ objectFit: "cover" }}
-                />
-                <span className="audience-card-photo-tag">For Employers</span>
-              </div>
               <div className="audience-card-body">
                 <div className="audience-card-num">02</div>
                 <h3>Hire with confidence</h3>
@@ -227,16 +202,6 @@ export default async function HomePage() {
             </article>
 
             <article className="audience-card">
-              <div className="audience-card-photo">
-                <Image
-                  src="/images/home-card-governments-agriculture.jpg"
-                  alt="Wide view of Nigerian farmers working together across a rice field — workforce at scale"
-                  fill
-                  sizes="(max-width: 980px) 100vw, 33vw"
-                  style={{ objectFit: "cover" }}
-                />
-                <span className="audience-card-photo-tag">For Governments</span>
-              </div>
               <div className="audience-card-body">
                 <div className="audience-card-num">03</div>
                 <h3>Build mobility systems</h3>
@@ -324,13 +289,17 @@ export default async function HomePage() {
                   aria-hidden="true"
                   tabIndex={-1}
                 >
-                  <Image
-                    src={post.heroImage}
-                    alt=""
-                    fill
-                    sizes="(max-width: 880px) 100vw, 45vw"
-                    style={{ objectFit: "cover" }}
-                  />
+                  {post.heroImage ? (
+                    <Image
+                      src={post.heroImage}
+                      alt=""
+                      fill
+                      sizes="(max-width: 880px) 100vw, 45vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <span className="insight-row-media-placeholder" aria-hidden="true" />
+                  )}
                   <span className="insight-row-tag">{post.category}</span>
                 </Link>
                 <div className="insight-row-content">

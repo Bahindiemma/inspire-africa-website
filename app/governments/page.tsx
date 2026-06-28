@@ -69,12 +69,7 @@ export default async function GovernmentsPage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/governments-hero-market.jpg",
-          alt: "Busy Senegalese market scene — traders and buyers moving goods through a working commercial corridor",
-          captionTitle: "Systems-led",
-          captionSub: "From migration to mobility infrastructure",
-        }}
+        /* No static hero image — Strapi-down fallback renders text-only. */
       />
 
       <PageSection tone="alt">

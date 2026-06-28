@@ -78,12 +78,7 @@ export default async function ApproachPage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/approach-hero-tailor.jpg",
-          alt: "African tailor focused on a stitching task — skilled, hands-on work being built into a career",
-          captionTitle: "Earn · Learn · Return",
-          captionSub: "The circular model",
-        }}
+        /* No static hero image — Strapi-down fallback renders text-only. */
       />
 
       <PageSection tone="yellow">

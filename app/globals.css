@@ -2979,6 +2979,15 @@ body.menu-open {
   background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.28) 100%);
   pointer-events: none;
 }
+/* Neutral fill shown when a post has no CMS hero image (the site ships no
+   static fallback images). Mirrors the media container's own surface so the
+   slot reads as intentional, not broken. */
+.insight-row-media-placeholder,
+.insight-card-media-placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-2);
+}
 .insight-row-tag {
   position: absolute;
   top: 16px;

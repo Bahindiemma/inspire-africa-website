@@ -13,6 +13,7 @@ import { RevealController } from "@/components/layout/RevealController";
 import { SITE } from "@/lib/site";
 import { organizationJsonLd, websiteJsonLd, SITE_KEYWORDS } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/cms/site-settings";
+import { strapiMedia } from "@/lib/cms/media";
 
 /**
  * Madimi One — the brand typeface. Loaded via three independent paths so
@@ -43,8 +44,12 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
+  // Brand/meta imagery comes from the CMS Media Library (no static files).
+  const ogUrl = strapiMedia(s.defaultOgImage?.url);
+  const faviconUrl = strapiMedia(s.favicon?.url);
   return {
     metadataBase: new URL(s.baseUrl),
+    ...(faviconUrl ? { icons: { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl } } : {}),
     title: {
       default: `${s.name} — ${s.tagline}`,
       template: `%s — ${s.name}`,
@@ -66,20 +71,15 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `${s.name} — ${s.tagline}`,
       description: s.description,
       url: s.baseUrl,
-      images: [
-        {
-          url: "/images/home-hero-healthcare.jpg",
-          width: 1200,
-          height: 630,
-          alt: `${s.name} — ${s.tagline}`,
-        },
-      ],
+      ...(ogUrl
+        ? { images: [{ url: ogUrl, width: 1200, height: 630, alt: `${s.name} — ${s.tagline}` }] }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: `${s.name} — ${s.tagline}`,
       description: s.description,
-      images: ["/images/home-hero-healthcare.jpg"],
+      ...(ogUrl ? { images: [ogUrl] } : {}),
     },
     robots: {
       index: true,
@@ -124,7 +124,13 @@ const themeInitScript = `
 }())
 `;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Logo + default share image for Organization JSON-LD come from the CMS.
+  const s = await getSiteSettings();
+  const orgJsonLd = organizationJsonLd({
+    logoUrl: strapiMedia(s.logo?.url),
+    imageUrl: strapiMedia(s.defaultOgImage?.url),
+  });
   return (
     <html lang="en-GB" suppressHydrationWarning className={madimi.variable}>
       <head>
@@ -138,7 +144,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <script
           type="application/ld+json"

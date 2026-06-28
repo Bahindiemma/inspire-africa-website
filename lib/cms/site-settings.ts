@@ -8,7 +8,26 @@
  * so the CMS revalidation webhook can purge by tag.
  */
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
+import { strapiMedia } from '@/lib/cms/media';
 import { SITE as STATIC_SITE, NAV_LINKS as STATIC_NAV } from '@/lib/site';
+import type { BrandLogo } from '@/components/ui/Brand';
+
+/**
+ * Resolve the header/footer logo from CMS site-settings into the shape the
+ * `Brand` component expects (absolute URL + natural dimensions), or null
+ * when the CMS has no logo — in which case Brand renders a text wordmark.
+ * The site ships no bundled logo file.
+ */
+export function brandLogoFrom(settings: SiteSettings): BrandLogo | null {
+  const src = strapiMedia(settings.logo?.url);
+  if (!src || !settings.logo?.width || !settings.logo?.height) return null;
+  return {
+    src,
+    width: settings.logo.width,
+    height: settings.logo.height,
+    alt: settings.logo.alternativeText ?? `${settings.name}`,
+  };
+}
 
 export interface SiteSettings {
   name: string;
@@ -42,7 +61,7 @@ export interface SiteSettings {
     order?: number;
   }>;
   communityBaseUrl: string;
-  logo?: { url: string; alternativeText?: string };
+  logo?: { url: string; alternativeText?: string; width?: number; height?: number };
   favicon?: { url: string };
   defaultOgImage?: { url: string };
 }

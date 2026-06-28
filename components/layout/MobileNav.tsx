@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
-import { Brand } from "@/components/ui/Brand";
+import { Brand, type BrandLogo } from "@/components/ui/Brand";
 import { NAV_LINKS } from "@/lib/site";
 import { joinUrl } from "@/lib/utm";
 
@@ -23,6 +23,8 @@ interface MobileNavProps {
   joinHref?: string;
   /** Header nav items from the CMS. Falls back to static NAV_LINKS. */
   links?: MobileNavLinkInput[];
+  /** CMS logo, resolved server-side in SiteHeader and passed down. */
+  logo?: BrandLogo | null;
 }
 
 function HamburgerIcon() {
@@ -44,7 +46,7 @@ function CloseIcon() {
   );
 }
 
-export function MobileNav({ joinHref, links }: MobileNavProps = {}) {
+export function MobileNav({ joinHref, links, logo }: MobileNavProps = {}) {
   const resolvedJoinHref = joinHref ?? joinUrl({ source: "mobile_drawer" });
   const navItems = links ?? [...NAV_LINKS];
   const [open, setOpen] = useState(false);
@@ -117,7 +119,7 @@ export function MobileNav({ joinHref, links }: MobileNavProps = {}) {
         aria-modal={open ? true : undefined}
       >
         <div className="mobile-drawer-header">
-          <Brand height={36} onClick={close} />
+          <Brand height={36} onClick={close} logo={logo} />
           <button
             ref={closeBtnRef}
             type="button"

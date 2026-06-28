@@ -75,12 +75,7 @@ export default async function JoinPage() {
             </ButtonLink>
           </>
         }
-        photo={{
-          src: "/images/join-hero-construction-team.jpg",
-          alt: "African construction crew in safety gear working together on a building site",
-          captionTitle: "Free Forever",
-          captionSub: "No paywalls. No hidden fees.",
-        }}
+        /* No static hero image — Strapi-down fallback renders text-only. */
       />
 
       <PageSection tone="yellow">

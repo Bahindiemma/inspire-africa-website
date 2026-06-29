@@ -3,12 +3,15 @@ import { SITE } from "./site";
 
 // The site ships NO static images — the default share/OG image and the
 // brand logo are served from the Strapi Media Library. `app/layout.tsx`
-// reads them live from the CMS for the global default; sync call sites
-// (per-page `buildMetadata`, JSON-LD) read the absolute CMS URLs from
-// these public env vars (point them at the CMS Media Library URLs).
-// When unset, the image is simply omitted — never a bundled fallback.
-const DEFAULT_OG_IMAGE = process.env.NEXT_PUBLIC_DEFAULT_OG_IMAGE ?? "";
-const BRAND_LOGO_URL = process.env.NEXT_PUBLIC_BRAND_LOGO_URL ?? "";
+// reads them live from the CMS for the global default (homepage OG +
+// favicon + JSON-LD logo). The sync call sites here (per-page
+// `buildMetadata` for sub-page OG cards) run server-side only, so they
+// read absolute CMS URLs from RUNTIME server env vars — NOT `NEXT_PUBLIC_`
+// (those are inlined at build time and can't be set on the container).
+// Point them at the CMS Media Library URLs; when unset the image is simply
+// omitted — never a bundled fallback.
+const DEFAULT_OG_IMAGE = process.env.DEFAULT_OG_IMAGE_URL ?? "";
+const BRAND_LOGO_URL = process.env.BRAND_LOGO_URL ?? "";
 
 /** Niche keywords reused as the default for every page. */
 export const SITE_KEYWORDS = [

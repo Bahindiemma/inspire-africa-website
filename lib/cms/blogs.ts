@@ -97,6 +97,48 @@ export async function getBlogPosts(limit = 10): Promise<BlogPost[]> {
   }
 }
 
+export interface BlogPostsPage {
+  posts: BlogPost[];
+  page: number;
+  pageCount: number;
+  total: number;
+}
+
+/**
+ * Paginated post list for the /blog index. Uses Strapi's
+ * `pagination[page]`/`pageSize` and reads `meta.pagination` for the page
+ * count. Falls back to in-memory pagination of STATIC_POSTS when the CMS
+ * is unreachable. `page` is clamped to a valid range.
+ */
+export async function getBlogPostsPage(page = 1, pageSize = 6): Promise<BlogPostsPage> {
+  const safePage = Math.max(1, Math.floor(page) || 1);
+
+  const fromStatic = (): BlogPostsPage => {
+    const total = STATIC_POSTS.length;
+    const pageCount = Math.max(1, Math.ceil(total / pageSize));
+    const p = Math.min(safePage, pageCount);
+    const start = (p - 1) * pageSize;
+    return { posts: STATIC_POSTS.slice(start, start + pageSize), page: p, pageCount, total };
+  };
+
+  if (!isStrapiAvailable()) return fromStatic();
+  try {
+    const { data, meta } = await strapiFetch<StrapiBlogPost[]>(
+      `/blog-posts?sort=publishedAt:desc&pagination[page]=${safePage}&pagination[pageSize]=${pageSize}&${POPULATE_LIST}`,
+      { revalidate: 60, tags: ['blog-post'] }
+    );
+    const pag = meta?.pagination;
+    return {
+      posts: data.map(adapt),
+      page: pag?.page ?? safePage,
+      pageCount: Math.max(1, pag?.pageCount ?? 1),
+      total: pag?.total ?? data.length,
+    };
+  } catch {
+    return fromStatic();
+  }
+}
+
 export async function getBlogPost(slug: string): Promise<BlogPost | undefined> {
   if (!isStrapiAvailable()) return STATIC_POSTS.find((p) => p.slug === slug);
   try {

@@ -3577,6 +3577,69 @@ body.menu-open {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* /blog index — 3 cards per row (2 tablet, 1 mobile). Separate from the
+   2-up .blog-related-grid used by the article "Keep reading" strip. */
+.blog-index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.5vw, 28px);
+}
+@media (max-width: 980px) {
+  .blog-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .blog-index-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* /blog pagination controls */
+.blog-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(36px, 5vw, 56px);
+}
+.blog-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.blog-page-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-media-sm, 10px);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.blog-page-link:hover {
+  border-color: var(--yellow);
+}
+.blog-page-link.is-active {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: #0a0a0a;
+}
+.blog-page-link.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
 @media (max-width: 540px) {
   .blog-hero {
     padding-bottom: 28px;

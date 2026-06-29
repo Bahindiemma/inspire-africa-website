@@ -41,10 +41,11 @@ export function Brand({ className, onDark = false, height = 40, onClick, logo }:
           height={height}
           width={width}
           priority
-          // Served straight from the Strapi Media Library (small brand
-          // chrome) — skip the optimizer so it never depends on a build-time
-          // fetch of the CMS origin.
-          unoptimized
+          // Route through the Next image optimizer (NOT unoptimized): the
+          // server fetches the CMS image over the internal/http origin and
+          // serves it back same-origin over https. Emitting the raw Strapi
+          // URL (http://…:1337) on the https site would be blocked as mixed
+          // content — which is exactly what broke the badge logo before.
         />
       ) : (
         // Text wordmark fallback — keeps the brand legible with no image.

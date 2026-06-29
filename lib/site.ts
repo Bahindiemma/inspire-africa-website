@@ -51,6 +51,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { href: "/workers", label: "Workers" },
   { href: "/employers", label: "Employers" },
   { href: "/governments", label: "Governments" },
+  { href: "/blog", label: "Blogs" },
   { href: "/join", label: "Join the Community", cta: true },
   { href: "/contact", label: "Contact" },
 ];

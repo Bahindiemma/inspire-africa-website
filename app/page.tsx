@@ -322,6 +322,11 @@ export default async function HomePage() {
               </article>
             ))}
           </div>
+          <div className="insights-foot reveal">
+            <ButtonLink href="/blog" variant="ghost" withArrow>
+              All Blogs
+            </ButtonLink>
+          </div>
         </div>
       </section>
 

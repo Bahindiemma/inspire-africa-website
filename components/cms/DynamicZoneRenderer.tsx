@@ -471,6 +471,11 @@ function SectionSwitch({
                 );
               })}
             </div>
+            <div className="insights-foot reveal">
+              <ButtonLink href="/blog" variant="ghost" withArrow>
+                All Blogs
+              </ButtonLink>
+            </div>
           </div>
         </section>
       );

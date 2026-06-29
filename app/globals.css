@@ -3409,17 +3409,21 @@ body.menu-open {
   background: var(--bg);
 }
 .blog-body {
-  max-width: 720px;
+  /* Text column spans the full container width — i.e. the same width as
+     the hero image (.blog-cover-frame, which is width:100% of the same
+     container). Larger font + line-height below keep the wider measure
+     readable. */
+  max-width: none;
   margin: 0 auto;
   width: 100%;
 }
 .blog-body .lede {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(20px, 1.9vw, 26px);
-  line-height: 1.35;
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.4;
   color: var(--text);
-  margin: 0 0 32px;
+  margin: 0 0 36px;
   text-transform: none;
   letter-spacing: -0.005em;
   text-wrap: pretty;
@@ -3435,10 +3439,10 @@ body.menu-open {
   text-wrap: balance;
 }
 .blog-body p {
-  font-size: 17px;
-  line-height: 1.75;
+  font-size: clamp(18px, 1.25vw, 21px);
+  line-height: 1.8;
   color: var(--text-mute);
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   text-wrap: pretty;
 }
 .blog-body ul,
@@ -3651,7 +3655,7 @@ body.menu-open {
     gap: 12px 22px;
   }
   .blog-body p {
-    font-size: 16px;
+    font-size: 17px;
   }
   .blog-callout,
   .blog-quote {

@@ -109,7 +109,15 @@ export default async function BlogDetailPage({ params }: RouteParams) {
                   case "h2":
                     return <h2 key={i}>{s.text}</h2>;
                   case "p":
-                    return <p key={i}>{s.text}</p>;
+                    // Preserve the CMS paragraph structure: the adapter joins
+                    // a paragraph component's nodes with blank lines, so split
+                    // on those and render each as its own <p> (a lone newline
+                    // collapses to a space). One CMS paragraph = one <p>.
+                    return s.text
+                      .split(/\n{2,}/)
+                      .map((para) => para.replace(/\s*\n\s*/g, " ").trim())
+                      .filter(Boolean)
+                      .map((para, j) => <p key={`${i}-${j}`}>{para}</p>);
                   case "list":
                     return s.ordered ? (
                       <ol className="blog-list" key={i}>

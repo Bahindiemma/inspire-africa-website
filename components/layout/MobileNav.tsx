@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { Brand, type BrandLogo } from "@/components/ui/Brand";
 import { NAV_LINKS } from "@/lib/site";
-import { joinUrl } from "@/lib/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 
 interface MobileNavLinkInput {
   href: string;
@@ -18,7 +18,7 @@ interface MobileNavProps {
   /**
    * Pre-built join URL passed in from the server (SiteHeader) so we
    * don't have to fetch site settings on the client. Falls back to the
-   * static joinUrl() if no prop was provided.
+   * static gate URL if no prop was provided.
    */
   joinHref?: string;
   /** Header nav items from the CMS. Falls back to static NAV_LINKS. */
@@ -47,7 +47,7 @@ function CloseIcon() {
 }
 
 export function MobileNav({ joinHref, links, logo }: MobileNavProps = {}) {
-  const resolvedJoinHref = joinHref ?? joinUrl({ source: "mobile_drawer" });
+  const resolvedJoinHref = joinHref ?? buildJoinGateUrl({ source: "mobile_drawer" });
   const navItems = links ?? [...NAV_LINKS];
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -160,6 +160,7 @@ export function MobileNav({ joinHref, links, logo }: MobileNavProps = {}) {
             withArrow
             onClick={close}
             tabIndex={open ? 0 : -1}
+            prefetch={false}
           >
             Join the Community
           </ButtonLink>

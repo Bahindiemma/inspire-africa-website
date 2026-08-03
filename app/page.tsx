@@ -8,7 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SITE } from "@/lib/site";
-import { joinUrl } from "@/lib/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
 import { getCorridors } from "@/lib/cms/corridors";
 import { getBlogPosts, formatBlogDate } from "@/lib/cms/blogs";
@@ -102,7 +102,7 @@ export default async function HomePage() {
         lede={SITE.description}
         ctas={
           <>
-            <ButtonLink href={joinUrl({ source: "homepage_hero" })} variant="primary" withArrow>
+            <ButtonLink href={buildJoinGateUrl({ source: "homepage_hero" })} variant="primary" withArrow prefetch={false}>
               Join the Community
             </ButtonLink>
             <ButtonLink href="/approach" variant="ghost">
@@ -349,7 +349,7 @@ export default async function HomePage() {
           </>
         }
       >
-        <ButtonLink href={joinUrl({ source: "homepage_final_cta" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinGateUrl({ source: "homepage_final_cta" })} variant="dark" withArrow prefetch={false}>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

@@ -21,8 +21,18 @@ export function ButtonLink({
   withArrow = false,
   children,
   className,
+  prefetch,
   ...rest
-}: CommonProps & { href: string } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children" | "className">) {
+}: CommonProps & {
+  href: string;
+  /**
+   * Pass `false` for links whose target has a side effect on render — the
+   * /join/start signup gate records a click, and <Link>'s default hover +
+   * viewport prefetching would count everyone who merely scrolled past.
+   * Ignored for external hrefs, which never prefetch.
+   */
+  prefetch?: boolean;
+} & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children" | "className">) {
   const external = /^https?:\/\//.test(href) || href.startsWith("mailto:") || href.startsWith("tel:");
   if (external) {
     return (
@@ -38,7 +48,7 @@ export function ButtonLink({
     );
   }
   return (
-    <Link href={href} className={classes(variant, className)} {...rest}>
+    <Link href={href} className={classes(variant, className)} prefetch={prefetch} {...rest}>
       {children}
       {withArrow ? <ArrowIcon /> : null}
     </Link>

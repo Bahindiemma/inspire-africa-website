@@ -4,7 +4,7 @@ import { CookieSettingsLink } from "@/components/consent/CookieSettingsLink";
 import { SITE } from "@/lib/site";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { getSiteSettings, brandLogoFrom } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 
 // Inline brand glyphs (24px viewBox) — keeps icon weight tiny vs. importing a
 // separate icon library. `currentColor` so they inherit the footer-social
@@ -91,7 +91,9 @@ export async function SiteFooter() {
               Labour mobility infrastructure connecting Africa&apos;s workforce to global employers and governments —
               through governed pathways, predictive screening and migration finance.
             </p>
-            <a className="footer-cta" href={buildJoinUrl(settings.communityBaseUrl, { source: "footer" })}>
+            {/* Plain <a>: a full navigation is fine for a footer CTA and
+                sidesteps <Link> prefetching the click-recording gate. */}
+            <a className="footer-cta" href={buildJoinGateUrl({ source: "footer" })}>
               Join the Community
               <ArrowIcon />
             </a>

@@ -106,6 +106,24 @@ export default async function PrivacyPage() {
           <li>Job descriptions, role requirements and placement records</li>
           <li>Compliance documentation related to ethical-recruitment standards</li>
         </ul>
+        <h3>When you join the community</h3>
+        <p>
+          Our community is hosted on Mighty Networks. Before we hand you over, we ask for your details
+          on our own signup page so that we — not only our community provider — can support you.
+        </p>
+        <ul>
+          <li>Your first name, last name, email address and phone number</li>
+          <li>The country you tell us you live in, where you provide it</li>
+          <li>Which page or campaign you came from, so we know what is working</li>
+          <li>A one-way, irreversible hash of your IP address and your browser&apos;s user-agent string, used to block automated abuse — we do not store the IP address itself</li>
+        </ul>
+        <p>
+          We also record the fact that a &ldquo;Join the Community&rdquo; button was clicked, before any
+          details are entered. That record contains no name, email or phone number — only the page it
+          came from and the anonymised values above. Once you arrive at Mighty Networks they will ask
+          you to create an account with them, governed by their own privacy policy.
+        </p>
+
         <h3>Automatically</h3>
         <ul>
           <li>Device and browser information, IP address, approximate location</li>
@@ -151,7 +169,7 @@ export default async function PrivacyPage() {
               </tr>
               <tr>
                 <td><strong>Legitimate interests</strong></td>
-                <td>For platform improvement, fraud prevention and operational continuity, balanced against your rights.</td>
+                <td>For platform improvement, fraud prevention and operational continuity, balanced against your rights. This includes holding the details you give us when joining the community, and measuring how many people click through to it, so we can support members directly rather than depending solely on a third-party platform.</td>
               </tr>
               <tr>
                 <td><strong>Consent</strong></td>
@@ -165,6 +183,7 @@ export default async function PrivacyPage() {
         <p>We share personal data only with parties necessary to deliver our services — and only under contractual safeguards consistent with this policy.</p>
         <ul>
           <li>Employers and prospective employers — where you have applied or been matched</li>
+          <li>Mighty Networks, Inc. — our community platform. When you continue from our signup page to the community, you create an account with them directly and their privacy policy applies to it</li>
           <li>Government, regulatory and immigration authorities — where legally required</li>
           <li>Service providers (cloud hosting, identity verification, payment, communications) bound by data-processing agreements</li>
           <li>Professional advisers — legal, audit, compliance</li>
@@ -189,6 +208,8 @@ export default async function PrivacyPage() {
           <li>Active candidate and placement records — for the duration of the relationship and up to seven years thereafter</li>
           <li>Financial records — six to ten years, depending on jurisdiction</li>
           <li>Marketing data — until you withdraw consent</li>
+          <li>Community signup details (name, email, phone) — three years from your last interaction with us, unless you ask us to erase them sooner</li>
+          <li>Community click records, which contain no name, email or phone number — fourteen months</li>
           <li>Cookies — as set out in our <Link href="/cookies">Cookie Policy</Link></li>
         </ul>
 

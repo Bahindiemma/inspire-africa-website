@@ -7,8 +7,7 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { buildMetadata } from "@/lib/seo";
-import { getSiteSettings } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 import { getPage } from "@/lib/cms/pages";
 import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
@@ -42,7 +41,7 @@ const PROTECTION = [
 export default async function WorkersPage() {
   // CMS-driven render (preferred). Falls back to the inline TSX below
   // if Strapi is unreachable AND no Page document exists at /workers.
-  const [settings, page] = await Promise.all([getSiteSettings(), getPage("workers")]);
+  const page = await getPage("workers");
   if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
@@ -64,7 +63,7 @@ export default async function WorkersPage() {
         lede="Access real international job opportunities with fair recruitment, structured preparation and no large up-front costs."
         ctas={
           <>
-            <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "workers_hero" })} variant="primary" withArrow>
+            <ButtonLink href={buildJoinGateUrl({ source: "workers_hero" })} variant="primary" withArrow prefetch={false}>
               Join the Community
             </ButtonLink>
             <ButtonLink href="/approach" variant="ghost">
@@ -132,7 +131,7 @@ export default async function WorkersPage() {
         }
         lede="Free membership. The single, supported route into INSPIRE's ecosystem."
       >
-        <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "workers_final" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinGateUrl({ source: "workers_final" })} variant="dark" withArrow prefetch={false}>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

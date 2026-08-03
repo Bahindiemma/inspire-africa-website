@@ -3,15 +3,17 @@ import { Brand } from "@/components/ui/Brand";
 import { brandLogoFrom } from "@/lib/cms/site-settings";
 import { ThemeSwitch } from "@/components/theme/ThemeSwitch";
 import { getSiteSettings, getNavigation } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 import { HeaderScroll } from "./HeaderScroll";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
 
 export async function SiteHeader() {
   const [settings, nav] = await Promise.all([getSiteSettings(), getNavigation()]);
-  const headerJoin = buildJoinUrl(settings.communityBaseUrl, { source: "header_nav" });
-  const drawerJoin = buildJoinUrl(settings.communityBaseUrl, { source: "mobile_drawer" });
+  // Both CTAs now go through the internal signup gate, which records the
+  // click server-side and then performs the Mighty Networks handoff.
+  const headerJoin = buildJoinGateUrl({ source: "header_nav" });
+  const drawerJoin = buildJoinGateUrl({ source: "mobile_drawer" });
   const logo = brandLogoFrom(settings);
   // Sort by `order` and map to the NavLink shape NavLinks + MobileNav expect.
   const links = (nav.headerLinks ?? [])
@@ -27,7 +29,7 @@ export async function SiteHeader() {
           <NavLinks links={links} />
           <ThemeSwitch />
           <div className="nav-cta">
-            <ButtonLink href={headerJoin} variant="primary" withArrow>
+            <ButtonLink href={headerJoin} variant="primary" withArrow prefetch={false}>
               Join Community
             </ButtonLink>
           </div>

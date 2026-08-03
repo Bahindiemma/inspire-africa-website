@@ -124,6 +124,7 @@ export default async function CookiesPage() {
           <li><strong>Google LLC</strong> — analytics</li>
           <li><strong>LinkedIn Ireland Unlimited Company</strong> — campaign measurement</li>
           <li><strong>Mighty Networks</strong> — our community platform, which sets its own cookies when you visit the community</li>
+          <li><strong>INSPIRE AFRICA signup page</strong> — no cookie. When you click &ldquo;Join the Community&rdquo; we record that click on our own server, not in your browser. That record holds the page you came from and a one-way hash of your IP address; it holds no name, email or phone number unless you go on to complete the form. Because nothing is stored on your device and the record is necessary to operate the signup itself, it does not require cookie consent — see our <Link href="/privacy">Privacy Policy</Link> for the lawful basis and retention period.</li>
           <li><strong>Wix.com Ltd</strong> — site infrastructure and form handling</li>
         </ul>
         <p>These providers process limited data on our behalf or as joint controllers. Their own privacy and cookie policies apply when you interact with them directly.</p>

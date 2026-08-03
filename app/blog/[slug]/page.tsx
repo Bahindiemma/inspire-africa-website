@@ -8,7 +8,7 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
-import { joinUrl } from "@/lib/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 
 interface RouteParams {
   params: Promise<{ slug: string }>;
@@ -224,7 +224,12 @@ export default async function BlogDetailPage({ params }: RouteParams) {
         }
         lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
       >
-        <ButtonLink href={joinUrl({ source: `blog_${post.slug}` })} variant="dark" withArrow>
+        <ButtonLink
+          href={buildJoinGateUrl({ source: `blog_${post.slug}` })}
+          variant="dark"
+          withArrow
+          prefetch={false}
+        >
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

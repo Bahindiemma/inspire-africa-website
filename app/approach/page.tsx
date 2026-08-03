@@ -6,8 +6,7 @@ import { ProcessList } from "@/components/sections/ProcessList";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { ButtonLink } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo";
-import { getSiteSettings } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 import { getPage } from "@/lib/cms/pages";
 import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
@@ -54,7 +53,7 @@ const JOURNEY = [
 export default async function ApproachPage() {
   // CMS-driven render (preferred). Falls back to inline TSX below
   // if Strapi is unreachable AND no Page document exists at /approach.
-  const [settings, page] = await Promise.all([getSiteSettings(), getPage("approach")]);
+  const page = await getPage("approach");
   if (page) return <DynamicZoneRenderer sections={page.sections} />;
   return (
     <>
@@ -70,7 +69,7 @@ export default async function ApproachPage() {
         lede="A structured system for global labour mobility — built around four principles: ethical, circular, structured, worker-centred."
         ctas={
           <>
-            <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "approach_hero" })} variant="primary" withArrow>
+            <ButtonLink href={buildJoinGateUrl({ source: "approach_hero" })} variant="primary" withArrow prefetch={false}>
               Join the Community
             </ButtonLink>
             <ButtonLink href="/workers" variant="ghost">
@@ -128,7 +127,7 @@ export default async function ApproachPage() {
         }
         lede="Free membership. Direct route into the INSPIRE AFRICA ecosystem."
       >
-        <ButtonLink href={buildJoinUrl(settings.communityBaseUrl, { source: "approach_cta" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinGateUrl({ source: "approach_cta" })} variant="dark" withArrow prefetch={false}>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { ButtonLink } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SITE } from "@/lib/site";
-import { joinUrl } from "@/lib/utm";
+import { buildJoinGateUrl } from "@/lib/utm";
 import { buildMetadata } from "@/lib/seo";
 import { getSiteSettings } from "@/lib/cms/site-settings";
 import { getPage } from "@/lib/cms/pages";
@@ -135,7 +135,7 @@ export default async function ContactPage() {
         lede="It&apos;s the fastest way in."
         style={{ paddingTop: "clamp(48px,5vw,72px)", paddingBottom: "clamp(48px,5vw,72px)" }}
       >
-        <ButtonLink href={joinUrl({ source: "contact_final_cta" })} variant="dark" withArrow>
+        <ButtonLink href={buildJoinGateUrl({ source: "contact_final_cta" })} variant="dark" withArrow prefetch={false}>
           Join the Community — Free
         </ButtonLink>
       </FinalCta>

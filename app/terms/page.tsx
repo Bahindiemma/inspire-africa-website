@@ -106,6 +106,13 @@ export default async function TermsPage() {
           <li>Notify us promptly of any unauthorised access</li>
           <li>Be responsible for activity carried out under your account</li>
         </ul>
+        <p>
+          Joining the community involves two separate steps. First you give your details to INSPIRE AFRICA
+          on our own signup page; we hold those under our <Link href="/privacy">Privacy Policy</Link>. You are
+          then taken to Mighty Networks, where you create a community account governed by their terms. We do
+          not control that account, and cannot log in to, moderate or recover it on your behalf beyond what
+          their platform allows us as the community host.
+        </p>
 
         <LegalHeading num="05" id="acceptable-use">Acceptable use</LegalHeading>
         <p>When using the platform you must not:</p>

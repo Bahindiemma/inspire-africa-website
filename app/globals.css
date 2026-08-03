@@ -2269,6 +2269,33 @@ body.menu-open {
   display: flex;
   justify-content: flex-end;
 }
+/* Inline validation message under a field (community signup gate). */
+.field-error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b00020;
+}
+[data-theme="dark"] .field-error {
+  color: #ff8a94;
+}
+.form-field input[aria-invalid="true"],
+.form-field select[aria-invalid="true"] {
+  border-color: #b00020;
+}
+/* The shared :focus rule above drops the outline in favour of a border
+   colour, which is invisible on a checkbox. Give controls a real ring. */
+.form-field input[type="checkbox"]:focus-visible,
+.form-field input:focus-visible,
+.form-field select:focus-visible,
+.form-field textarea:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+.form-submit .btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: minmax(0, 1fr);

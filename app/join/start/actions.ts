@@ -18,7 +18,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSiteSettings } from "@/lib/cms/site-settings";
 import { buildJoinUrl } from "@/lib/cms/utm";
-import { markRedirected, submitSignup, newClickId } from "@/lib/cms/community";
+// markRedirected is intentionally NOT used here — the handoff is recorded by
+// /join/continue, at the moment the visitor actually leaves for the community.
+import { submitSignup, newClickId } from "@/lib/cms/community";
 
 export interface SignupState {
   error?: string;
@@ -137,12 +139,13 @@ export async function submitCommunitySignup(
   }
 
   if (result.ok) {
-    // Best-effort; never block the handoff on it.
-    await markRedirected(result.clickId, forward).catch(() => {});
-
-    // The lead is banked. Offer the profile wizard next — every step of it is
-    // skippable and the community link is present throughout, so this adds
-    // profile depth without holding the membership hostage.
+    // NOTE: we deliberately do NOT mark RedirectedToMN here. The visitor is
+    // going to the profile wizard, not to Mighty Networks — marking it now
+    // would overstate the community-handoff metric for everyone who never
+    // clicks through. The status is set by /join/continue, which is where
+    // every "go to the community" link actually points.
+    //
+    // The lead is already banked, so every wizard step is skippable.
     // redirect() throws NEXT_REDIRECT by design — outside try/catch.
     redirect(`/join/profile/about-you?clickId=${encodeURIComponent(result.clickId)}`);
   }

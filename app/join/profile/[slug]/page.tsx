@@ -5,8 +5,6 @@ import { Hero } from "@/components/sections/Hero";
 import { PageSection } from "@/components/sections/PageSection";
 import { ProfileWizardForm } from "@/components/forms/ProfileWizardForm";
 import { buildMetadata } from "@/lib/seo";
-import { getSiteSettings } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
 import { PROFILE_STEPS, stepBySlug } from "@/lib/profile-shape";
 
 export const dynamic = "force-dynamic";
@@ -40,10 +38,12 @@ export default async function ProfileStepPage({ params, searchParams }: Props) {
   // captured the lead and the visitor was told membership is free — trapping
   // them behind a profile they did not ask for would break that promise, and
   // would cost community joins to buy profile depth.
-  const settings = await getSiteSettings().catch(() => null);
-  const communityHref = buildJoinUrl(settings?.communityBaseUrl, {
-    source: `profile_step_${step.step}`,
-  });
+  // Route via /join/continue so RedirectedToMN is only set when the visitor
+  // actually leaves for the community — not merely because they reached the
+  // wizard. Carries clickId when we have it so the status can be recorded.
+  const communityHref =
+    `/join/continue?source=profile_step_${step.step}` +
+    (clickId ? `&clickId=${encodeURIComponent(clickId)}` : "");
 
   const index = PROFILE_STEPS.findIndex((s) => s.slug === slug);
   const pct = Math.round(((index + 1) / PROFILE_STEPS.length) * 100);

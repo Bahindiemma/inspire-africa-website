@@ -4,8 +4,6 @@ import { Hero } from "@/components/sections/Hero";
 import { PageSection } from "@/components/sections/PageSection";
 import { ButtonLink } from "@/components/ui/Button";
 import { buildMetadata } from "@/lib/seo";
-import { getSiteSettings } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +19,9 @@ export const metadata: Metadata = buildMetadata({
  * for one that is barely started — it deliberately does not claim the profile
  * is finished.
  */
-export default async function ProfileDonePage() {
-  const settings = await getSiteSettings().catch(() => null);
-  const communityHref = buildJoinUrl(settings?.communityBaseUrl, { source: "profile_complete" });
+export default function ProfileDonePage() {
+  // Via /join/continue so the handoff is recorded at the moment it happens.
+  const communityHref = "/join/continue?source=profile_complete";
 
   return (
     <>

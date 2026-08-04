@@ -178,25 +178,6 @@ export function CommunitySignupForm({
         ) : null}
       </div>
 
-      <div className="form-field full">
-        <label
-          htmlFor="cs-marketing"
-          style={{ display: "flex", gap: 10, alignItems: "flex-start", fontWeight: 400 }}
-        >
-          <input
-            id="cs-marketing"
-            name="consentMarketing"
-            type="checkbox"
-            defaultChecked={v.consentMarketing === "on"}
-            style={{ width: "auto", marginTop: 4 }}
-          />
-          <span>
-            Send me opportunities, events and corridor updates by email. (Optional — you can
-            unsubscribe at any time.)
-          </span>
-        </label>
-      </div>
-
       <div className="form-submit">
         <button type="submit" className="btn btn--primary" disabled={pending}>
           {pending ? "Sending your link…" : "Join the Community — Free"}

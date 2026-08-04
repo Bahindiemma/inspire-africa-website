@@ -41,7 +41,6 @@ export async function submitCommunitySignup(
   const lastName = field(data, "lastName", MAX.name);
   const email = field(data, "email", MAX.email);
   const consentTerms = data.get("consentTerms") != null;
-  const consentMarketing = data.get("consentMarketing") != null;
   const company = field(data, "company", 200); // honeypot
   const rawType = field(data, "registrantType", 32);
   const registrantType: RegistrantType = (REGISTRANT_TYPES.some((r) => r.value === rawType)
@@ -58,7 +57,6 @@ export async function submitCommunitySignup(
     firstName,
     lastName,
     email,
-    consentMarketing: consentMarketing ? "on" : "",
   };
 
   const fieldErrors: Record<string, string> = {};
@@ -93,7 +91,6 @@ export async function submitCommunitySignup(
       firstName,
       lastName,
       consentTerms,
-      consentMarketing,
       company,
       registrantType,
     },

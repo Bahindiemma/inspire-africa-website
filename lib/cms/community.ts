@@ -60,7 +60,12 @@ export interface SignupInput extends ClickContext {
   firstName?: string | null;
   lastName?: string | null;
   consentTerms: boolean;
-  consentMarketing: boolean;
+  /**
+   * No longer collected at signup — the marketing opt-in checkbox was
+   * removed. Kept on the interface so the CMS field (and any existing
+   * rows) stay addressable if a marketing opt-in returns elsewhere.
+   */
+  consentMarketing?: boolean;
   /** jobseeker | employer | government | other — decides the wizard branch. */
   registrantType?: string | null;
   /** Honeypot. Any value means a bot filled a hidden field. */

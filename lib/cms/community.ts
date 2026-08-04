@@ -29,6 +29,13 @@ import { randomUUID } from 'crypto';
 const BASE = process.env.COMMUNITY_SIGNUP_URL || process.env.STRAPI_BASE_URL;
 const TOKEN = process.env.COMMUNITY_SIGNUP_TOKEN;
 const TIMEOUT_MS = 4000;
+/**
+ * submit/resend are slower than the other calls because the CMS attempts an
+ * SMTP send before responding. The 4s default aborted mid-send and made a
+ * SUCCESSFUL signup look like a failure to the visitor — the row existed,
+ * the page said try again. Must stay comfortably above the CMS-side send cap.
+ */
+const MAIL_TIMEOUT_MS = 20000;
 
 export function isCommunityCaptureConfigured(): boolean {
   return Boolean(BASE && TOKEN);
@@ -74,7 +81,8 @@ export type SubmitResult =
 async function post(
   path: string,
   body: unknown,
-  forward: { ip?: string | null; ua?: string | null } = {}
+  forward: { ip?: string | null; ua?: string | null } = {},
+  timeoutMs: number = TIMEOUT_MS
 ): Promise<Response | null> {
   if (!BASE || !TOKEN) return null;
   try {
@@ -88,7 +96,7 @@ async function post(
       },
       body: JSON.stringify(body),
       cache: 'no-store',
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
     return null;
@@ -122,7 +130,7 @@ export async function submitSignup(
   if (!isCommunityCaptureConfigured()) {
     return { ok: false, reason: 'unavailable' };
   }
-  const res = await post('/community/submit', input, forward);
+  const res = await post('/community/submit', input, forward, MAIL_TIMEOUT_MS);
   if (!res) return { ok: false, reason: 'unavailable' };
 
   if (res.status === 429) return { ok: false, reason: 'rate_limited' };
@@ -190,7 +198,7 @@ export async function resendVerification(
   clickId: string,
   forward?: { ip?: string | null; ua?: string | null }
 ): Promise<void> {
-  await post('/community/resend', { clickId }, forward);
+  await post('/community/resend', { clickId }, forward, MAIL_TIMEOUT_MS);
 }
 
 /** Fire-and-forget: the handoff to Mighty Networks happened. */

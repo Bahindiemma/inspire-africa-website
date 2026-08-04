@@ -136,18 +136,25 @@ export async function submitCommunitySignup(
     // the community anyway. The failure is already logged server-side.
   }
 
-  const settings = await getSiteSettings().catch(() => null);
-  const target = buildJoinUrl(settings?.communityBaseUrl, {
-    source,
-    medium: utmMedium,
-    campaign: utmCampaign,
-  });
-
   if (result.ok) {
     // Best-effort; never block the handoff on it.
     await markRedirected(result.clickId, forward).catch(() => {});
+
+    // The lead is banked. Offer the profile wizard next — every step of it is
+    // skippable and the community link is present throughout, so this adds
+    // profile depth without holding the membership hostage.
+    // redirect() throws NEXT_REDIRECT by design — outside try/catch.
+    redirect(`/join/profile/about-you?clickId=${encodeURIComponent(result.clickId)}`);
   }
 
-  // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
-  redirect(target);
+  // Capture failed (CMS unreachable). Do not send them into a wizard that
+  // cannot save — hand them straight to the community as before.
+  const settings = await getSiteSettings().catch(() => null);
+  redirect(
+    buildJoinUrl(settings?.communityBaseUrl, {
+      source,
+      medium: utmMedium,
+      campaign: utmCampaign,
+    })
+  );
 }

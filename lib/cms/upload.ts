@@ -102,9 +102,15 @@ export async function uploadSignupFile(
     if (!res.ok) {
       return { ok: false, reason: "unavailable", message: "We couldn't store that file just now." };
     }
-    const json = (await res.json()) as Array<{ id: number; name: string; size: number }>;
-    const first = json?.[0];
-    if (!first) {
+    // /api/community/upload returns a single object; Strapi's core upload
+    // returns an array. Accept both — assuming the array shape silently
+    // treated every successful upload as a failure, which aborted the save
+    // AND left the stored file orphaned on disk.
+    const json = (await res.json()) as
+      | { id: number; name: string; size: number }
+      | Array<{ id: number; name: string; size: number }>;
+    const first = Array.isArray(json) ? json[0] : json;
+    if (!first || typeof first.id !== "number") {
       return { ok: false, reason: "unavailable", message: "We couldn't store that file just now." };
     }
     return { ok: true, id: first.id, name: first.name, size: first.size };

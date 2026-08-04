@@ -80,13 +80,16 @@ async function fileField(
   data: FormData,
   key: string,
   purpose: UploadPurpose,
-  errors: Record<string, string>
+  uploadErrors: string[]
 ): Promise<number | undefined> {
   const f = data.get(key);
   if (!(f instanceof File) || f.size === 0) return undefined;
   const res = await uploadSignupFile(f, purpose);
   if (!res.ok) {
-    errors[key] = res.message;
+    // Collected into a flat list, NOT into fieldErrors: no step renders an
+    // inline message next to a file input, so a keyed error would vanish and
+    // the visitor would see the form reset with no explanation at all.
+    uploadErrors.push(res.message);
     return undefined;
   }
   return res.id;
@@ -116,6 +119,7 @@ export async function saveProfile(
   if (clickId) payload.clickId = clickId;
 
   const fieldErrors: Record<string, string> = {};
+  const uploadErrors: string[] = [];
 
   /* ------------------------------ identity ------------------------------ */
   if (slug === "about-you") {
@@ -133,14 +137,14 @@ export async function saveProfile(
       }
     }
 
-    const img = await fileField(data, "profileImage", "profileImage", fieldErrors);
+    const img = await fileField(data, "profileImage", "profileImage", uploadErrors);
     if (img) payload.profileImage = img;
 
     const ids = nonEmpty(rows(data, "identityDocuments"), ["kind", "number"]);
     if (ids.length) {
       // Attach each row's document photo, if one was chosen.
       for (let i = 0; i < ids.length; i++) {
-        const up = await fileField(data, `identityDocuments[${i}][documentImage]`, "idImage", fieldErrors);
+        const up = await fileField(data, `identityDocuments[${i}][documentImage]`, "idImage", uploadErrors);
         if (up) ids[i]!.documentImage = String(up);
       }
       payload.identityDocuments = ids as never;
@@ -170,7 +174,7 @@ export async function saveProfile(
     const qs = nonEmpty(rows(data, "qualifications"), ["kind", "title"]);
     if (qs.length) {
       for (let i = 0; i < qs.length; i++) {
-        const up = await fileField(data, `qualifications[${i}][certificateFile]`, "document", fieldErrors);
+        const up = await fileField(data, `qualifications[${i}][certificateFile]`, "document", uploadErrors);
         if (up) qs[i]!.certificateFile = String(up);
       }
       payload.qualifications = qs as never;
@@ -187,9 +191,9 @@ export async function saveProfile(
 
   /* ------------------------ references / documents ----------------------- */
   if (slug === "references" || slug === "documents") {
-    const cv = await fileField(data, "cvFile", "document", fieldErrors);
+    const cv = await fileField(data, "cvFile", "document", uploadErrors);
     if (cv) payload.cvFile = cv;
-    const img = await fileField(data, "profileImage", "profileImage", fieldErrors);
+    const img = await fileField(data, "profileImage", "profileImage", uploadErrors);
     if (img) payload.profileImage = img;
 
     const refs = nonEmpty(rows(data, "characterReferences"), ["name"]);
@@ -218,6 +222,10 @@ export async function saveProfile(
     }
   }
 
+  // A rejected file must never be silent — the visitor waited for the upload.
+  if (uploadErrors.length) {
+    return { error: uploadErrors.join(" "), fieldErrors };
+  }
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const h = await headers();

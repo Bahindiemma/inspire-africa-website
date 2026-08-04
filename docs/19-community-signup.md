@@ -183,9 +183,38 @@ retention), `app/cookies/page.tsx` §05, and `app/terms/page.tsx` §04.
   `src/crons/analytics-maintenance.ts`. **These numbers are stated in the privacy policy — change
   one, change the other.**
 
-⚠️ The legal pages render CMS `legal-document` content when it exists and fall back to the in-repo
-TSX otherwise. The TSX fallback has been updated; **the CMS copies must be updated too**, or the
-live site will show the old wording.
+The legal pages render CMS `legal-document` content when it exists and fall back to the in-repo TSX
+only when the body is empty. **Both have been updated** (TSX in the web repo, CMS bodies via
+`inspire-africa-cms/src/bootstrap/legal-bodies.ts`, commit `dbf3136`) and the new wording is live.
+
+### Updating legal copy in future
+
+Legal text is compliance copy that must track what the code actually does, so it is version
+controlled in `legal-bodies.ts` — not hand-edited in the admin UI, where it would drift from git.
+
+To publish a change:
+
+```bash
+# 1. edit inspire-africa-cms/src/bootstrap/legal-bodies.ts, commit, push
+# 2. rebuild the CMS image (see the deploy runbook)
+# 3. on the server:
+cd /opt/inspire-africa
+RESEED_LEGAL=true docker compose up -d --force-recreate cms
+#    wait for: "[bootstrap] RESEED_LEGAL=true — refreshing legal documents only."
+#              "[seed-content] 4 legal documents upserted"
+# 4. clear the flag so a later restart does not re-seed:
+docker compose up -d --force-recreate cms
+```
+
+**Do NOT use `RESEED_CONTENT=true` for this.** That re-runs the whole seeder and rewrites every
+page, discarding content edits made in the admin UI. `RESEED_LEGAL` exists precisely so legal text
+can be updated independently — it calls `seedLegalDocuments()` and nothing else.
+
+Verify against the rendered HTML, not the boot log — the legal pages are ISR-cached:
+
+```bash
+curl -s https://inspireafricans.com/privacy | grep -c "When you join the community"
+```
 
 ## 8. Open questions / next steps
 

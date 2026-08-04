@@ -112,7 +112,8 @@ export default async function PrivacyPage() {
           on our own signup page so that we — not only our community provider — can support you.
         </p>
         <ul>
-          <li>Your first name, last name, email address and phone number</li>
+          <li>Whether you are a jobseeker, an employer, a government representative or something else</li>
+          <li>Your first name, last name and email address</li>
           <li>The country you tell us you live in, where you provide it</li>
           <li>Which page or campaign you came from, so we know what is working</li>
           <li>A one-way, irreversible hash of your IP address and your browser&apos;s user-agent string, used to block automated abuse — we do not store the IP address itself</li>
@@ -208,7 +209,7 @@ export default async function PrivacyPage() {
           <li>Active candidate and placement records — for the duration of the relationship and up to seven years thereafter</li>
           <li>Financial records — six to ten years, depending on jurisdiction</li>
           <li>Marketing data — until you withdraw consent</li>
-          <li>Community signup details (name, email, phone) — three years from your last interaction with us, unless you ask us to erase them sooner</li>
+          <li>Community signup details (name and email) — three years from your last interaction with us, unless you ask us to erase them sooner</li>
           <li>Community click records, which contain no name, email or phone number — fourteen months</li>
           <li>Cookies — as set out in our <Link href="/cookies">Cookie Policy</Link></li>
         </ul>

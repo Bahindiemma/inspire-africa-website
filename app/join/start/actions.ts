@@ -6,22 +6,18 @@
  * Chosen over a POST route handler deliberately: a Server Action gives us
  * real progressive enhancement for free — the <form> posts and redirects
  * correctly with JavaScript disabled, which a fetch()-based handler cannot
- * do without hand-rolling a no-JS fallback. The signup path is the one
- * place on this site where losing a submission has a direct commercial
- * cost, so it should degrade the least.
+ * do without hand-rolling a no-JS fallback. Signup is the one place on this
+ * site where losing a submission has a direct commercial cost, so it should
+ * degrade the least.
  *
- * Flow: validate → persist to the CMS → mark the handoff → 303 to Mighty
- * Networks. If the CMS is unreachable we STILL redirect: a broken database
- * must never stand between a worker and the community.
+ * Flow: validate → persist → CMS sends a verification email → land on
+ * /join/check-email. The community link is only reachable after the email is
+ * confirmed, so unlike before we do NOT hand off to Mighty Networks here.
  */
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getSiteSettings } from "@/lib/cms/site-settings";
-import { buildJoinUrl } from "@/lib/cms/utm";
-// markRedirected is intentionally NOT used here — the handoff is recorded by
-// /join/continue, at the moment the visitor actually leaves for the community.
 import { submitSignup, newClickId } from "@/lib/cms/community";
-import { firstStepSlug, REGISTRANT_TYPES, type RegistrantType } from "@/lib/profile-shape";
+import { REGISTRANT_TYPES, type RegistrantType } from "@/lib/registrant";
 
 export interface SignupState {
   error?: string;
@@ -30,7 +26,7 @@ export interface SignupState {
   values?: Record<string, string>;
 }
 
-const MAX = { name: 80, email: 254, phone: 32, country: 80 };
+const MAX = { name: 80, email: 254 };
 
 function field(data: FormData, key: string, max: number): string {
   const v = data.get(key);
@@ -44,10 +40,6 @@ export async function submitCommunitySignup(
   const firstName = field(data, "firstName", MAX.name);
   const lastName = field(data, "lastName", MAX.name);
   const email = field(data, "email", MAX.email);
-  const dialCode = field(data, "dialCode", 8);
-  const phoneLocal = field(data, "phone", MAX.phone);
-  const country = field(data, "country", MAX.country);
-  const password = field(data, "password", 200);
   const consentTerms = data.get("consentTerms") != null;
   const consentMarketing = data.get("consentMarketing") != null;
   const company = field(data, "company", 200); // honeypot
@@ -61,15 +53,11 @@ export async function submitCommunitySignup(
   const utmMedium = field(data, "utm_medium", 128) || "website";
   const utmCampaign = field(data, "utm_campaign", 128) || "join_community";
 
-  // Values echoed back on error. Never echo the password.
   const values = {
     registrantType,
     firstName,
     lastName,
     email,
-    dialCode,
-    phone: phoneLocal,
-    country,
     consentMarketing: consentMarketing ? "on" : "",
   };
 
@@ -79,24 +67,12 @@ export async function submitCommunitySignup(
   if (!email) fieldErrors.email = "Please enter your email address.";
   else if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email))
     fieldErrors.email = "That email address doesn't look right.";
-  if (!phoneLocal) fieldErrors.phone = "Please enter your phone number.";
-  else if (phoneLocal.replace(/\D+/g, "").length < 6)
-    fieldErrors.phone = "That phone number looks too short.";
   if (!consentTerms)
     fieldErrors.consentTerms = "Please accept the Terms and Privacy Policy to continue.";
 
   if (Object.keys(fieldErrors).length) {
     return { fieldErrors, values };
   }
-
-  // Combine dial code + local number into E.164. The national trunk prefix
-  // must be dropped: people across our corridors write their number as
-  // "0704 118 220", and naively concatenating gives +2560704118220 — a
-  // number that cannot be dialled or matched against a WhatsApp account.
-  // If they typed a full international number themselves, leave it alone.
-  const phone = phoneLocal.startsWith("+")
-    ? phoneLocal
-    : `${dialCode || ""}${phoneLocal.replace(/\D+/g, "").replace(/^0/, "")}`;
 
   const h = await headers();
   const forward = {
@@ -116,9 +92,6 @@ export async function submitCommunitySignup(
       email,
       firstName,
       lastName,
-      phone,
-      country: country || null,
-      password: password || null,
       consentTerms,
       consentMarketing,
       company,
@@ -140,36 +113,24 @@ export async function submitCommunitySignup(
         values,
       };
     }
-    // `unavailable` — the CMS is down or unconfigured. We have lost the
-    // lead, which is bad, but blocking the visitor is worse: send them to
-    // the community anyway. The failure is already logged server-side.
+    // The CMS is unreachable. We cannot send a verification email, so there
+    // is no honest "check your inbox" to show — say so and let them retry.
+    // Previously this path fell through to the community; it must not now,
+    // because an unverified visitor is not supposed to get there.
+    return {
+      error:
+        "We couldn't complete your signup just now. Please try again in a moment — nothing has been lost.",
+      values,
+    };
   }
 
-  if (result.ok) {
-    // NOTE: we deliberately do NOT mark RedirectedToMN here. The visitor is
-    // going to the profile wizard, not to Mighty Networks — marking it now
-    // would overstate the community-handoff metric for everyone who never
-    // clicks through. The status is set by /join/continue, which is where
-    // every "go to the community" link actually points.
-    //
-    // The lead is already banked, so every wizard step is skippable.
-    // redirect() throws NEXT_REDIRECT by design — outside try/catch.
-    // Different registrant types start at different steps — an employer
-    // goes to "Your organisation", not "About you".
-    redirect(
-      `/join/profile/${firstStepSlug(registrantType)}?clickId=${encodeURIComponent(result.clickId)}` +
-        `&as=${registrantType}`
-    );
-  }
+  // Saved, but the verification email did not go out. Telling them to check
+  // their inbox would strand them, so send them to a page that offers a
+  // resend instead.
+  const query = new URLSearchParams({ clickId: result.clickId });
+  if (result.alreadyVerified) query.set("verified", "1");
+  if (!result.verificationSent) query.set("mail", "failed");
 
-  // Capture failed (CMS unreachable). Do not send them into a wizard that
-  // cannot save — hand them straight to the community as before.
-  const settings = await getSiteSettings().catch(() => null);
-  redirect(
-    buildJoinUrl(settings?.communityBaseUrl, {
-      source,
-      medium: utmMedium,
-      campaign: utmCampaign,
-    })
-  );
+  // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
+  redirect(`/join/check-email?${query.toString()}`);
 }

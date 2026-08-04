@@ -72,9 +72,6 @@ export default async function JoinStartPage({ searchParams }: Props) {
     );
   }
 
-  const showPassword =
-    String(process.env.COMMUNITY_SIGNUP_PASSWORD || "").toLowerCase() === "on";
-
   return (
     <>
       <Hero
@@ -86,7 +83,7 @@ export default async function JoinStartPage({ searchParams }: Props) {
             you are.
           </>
         }
-        lede="Membership is free. We ask for your details once so we can welcome you properly, match you to the right corridor, and tell you when opportunities open. Then we take you straight into the community."
+        lede="Membership is free. Tell us who you are, confirm your email, and you're in."
         centered
       />
 
@@ -98,12 +95,11 @@ export default async function JoinStartPage({ searchParams }: Props) {
             utmSource={utmSource}
             utmMedium={utmMedium}
             utmCampaign={utmCampaign}
-            showPassword={showPassword}
           />
           <p style={{ marginTop: 28, fontSize: 14, opacity: 0.75 }}>
-            Your details are stored by INSPIRE AFRICA and used to support your journey.
-            The community itself is hosted on Mighty Networks, who will ask you to create
-            an account with them when you arrive. See our{" "}
+            We store your name and email to support your journey, and send you a link to
+            confirm the address. The community itself is hosted on Mighty Networks, who will
+            ask you to create an account with them when you arrive. See our{" "}
             <a href="/privacy">Privacy Policy</a> for how long we keep this and how to ask
             us to delete it.
           </p>

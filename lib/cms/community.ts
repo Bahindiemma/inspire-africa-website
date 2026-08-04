@@ -52,9 +52,6 @@ export interface SignupInput extends ClickContext {
   email: string;
   firstName?: string | null;
   lastName?: string | null;
-  phone?: string | null;
-  country?: string | null;
-  password?: string | null;
   consentTerms: boolean;
   consentMarketing: boolean;
   /** jobseeker | employer | government | other — decides the wizard branch. */
@@ -64,7 +61,14 @@ export interface SignupInput extends ClickContext {
 }
 
 export type SubmitResult =
-  | { ok: true; clickId: string }
+  | {
+      ok: true;
+      clickId: string;
+      /** True when this address had already confirmed — no new email sent. */
+      alreadyVerified: boolean;
+      /** False when the CMS could not hand the email to the provider. */
+      verificationSent: boolean;
+    }
   | { ok: false; reason: 'validation' | 'rate_limited' | 'unavailable'; message?: string };
 
 async function post(
@@ -134,11 +138,59 @@ export async function submitSignup(
   if (!res.ok) return { ok: false, reason: 'unavailable' };
 
   try {
-    const json = (await res.json()) as { clickId?: string };
-    return { ok: true, clickId: json.clickId || input.clickId };
+    const json = (await res.json()) as {
+      clickId?: string;
+      alreadyVerified?: boolean;
+      verificationSent?: boolean;
+    };
+    return {
+      ok: true,
+      clickId: json.clickId || input.clickId,
+      alreadyVerified: !!json.alreadyVerified,
+      // Absent means the CMS is an older build — assume sent rather than
+      // showing a scary message for a working system.
+      verificationSent: json.verificationSent !== false,
+    };
   } catch {
-    return { ok: true, clickId: input.clickId };
+    return { ok: true, clickId: input.clickId, alreadyVerified: false, verificationSent: true };
   }
+}
+
+/** Confirm an emailed token. Returns the outcome so the page can explain it. */
+export async function verifyEmail(
+  token: string,
+  forward?: { ip?: string | null; ua?: string | null }
+): Promise<
+  | { ok: true; alreadyVerified: boolean; clickId: string }
+  | { ok: false; reason: 'invalid' | 'expired' | 'unavailable'; clickId?: string }
+> {
+  const res = await post('/community/verify', { token }, forward);
+  if (!res) return { ok: false, reason: 'unavailable' };
+  if (res.status === 404) return { ok: false, reason: 'invalid' };
+  if (res.status === 410) {
+    let clickId: string | undefined;
+    try {
+      clickId = ((await res.json()) as { clickId?: string }).clickId;
+    } catch {
+      /* body is optional here */
+    }
+    return { ok: false, reason: 'expired', clickId };
+  }
+  if (!res.ok) return { ok: false, reason: 'unavailable' };
+  try {
+    const j = (await res.json()) as { alreadyVerified?: boolean; clickId?: string };
+    return { ok: true, alreadyVerified: !!j.alreadyVerified, clickId: j.clickId || '' };
+  } catch {
+    return { ok: true, alreadyVerified: false, clickId: '' };
+  }
+}
+
+/** Re-send the verification email. Always resolves — never leaks whether the id exists. */
+export async function resendVerification(
+  clickId: string,
+  forward?: { ip?: string | null; ua?: string | null }
+): Promise<void> {
+  await post('/community/resend', { clickId }, forward);
 }
 
 /** Fire-and-forget: the handoff to Mighty Networks happened. */

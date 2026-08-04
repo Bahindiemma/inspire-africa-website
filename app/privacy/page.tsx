@@ -112,7 +112,7 @@ export default async function PrivacyPage() {
           on our own signup page so that we — not only our community provider — can support you.
         </p>
         <ul>
-          <li>Whether you are a jobseeker, an employer, a government representative or something else</li>
+          <li>Whether you are a worker, an employer, a government representative or something else</li>
           <li>Your first name, last name and email address</li>
           <li>The country you tell us you live in, where you provide it</li>
           <li>Which page or campaign you came from, so we know what is working</li>

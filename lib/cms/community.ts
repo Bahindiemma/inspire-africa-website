@@ -66,7 +66,10 @@ export interface SignupInput extends ClickContext {
    * rows) stay addressable if a marketing opt-in returns elsewhere.
    */
   consentMarketing?: boolean;
-  /** jobseeker | employer | government | other — decides the wizard branch. */
+  /**
+   * jobseeker | employer | government | other. Shown to the visitor as
+   * "A worker" etc; the stored value keeps the original key.
+   */
   registrantType?: string | null;
   /** Honeypot. Any value means a bot filled a hidden field. */
   company?: string | null;

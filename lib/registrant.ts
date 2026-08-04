@@ -16,7 +16,11 @@ export const REGISTRANT_TYPES: ReadonlyArray<{
   label: string;
   blurb: string;
 }> = [
-  { value: 'jobseeker', label: 'A jobseeker', blurb: 'I am looking for work abroad.' },
+  // Label says "worker" to match the language used across the rest of the
+  // site (For Workers, /workers). The stored VALUE stays `jobseeker` so the
+  // CMS enum and the 30 existing rows keep working without a migration —
+  // rename the value too if you want reports to read "worker".
+  { value: 'jobseeker', label: 'A worker', blurb: 'I am looking for work abroad.' },
   { value: 'employer', label: 'An employer', blurb: 'I want to hire workers.' },
   { value: 'government', label: 'A government representative', blurb: 'I work for a ministry or public agency.' },
   { value: 'other', label: 'Something else', blurb: 'Partner, recruiter, training provider, press.' },

@@ -16,6 +16,7 @@
 import { useActionState } from "react";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { submitCommunitySignup, type SignupState } from "@/app/join/start/actions";
+import { REGISTRANT_TYPES } from "@/lib/profile-shape";
 
 /** Corridor + origin countries we actually serve, most likely first. */
 const DIAL_CODES: ReadonlyArray<{ code: string; label: string }> = [
@@ -87,6 +88,30 @@ export function CommunitySignupForm({
           <p style={{ color: "#b00020", margin: 0, fontWeight: 600 }}>{state.error}</p>
         </div>
       ) : null}
+
+      {/* Andrew: "everyone must pass, regardless of their status". This choice
+          decides which questions we go on to ask — and, just as importantly,
+          which we must NOT ask. An employer contact is never shown a passport
+          or health field. */}
+      <div className="form-field full">
+        <label htmlFor="cs-type">I am…</label>
+        <select
+          id="cs-type"
+          name="registrantType"
+          required
+          defaultValue={v.registrantType || "jobseeker"}
+          aria-describedby="cs-type-hint"
+        >
+          {REGISTRANT_TYPES.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label} — {r.blurb}
+            </option>
+          ))}
+        </select>
+        <p id="cs-type-hint" style={{ fontSize: 13, opacity: 0.7, margin: "6px 0 0" }}>
+          This decides what we ask you next. Everyone is welcome in the community.
+        </p>
+      </div>
 
       <div className="form-field">
         <label htmlFor="cs-first">First name</label>

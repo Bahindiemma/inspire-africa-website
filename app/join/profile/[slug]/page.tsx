@@ -5,7 +5,7 @@ import { Hero } from "@/components/sections/Hero";
 import { PageSection } from "@/components/sections/PageSection";
 import { ProfileWizardForm } from "@/components/forms/ProfileWizardForm";
 import { buildMetadata } from "@/lib/seo";
-import { PROFILE_STEPS, stepBySlug } from "@/lib/profile-shape";
+import { stepsFor, stepBySlug, type RegistrantType } from "@/lib/profile-shape";
 
 export const dynamic = "force-dynamic";
 
@@ -25,13 +25,20 @@ export async function generateMetadata({
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ clickId?: string }>;
+  searchParams: Promise<{ clickId?: string; as?: string }>;
 }
 
 export default async function ProfileStepPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { clickId } = await searchParams;
-  const step = stepBySlug(slug);
+  const { clickId, as } = await searchParams;
+  // The registrant type travels in the URL so the wizard is stateless and a
+  // resumed link lands on the right branch. It is re-validated server-side on
+  // every save, so it cannot be used to reach questions a role must not see.
+  const registrantType = (["jobseeker", "employer", "government", "other"].includes(as || "")
+    ? as
+    : "jobseeker") as RegistrantType;
+  const steps = stepsFor(registrantType);
+  const step = stepBySlug(slug, registrantType);
   if (!step) notFound();
 
   // The community handoff stays one click away at every step. Step 1 already
@@ -45,14 +52,14 @@ export default async function ProfileStepPage({ params, searchParams }: Props) {
     `/join/continue?source=profile_step_${step.step}` +
     (clickId ? `&clickId=${encodeURIComponent(clickId)}` : "");
 
-  const index = PROFILE_STEPS.findIndex((s) => s.slug === slug);
-  const pct = Math.round(((index + 1) / PROFILE_STEPS.length) * 100);
+  const index = steps.findIndex((s) => s.slug === slug);
+  const pct = Math.round(((index + 1) / steps.length) * 100);
 
   return (
     <>
       <Hero
         watermark="PROFILE"
-        eyebrow={`Step ${index + 2} of ${PROFILE_STEPS.length + 1}`}
+        eyebrow={`Step ${index + 2} of ${steps.length + 1}`}
         heading={
           <>
             <span className="small-italic">{step.title}</span>
@@ -71,7 +78,12 @@ export default async function ProfileStepPage({ params, searchParams }: Props) {
             <div style={{ width: `${pct}%`, height: "100%", background: "var(--yellow)" }} />
           </div>
 
-          <ProfileWizardForm step={step.step} clickId={clickId} />
+          <ProfileWizardForm
+            step={step.step}
+            slug={step.slug}
+            registrantType={registrantType}
+            clickId={clickId}
+          />
 
           <p style={{ marginTop: 32, fontSize: 14, opacity: 0.75 }}>
             You can stop at any point — everything you have saved is kept, and you are already a

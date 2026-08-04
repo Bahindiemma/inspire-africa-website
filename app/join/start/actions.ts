@@ -21,6 +21,7 @@ import { buildJoinUrl } from "@/lib/cms/utm";
 // markRedirected is intentionally NOT used here — the handoff is recorded by
 // /join/continue, at the moment the visitor actually leaves for the community.
 import { submitSignup, newClickId } from "@/lib/cms/community";
+import { firstStepSlug, REGISTRANT_TYPES, type RegistrantType } from "@/lib/profile-shape";
 
 export interface SignupState {
   error?: string;
@@ -50,6 +51,10 @@ export async function submitCommunitySignup(
   const consentTerms = data.get("consentTerms") != null;
   const consentMarketing = data.get("consentMarketing") != null;
   const company = field(data, "company", 200); // honeypot
+  const rawType = field(data, "registrantType", 32);
+  const registrantType: RegistrantType = (REGISTRANT_TYPES.some((r) => r.value === rawType)
+    ? rawType
+    : "jobseeker") as RegistrantType;
   const clickId = field(data, "clickId", 64) || newClickId();
   const source = field(data, "source", 128) || "join_gate";
   const utmSource = field(data, "utm_source", 128) || source;
@@ -58,6 +63,7 @@ export async function submitCommunitySignup(
 
   // Values echoed back on error. Never echo the password.
   const values = {
+    registrantType,
     firstName,
     lastName,
     email,
@@ -116,6 +122,7 @@ export async function submitCommunitySignup(
       consentTerms,
       consentMarketing,
       company,
+      registrantType,
     },
     forward
   );
@@ -147,7 +154,12 @@ export async function submitCommunitySignup(
     //
     // The lead is already banked, so every wizard step is skippable.
     // redirect() throws NEXT_REDIRECT by design — outside try/catch.
-    redirect(`/join/profile/about-you?clickId=${encodeURIComponent(result.clickId)}`);
+    // Different registrant types start at different steps — an employer
+    // goes to "Your organisation", not "About you".
+    redirect(
+      `/join/profile/${firstStepSlug(registrantType)}?clickId=${encodeURIComponent(result.clickId)}` +
+        `&as=${registrantType}`
+    );
   }
 
   // Capture failed (CMS unreachable). Do not send them into a wizard that

@@ -4,16 +4,25 @@
  * Server Action for the profile wizard (signup steps 2+).
  *
  * Server Action rather than a fetch handler for the same reason step 1 is:
- * the form must submit and redirect correctly with JavaScript disabled.
+ * the form must submit and redirect correctly with JavaScript disabled —
+ * including file uploads, which Server Actions accept as multipart FormData.
  *
  * Everything here is ADDITIVE. Step 1 already wrote a `Submitted` lead, so
- * an abandoned wizard costs us profile depth, never the lead itself. That is
- * why each step saves on completion instead of one submit at the end.
+ * an abandoned wizard costs us profile depth, never the lead itself.
+ *
+ * Steps are keyed on SLUG, not step number: the three registrant branches
+ * have different step counts, and an employer's step 4 is not a jobseeker's.
  */
 import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { saveProfileStep } from "@/lib/cms/profile";
-import { PROFILE_STEPS, type ProfilePayload } from "@/lib/profile-shape";
+import { uploadSignupFile, type UploadPurpose } from "@/lib/cms/upload";
+import {
+  stepsFor,
+  REGISTRANT_TYPES,
+  type ProfilePayload,
+  type RegistrantType,
+} from "@/lib/profile-shape";
 
 export interface ProfileState {
   error?: string;
@@ -44,16 +53,56 @@ function rows(data: FormData, prefix: string): Record<string, string>[] {
   return [...byIndex.entries()].sort((a, b) => a[0] - b[0]).map(([, r]) => r);
 }
 
+/** Flat `organisation[name]` style group. */
+function group(data: FormData, prefix: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of data.entries()) {
+    const m = k.match(new RegExp(`^${prefix}\\[(\\w+)\\]$`));
+    if (!m || typeof v !== "string") continue;
+    const field = m[1];
+    if (field === undefined) continue;
+    out[field] = v.trim().slice(0, 2000);
+  }
+  return out;
+}
+
 /** Drop rows the visitor left completely blank rather than storing empties. */
 function nonEmpty(list: Record<string, string>[], required: string[]): Record<string, string>[] {
   return list.filter((r) => required.every((f) => r[f]));
+}
+
+/**
+ * Upload one file field if the visitor actually chose a file. Returns the
+ * media id, or an error message to surface. Size and type are validated
+ * server-side — the `accept` attribute is advisory only.
+ */
+async function fileField(
+  data: FormData,
+  key: string,
+  purpose: UploadPurpose,
+  errors: Record<string, string>
+): Promise<number | undefined> {
+  const f = data.get(key);
+  if (!(f instanceof File) || f.size === 0) return undefined;
+  const res = await uploadSignupFile(f, purpose);
+  if (!res.ok) {
+    errors[key] = res.message;
+    return undefined;
+  }
+  return res.id;
 }
 
 export async function saveProfile(
   _prev: ProfileState,
   data: FormData
 ): Promise<ProfileState> {
-  const step = Math.min(6, Math.max(2, Number(s(data, "step")) || 2));
+  const step = Math.min(9, Math.max(2, Number(s(data, "step")) || 2));
+  const slug = s(data, "slug", 64);
+  const rawType = s(data, "registrantType", 32);
+  const registrantType: RegistrantType = (REGISTRANT_TYPES.some((r) => r.value === rawType)
+    ? rawType
+    : "jobseeker") as RegistrantType;
+
   const clickId = s(data, "clickId", 64);
   const jar = await cookies();
   const resumeToken = s(data, "resumeToken", 64) || jar.get(RESUME_COOKIE)?.value || "";
@@ -68,12 +117,13 @@ export async function saveProfile(
 
   const fieldErrors: Record<string, string> = {};
 
-  if (step === 2) {
+  /* ------------------------------ identity ------------------------------ */
+  if (slug === "about-you") {
     payload.otherNames = s(data, "otherNames", 120) || null;
     const dob = s(data, "dateOfBirth", 10);
     if (dob) {
-      // Reject impossible dates early — a typo'd birth year is worse than a
-      // blank one, because it silently drives eligibility decisions later.
+      // A typo'd birth year is worse than a blank one — it silently drives
+      // eligibility decisions later.
       const t = Date.parse(dob);
       const age = Number.isFinite(t) ? (Date.now() - t) / (365.25 * 24 * 3600 * 1000) : NaN;
       if (!Number.isFinite(age) || age < 16 || age > 100) {
@@ -82,31 +132,90 @@ export async function saveProfile(
         payload.dateOfBirth = dob;
       }
     }
+
+    const img = await fileField(data, "profileImage", "profileImage", fieldErrors);
+    if (img) payload.profileImage = img;
+
     const ids = nonEmpty(rows(data, "identityDocuments"), ["kind", "number"]);
-    if (ids.length) payload.identityDocuments = ids as never;
+    if (ids.length) {
+      // Attach each row's document photo, if one was chosen.
+      for (let i = 0; i < ids.length; i++) {
+        const up = await fileField(data, `identityDocuments[${i}][documentImage]`, "idImage", fieldErrors);
+        if (up) ids[i]!.documentImage = String(up);
+      }
+      payload.identityDocuments = ids as never;
+    }
   }
 
-  if (step === 3) {
+  /* ------------------------ employer / government ------------------------ */
+  if (slug === "organisation") {
+    const org = group(data, "organisation");
+    if (org.name) payload.organisation = org as never;
+  }
+
+  if (slug === "hiring") {
+    const needs = nonEmpty(rows(data, "hiringNeeds"), ["roleTitle"]);
+    if (needs.length) payload.hiringNeeds = needs as never;
+  }
+
+  /* ------------------------------- contact ------------------------------- */
+  if (slug === "contact") {
     payload.residentialAddress = s(data, "residentialAddress", 2000) || null;
     const cps = nonEmpty(rows(data, "contactPoints"), ["kind", "value"]);
     if (cps.length) payload.contactPoints = cps as never;
   }
 
-  if (step === 4) {
+  /* ---------------------------- qualifications --------------------------- */
+  if (slug === "qualifications") {
     const qs = nonEmpty(rows(data, "qualifications"), ["kind", "title"]);
-    if (qs.length) payload.qualifications = qs as never;
+    if (qs.length) {
+      for (let i = 0; i < qs.length; i++) {
+        const up = await fileField(data, `qualifications[${i}][certificateFile]`, "document", fieldErrors);
+        if (up) qs[i]!.certificateFile = String(up);
+      }
+      payload.qualifications = qs as never;
+    }
   }
 
-  if (step === 5) {
+  /* ------------------------- experience + languages ---------------------- */
+  if (slug === "experience") {
     const we = nonEmpty(rows(data, "workExperiences"), ["employerName", "jobTitle"]);
     if (we.length) payload.workExperiences = we as never;
     const lc = nonEmpty(rows(data, "languageCompetencies"), ["languageCode"]);
     if (lc.length) payload.languageCompetencies = lc as never;
   }
 
-  if (step === 6) {
+  /* ------------------------ references / documents ----------------------- */
+  if (slug === "references" || slug === "documents") {
+    const cv = await fileField(data, "cvFile", "document", fieldErrors);
+    if (cv) payload.cvFile = cv;
+    const img = await fileField(data, "profileImage", "profileImage", fieldErrors);
+    if (img) payload.profileImage = img;
+
     const refs = nonEmpty(rows(data, "characterReferences"), ["name"]);
     if (refs.length) payload.characterReferences = refs as never;
+  }
+
+  /* ---------------------- health / clearances (Art. 9) ------------------- */
+  if (slug === "clearances") {
+    const consent = data.get("consentSpecialCategory") != null;
+    const clearances = nonEmpty(rows(data, "healthClearances"), ["kind"]);
+    const screenings = nonEmpty(rows(data, "diseaseScreenings"), ["disease"]);
+
+    // If they entered sensitive data without ticking explicit consent, do NOT
+    // silently store it and do NOT silently discard it — tell them, so they
+    // can decide. Storing it would be unlawful; dropping it without a word
+    // would look like the form lost their work.
+    if (!consent && (clearances.length || screenings.length)) {
+      fieldErrors.consentSpecialCategory =
+        "Please tick the consent box above before we can store health or clearance details — or clear those fields and continue.";
+      return { fieldErrors };
+    }
+    if (consent) {
+      payload.consentSpecialCategory = true;
+      if (clearances.length) payload.healthClearances = clearances as never;
+      if (screenings.length) payload.diseaseScreenings = screenings as never;
+    }
   }
 
   if (Object.keys(fieldErrors).length) return { fieldErrors };
@@ -124,14 +233,12 @@ export async function saveProfile(
     if (result.reason === "not_found" || result.reason === "expired") {
       return { error: "Your session has expired. Please start again from the join page." };
     }
-    // `unavailable` — the CMS is down. Say so honestly rather than pretending
-    // it saved; the visitor has typed real work into this form.
     return {
-      error: "We couldn't save that just now. Your community membership is unaffected — please try again shortly.",
+      error:
+        "We couldn't save that just now. Your community membership is unaffected — please try again shortly.",
     };
   }
 
-  // 30 days, matching the CMS token lifetime.
   jar.set(RESUME_COOKIE, result.resumeToken, {
     httpOnly: true,
     sameSite: "lax",
@@ -140,7 +247,14 @@ export async function saveProfile(
     maxAge: 30 * 24 * 60 * 60,
   });
 
-  const next = PROFILE_STEPS.find((sx) => sx.step === step + 1);
+  const steps = stepsFor(registrantType);
+  const idx = steps.findIndex((x) => x.slug === slug);
+  const next = idx >= 0 ? steps[idx + 1] : undefined;
+
   // redirect() throws NEXT_REDIRECT by design — keep it outside try/catch.
-  redirect(next ? `/join/profile/${next.slug}` : "/join/profile/done");
+  redirect(
+    next
+      ? `/join/profile/${next.slug}?as=${registrantType}${clickId ? `&clickId=${encodeURIComponent(clickId)}` : ""}`
+      : "/join/profile/done"
+  );
 }

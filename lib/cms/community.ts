@@ -57,6 +57,8 @@ export interface SignupInput extends ClickContext {
   password?: string | null;
   consentTerms: boolean;
   consentMarketing: boolean;
+  /** jobseeker | employer | government | other — decides the wizard branch. */
+  registrantType?: string | null;
   /** Honeypot. Any value means a bot filled a hidden field. */
   company?: string | null;
 }

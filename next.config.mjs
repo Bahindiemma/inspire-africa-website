@@ -46,6 +46,12 @@ const nextConfig = {
       ...strapiRemotePatterns(),
       { protocol: 'http', hostname: '37.60.225.220', port: '1337', pathname: '/uploads/**' },
       { protocol: 'https', hostname: 'inspireafricans.com', pathname: '/uploads/**' },
+      // The apex was listed and www was not, so a media URL built from the
+      // request host — www for most visitors — would be rejected by the
+      // optimiser with a 400 and render nothing at all. That is the same silent
+      // failure that removed every photograph from the site for thirteen days
+      // in August 2026; cheap insurance against a repeat by another route.
+      { protocol: 'https', hostname: 'www.inspireafricans.com', pathname: '/uploads/**' },
       { protocol: 'https', hostname: 'cms.inspireafricans.com', pathname: '/uploads/**' },
       { protocol: 'http', hostname: 'localhost', port: '1337', pathname: '/uploads/**' },
     ],

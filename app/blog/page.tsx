@@ -6,6 +6,22 @@ import { buildMetadata } from "@/lib/seo";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 
+/*
+  A PRERENDER MUST BE ABLE TO EXPIRE ON ITS OWN.
+
+  These pages were fully static with no revalidate window, so Next served them
+  with `s-maxage=31536000` and they could only change when the CMS webhook fired
+  `/api/revalidate`. On 4 August 2026 the image build produced a page with no
+  photographs — the CMS is unreachable from inside `docker build`, so a
+  build-time prerender of CMS content is always empty — and that empty page was
+  then pinned for a year. It served for thirteen days.
+
+  Fifteen minutes is the compromise: the webhook still gives editors an instant
+  update, and if it never fires, or a build ships something wrong, the damage
+  expires by itself instead of lasting until somebody notices.
+*/
+export const revalidate = 900;
+
 const PAGE_SIZE = 6;
 
 export const metadata: Metadata = buildMetadata({

@@ -28,6 +28,37 @@ const MEDIA_ORIGIN = (
   ''
 ).replace(/\/$/, '');
 
+/*
+  WHY THIS THROWS INSTEAD OF DEGRADING.
+
+  On 4 August 2026 this file computed an empty MEDIA_ORIGIN during the CI
+  image build, because STRAPI_MEDIA_URL was declared only as a runtime value
+  in docker-compose and was never passed as a build argument. The consequences
+  were invisible at every step:
+
+    empty origin -> strapiMedia() returns a bare "/uploads/x.jpg"
+                 -> next/image rejects a relative /uploads path with 400,
+                    because /uploads only exists at the nginx layer
+                 -> next/image renders NO element rather than a broken one
+                 -> the prerender is silently image-less
+                 -> Next caches it with s-maxage=31536000
+
+  The site then served a page with no photographs for thirteen days, and would
+  have for a year. Nothing failed. Nothing logged. The build was green.
+
+  A missing media origin is therefore not a degraded state to tolerate — it is
+  a broken build, and it must say so before anything is published. This is
+  deliberately a hard throw at module load: it fails `next build`, and it
+  refuses to start a container that could serve the same silent damage.
+*/
+if (!MEDIA_ORIGIN) {
+  throw new Error(
+    'STRAPI_MEDIA_URL (or STRAPI_BASE_URL) is not set. Without it every CMS ' +
+      'image renders as nothing and the result gets cached for a year. If this ' +
+      'is a Docker build, pass it with --build-arg; see the Dockerfile.',
+  );
+}
+
 /**
  * @param url Raw `.url` from a Strapi media object (absolute, or a
  *            relative `/uploads/*` path). May be null/undefined.

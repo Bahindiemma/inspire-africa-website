@@ -23,6 +23,11 @@ ENV NODE_ENV=production
 # Public site URL is inlined into the client bundle at build time.
 ARG NEXT_PUBLIC_SITE_URL=https://inspireafricans.com
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+# Read at module load by lib/cms/media.ts, which now THROWS when it is empty.
+# It was previously a runtime-only value, so the build prerendered every page
+# with unusable relative /uploads paths and next/image emitted no <img> at all.
+ARG STRAPI_MEDIA_URL=https://inspireafricans.com
+ENV STRAPI_MEDIA_URL=$STRAPI_MEDIA_URL
 RUN npm run build
 
 # ---------- 3. Runtime ----------

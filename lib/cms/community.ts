@@ -67,8 +67,8 @@ export interface SignupInput extends ClickContext {
    */
   consentMarketing?: boolean;
   /**
-   * jobseeker | employer | government | other. Shown to the visitor as
-   * "A worker" etc; the stored value keeps the original key.
+   * worker | employer | government | education | development | other —
+   * the CEO's taxonomy of 2026-08. See lib/registrant.ts.
    */
   registrantType?: string | null;
   /** Honeypot. Any value means a bot filled a hidden field. */

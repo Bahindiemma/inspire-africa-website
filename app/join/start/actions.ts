@@ -17,7 +17,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { submitSignup, newClickId } from "@/lib/cms/community";
-import { REGISTRANT_TYPES, type RegistrantType } from "@/lib/registrant";
+import { toRegistrantType, type RegistrantType } from "@/lib/registrant";
 
 export interface SignupState {
   error?: string;
@@ -42,10 +42,10 @@ export async function submitCommunitySignup(
   const email = field(data, "email", MAX.email);
   const consentTerms = data.get("consentTerms") != null;
   const company = field(data, "company", 200); // honeypot
-  const rawType = field(data, "registrantType", 32);
-  const registrantType: RegistrantType = (REGISTRANT_TYPES.some((r) => r.value === rawType)
-    ? rawType
-    : "jobseeker") as RegistrantType;
+  // Normalises unknown AND retired values (a page cached before the 2026-08
+  // taxonomy change still posts `jobseeker`), so a stale form cannot be
+  // rejected or silently filed under the wrong audience.
+  const registrantType: RegistrantType = toRegistrantType(field(data, "registrantType", 32));
   const clickId = field(data, "clickId", 64) || newClickId();
   const source = field(data, "source", 128) || "join_gate";
   const utmSource = field(data, "utm_source", 128) || source;

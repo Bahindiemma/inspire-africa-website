@@ -4,7 +4,7 @@
  * The INSPIRE AFRICA signup layer that sits in front of the Mighty Networks
  * handoff.
  *
- * Captures who you are (jobseeker / employer / government / other), your
+ * Captures who you are (the six-category taxonomy in lib/registrant.ts), your
  * name and your email — nothing else. Everyone then confirms their email
  * before reaching the community.
  *
@@ -19,7 +19,7 @@
 import { useActionState } from "react";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
 import { submitCommunitySignup, type SignupState } from "@/app/join/start/actions";
-import { REGISTRANT_TYPES } from "@/lib/registrant";
+import { REGISTRANT_TYPES, DEFAULT_REGISTRANT_TYPE } from "@/lib/registrant";
 
 export interface CommunitySignupFormProps {
   clickId: string;
@@ -75,7 +75,7 @@ export function CommunitySignupForm({
           id="cs-type"
           name="registrantType"
           required
-          defaultValue={v.registrantType || "jobseeker"}
+          defaultValue={v.registrantType || DEFAULT_REGISTRANT_TYPE}
           aria-describedby="cs-type-hint"
         >
           {REGISTRANT_TYPES.map((r) => (

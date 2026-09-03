@@ -5,9 +5,10 @@
  * signup means every record is attributable to an audience from the first
  * touch, without needing a different form per audience.
  *
- * The six categories and their descriptions are the CEO's own words
+ * The categories and their descriptions are the CEO's own words
  * (Taxonomy, 04 Aug 2026), with his 12 Aug correction applied: the first
- * category is a WORKER, not a jobseeker. That correction is the reason the
+ * category is a WORKER, not a jobseeker. `diaspora` (Diaspora Contributor)
+ * was added on top of that original six in September 2026. That correction is the reason the
  * stored value is `worker` too and not just the visible label — leaving
  * `jobseeker` in the database would mean every report and CSV export kept
  * printing the term he rejected. Legacy rows were migrated; `jobseeker` is
@@ -23,6 +24,7 @@ export type RegistrantType =
   | 'government'
   | 'education'
   | 'development'
+  | 'diaspora'
   | 'other';
 
 export const REGISTRANT_TYPES: ReadonlyArray<{
@@ -54,6 +56,12 @@ export const REGISTRANT_TYPES: ReadonlyArray<{
     value: 'development',
     label: 'Development Partner / NGO',
     blurb: "I'm interested in ethical workforce mobility and skills development.",
+  },
+  {
+    value: 'diaspora',
+    label: 'Diaspora Contributor',
+    blurb:
+      'I want to support African talent and workforce development through investment, expertise, mentoring or networks.',
   },
   {
     value: 'other',

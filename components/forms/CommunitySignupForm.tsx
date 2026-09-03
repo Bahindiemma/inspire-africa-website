@@ -4,7 +4,7 @@
  * The INSPIRE AFRICA signup layer that sits in front of the Mighty Networks
  * handoff.
  *
- * Captures who you are (the six-category taxonomy in lib/registrant.ts), your
+ * Captures who you are (the audience taxonomy in lib/registrant.ts), your
  * name and your email — nothing else. Everyone then confirms their email
  * before reaching the community.
  *

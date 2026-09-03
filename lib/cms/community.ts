@@ -67,7 +67,8 @@ export interface SignupInput extends ClickContext {
    */
   consentMarketing?: boolean;
   /**
-   * worker | employer | government | education | development | other —
+   * worker | employer | government | education | development | diaspora |
+   * other —
    * the CEO's taxonomy of 2026-08. See lib/registrant.ts.
    */
   registrantType?: string | null;

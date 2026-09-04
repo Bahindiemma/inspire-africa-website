@@ -62,6 +62,53 @@ Key properties:
 - **The gate fails open.** If the CMS is unreachable, the visitor is still redirected to Mighty
   Networks. We lose the lead; we never block the worker.
 
+### 2.1 The invariant, and how it was broken
+
+> **Nobody reaches Mighty Networks except through `/join/start`.**
+> `app/join/continue/route.ts` is the one place in the codebase allowed to send a visitor to the
+> community host.
+
+**Incident, 2026-09-04.** The CEO reported that "Join the Community" skipped our signup page and
+landed on `inspire-africa.mn.co/sign_up?auto_join=true&from=…&space_id=20105633`. Every CTA written
+in TSX was correct and had been since `17424e7`. The bad links were **CMS data**: four
+editor-authored CTAs (home page hero + final CTA, `/join` hero + final CTA) held a Mighty Networks
+URL that someone had pasted out of their address bar. `space_id=20105633` is MN's own default
+space, not our `20105635` — the tell that this was copy-paste, not configuration.
+
+The structural fault was that `DynamicZoneRenderer` and `SiteHeader` rendered editor-supplied
+`href` strings verbatim, and a CMS page silently overrides the correct static TSX beneath it. One
+paste re-broke the funnel with no deploy and no review.
+
+**The fix — one choke point.** `lib/utm.ts` now exports:
+
+| Helper | Used for | Rewrites |
+|---|---|---|
+| `normalizeJoinHref(href, opts)` | nav items, secondary text links | community host only — `/join` stays reachable |
+| `normalizeJoinCtaHref(href, opts)` | buttons (hero CTAs, final CTA, nav CTA) | community host **and** `/join` |
+| `isCommunityHref(href)` | the host test | matches on hostname, so `mn.co.uk` is not caught |
+| `isJoinGateHref(href)` | forcing `prefetch={false}` on rewritten links | — |
+
+Every href that originates outside the codebase passes through one of these:
+`components/cms/DynamicZoneRenderer.tsx` (hero `ctas[]`, `final-cta` `primaryCta` and
+`secondaryLinks[]`, audience-card `ctaHref`) and `components/layout/SiteHeader.tsx` (Strapi
+Navigation `headerLinks`). Attribution is preserved: an editor's `utmSource` on the `shared.cta`
+component is used when set, otherwise the source names the section (`cms_hero`, `cms_final_cta`,
+`header_nav_cta`, …).
+
+**Guards.** Two, because the source scan alone would not have caught this:
+
+```bash
+npm run smoke:join                                    # source scan only (also runs as `prebuild`)
+npm run smoke:join -- https://inspireafricans.com     # + fetches the live pages and checks hrefs
+```
+
+`scripts/assert-join-gate.mjs` fails the build on a community host literal anywhere under `app/`,
+`components/` or `lib/` outside the allowlist, and — given a URL — fails on any rendered `href` to
+the community host. `eslint.config.mjs` carries the same rule as `no-restricted-syntax` so it
+surfaces while you type. Verified 2026-09-04 by poisoning every `Join*` CTA and nav link in a local
+Strapi with the CEO's exact URL: 15 prerendered pages, zero community links, every join button
+resolving to `/join/start`.
+
 ## 3. Data model
 
 `api::community-signup` (CMS repo, `src/api/community-signup/`). One row per click, upgraded in
@@ -243,3 +290,12 @@ curl -s https://inspireafricans.com/privacy | grep -c "When you join the communi
    auth (§4); anything else needing a role-based JWT will hit the same wall.
 7. **Enabling Keycloak SSO** would let `/community/stats` move back to role-gating if the team
    later prefers that. Nothing else needs to change.
+8. **The four poisoned CTAs are still in production Strapi** (as of 2026-09-04). The code fix makes
+   them harmless — the renderer rewrites them — but the rows are still wrong and should be cleaned
+   up in the admin UI, or overwritten by a RESEED. Set each to `/join/start`. Until then, the
+   deployment scan is the only thing that would notice if the renderer guard were ever removed.
+9. **Strapi-side validation was considered and skipped.** A lifecycle hook rejecting a community
+   host in a CTA `href` would stop the paste at the source rather than at render. It is the right
+   belt-and-braces addition; it was left out of this change because the render-time normalizer
+   already makes the data harmless and validation on repeatable components inside dynamic zones is
+   fiddly enough to deserve its own change.

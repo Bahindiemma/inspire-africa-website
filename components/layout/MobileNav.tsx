@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { Brand, type BrandLogo } from "@/components/ui/Brand";
 import { NAV_LINKS } from "@/lib/site";
-import { buildJoinGateUrl } from "@/lib/utm";
+import { buildJoinGateUrl, isJoinGateHref } from "@/lib/utm";
 
 interface MobileNavLinkInput {
   href: string;
@@ -142,6 +142,8 @@ export function MobileNav({ joinHref, links, logo }: MobileNavProps = {}) {
                   aria-current={isActive ? "page" : undefined}
                   onClick={close}
                   tabIndex={open ? 0 : -1}
+                  // /join/start records a click on render — a prefetch is not a click.
+                  prefetch={isJoinGateHref(link.href) ? false : undefined}
                 >
                   <span>{link.label}</span>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>

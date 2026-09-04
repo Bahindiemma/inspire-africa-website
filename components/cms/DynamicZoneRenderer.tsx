@@ -29,6 +29,12 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { EmployersForm } from "@/components/forms/EmployersForm";
 import { GovernmentsForm } from "@/components/forms/GovernmentsForm";
 import { strapiMedia } from "@/lib/cms/media";
+import {
+  isJoinGateHref,
+  normalizeJoinCtaHref,
+  normalizeJoinHref,
+  type JoinLinkOptions,
+} from "@/lib/utm";
 import { formatBlogDate, type BlogPost } from "@/lib/blogs";
 import type { CorridorCms } from "@/lib/cms/corridors";
 
@@ -36,6 +42,25 @@ export interface DynamicZoneSection {
   __component: string;
   id?: number;
   [k: string]: any;
+}
+
+/**
+ * Attribution for a CMS-authored CTA. Editors can set utmSource/Medium/
+ * Campaign on the `shared.cta` component; when they haven't, we fall back
+ * to a source naming the section so gate clicks stay attributable.
+ */
+interface CmsCtaAttribution {
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+}
+
+function ctaOpts(c: CmsCtaAttribution | null | undefined, fallbackSource: string): JoinLinkOptions {
+  return {
+    source: c?.utmSource || fallbackSource,
+    medium: c?.utmMedium || undefined,
+    campaign: c?.utmCampaign || undefined,
+  };
 }
 
 interface Props {
@@ -103,16 +128,21 @@ function SectionSwitch({
           ctas={
             Array.isArray(s.ctas) && s.ctas.length > 0 ? (
               <>
-                {s.ctas.map((c: any, j: number) => (
-                  <ButtonLink
-                    key={j}
-                    href={c.href}
-                    variant={c.variant ?? "primary"}
-                    withArrow={c.withArrow ?? true}
-                  >
-                    {c.label}
-                  </ButtonLink>
-                ))}
+                {s.ctas.map((c: any, j: number) => {
+                  const href = normalizeJoinCtaHref(c.href, ctaOpts(c, "cms_hero"));
+                  return (
+                    <ButtonLink
+                      key={j}
+                      href={href}
+                      variant={c.variant ?? "primary"}
+                      withArrow={c.withArrow ?? true}
+                      // The gate records a click on render, so never prefetch it.
+                      prefetch={isJoinGateHref(href) ? false : undefined}
+                    >
+                      {c.label}
+                    </ButtonLink>
+                  );
+                })}
               </>
             ) : undefined
           }
@@ -223,6 +253,9 @@ function SectionSwitch({
     // ─────────────────────────────────────────────────────────────
     case "sections.final-cta": {
       const primary = s.primaryCta;
+      const primaryHref = primary
+        ? normalizeJoinCtaHref(primary.href, ctaOpts(primary, "cms_final_cta"))
+        : null;
       return (
         <FinalCta
           eyebrow={s.eyebrow}
@@ -232,7 +265,7 @@ function SectionSwitch({
             Array.isArray(s.secondaryLinks) && s.secondaryLinks.length > 0 ? (
               <>
                 {s.secondaryLinks.map((l: any, j: number) => (
-                  <a key={j} href={l.href}>
+                  <a key={j} href={normalizeJoinHref(l.href, { source: "cms_final_cta_secondary" })}>
                     {l.label}
                   </a>
                 ))}
@@ -240,11 +273,12 @@ function SectionSwitch({
             ) : undefined
           }
         >
-          {primary ? (
+          {primary && primaryHref ? (
             <ButtonLink
-              href={primary.href}
+              href={primaryHref}
               variant={primary.variant ?? "dark"}
               withArrow={primary.withArrow ?? true}
+              prefetch={isJoinGateHref(primaryHref) ? false : undefined}
             >
               {primary.label}
             </ButtonLink>
@@ -386,10 +420,21 @@ function SectionSwitch({
                       <h3>{c.title}</h3>
                       <p>{c.body}</p>
                       {c.ctaHref ? (
-                        <Link href={c.ctaHref} className="audience-card-cta">
-                          {c.ctaLabel}
-                          <ArrowIcon size={16} />
-                        </Link>
+                        (() => {
+                          // Audience cards navigate to our own pages; normalize
+                          // so a pasted community link cannot skip the gate.
+                          const href = normalizeJoinHref(c.ctaHref, { source: "cms_audience_card" });
+                          return (
+                            <Link
+                              href={href}
+                              className="audience-card-cta"
+                              prefetch={isJoinGateHref(href) ? false : undefined}
+                            >
+                              {c.ctaLabel}
+                              <ArrowIcon size={16} />
+                            </Link>
+                          );
+                        })()
                       ) : null}
                     </div>
                   </article>

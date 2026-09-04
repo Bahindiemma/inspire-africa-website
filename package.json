@@ -2,13 +2,15 @@
   "name": "inspire-africa-website",
   "version": "1.0.0",
   "private": true,
-  "description": "INSPIRE AFRICA — labour mobility infrastructure. Next.js 15 + Tailwind CSS v4.",
+  "description": "INSPIRE AFRICA \u2014 labour mobility infrastructure. Next.js 15 + Tailwind CSS v4.",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/assert-join-gate.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smoke:join": "node scripts/assert-join-gate.mjs"
   },
   "dependencies": {
     "next": "^15.5.18",

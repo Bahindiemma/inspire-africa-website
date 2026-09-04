@@ -3,7 +3,7 @@ import { Brand } from "@/components/ui/Brand";
 import { brandLogoFrom } from "@/lib/cms/site-settings";
 import { ThemeSwitch } from "@/components/theme/ThemeSwitch";
 import { getSiteSettings, getNavigation } from "@/lib/cms/site-settings";
-import { buildJoinGateUrl } from "@/lib/utm";
+import { buildJoinGateUrl, normalizeJoinCtaHref, normalizeJoinHref } from "@/lib/utm";
 import { HeaderScroll } from "./HeaderScroll";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
@@ -16,10 +16,22 @@ export async function SiteHeader() {
   const drawerJoin = buildJoinGateUrl({ source: "mobile_drawer" });
   const logo = brandLogoFrom(settings);
   // Sort by `order` and map to the NavLink shape NavLinks + MobileNav expect.
+  // Nav hrefs come from Strapi, so they pass through normalizeJoinHref — a
+  // menu item pointing at Mighty Networks becomes a link to the signup gate.
+  // `/join` is deliberately left alone here: the menu should still be able to
+  // reach the community landing page.
   const links = (nav.headerLinks ?? [])
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((l) => ({ href: l.href, label: l.label, cta: !!l.isCta }));
+    .map((l) => ({
+      // A nav item flagged isCta renders as the yellow button, so it obeys the
+      // button rule: it opens the signup gate, never the /join landing page.
+      href: l.isCta
+        ? normalizeJoinCtaHref(l.href, { source: "header_nav_cta" })
+        : normalizeJoinHref(l.href, { source: "header_nav_link" }),
+      label: l.label,
+      cta: !!l.isCta,
+    }));
   return (
     <header className="site-header" id="header">
       <HeaderScroll />

@@ -116,7 +116,7 @@ function SectionSwitch({
       // the app ships no static images. URLs are made absolute so relative
       // `/uploads/...` paths resolve against Strapi, not Next. If the CMS
       // has no photo, the hero simply renders without one (no blank box).
-      const photoSrc: string | null = strapiMedia(s.photo?.url ?? null);
+      const photoSrc: string | null = strapiMedia(s.photo?.url ?? null, s.photo?.updatedAt);
       return (
         <Hero
           watermark={s.watermark ?? ""}
@@ -395,7 +395,7 @@ function SectionSwitch({
 
             <div className="audiences-grid">
               {cards.map((c, j) => {
-                const src = strapiMedia(c.photo?.url ?? null);
+                const src = strapiMedia(c.photo?.url ?? null, c.photo?.updatedAt);
                 return (
                   <article
                     className={`audience-card${c.isPrimary ? " audience-card--primary" : ""}`}

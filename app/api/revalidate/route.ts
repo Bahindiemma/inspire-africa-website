@@ -65,6 +65,18 @@ export async function POST(req: NextRequest) {
     case 'form-definition':
       revalidatePath('/', 'layout');
       break;
+    // Media Library upload / replace / delete. Strapi sends uid
+    // `plugin::upload.file`, so `collection` arrives as "file". A file can be
+    // referenced from any page, and a replace keeps the same url, so there is
+    // nothing narrower to target: refresh the whole layout and every page
+    // fetch. Pair with the `?v=<updatedAt>` the media URLs carry, which is
+    // what actually defeats next/image's optimised-blob cache.
+    case 'file':
+      revalidateTag('page');
+      revalidateTag('blog-post');
+      revalidateTag('site-setting');
+      revalidatePath('/', 'layout');
+      break;
   }
 
   return NextResponse.json({ revalidated: true, collection, slug });

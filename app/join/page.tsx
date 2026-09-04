@@ -12,6 +12,15 @@ import { buildJoinGateUrl } from "@/lib/utm";
 import { getPage } from "@/lib/cms/pages";
 import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
 
+/*
+  Same reason as every other CMS-driven page (see app/page.tsx): with no
+  revalidate window Next pins the prerender with `s-maxage=31536000`, and a
+  build that rendered the image-less fallback stays pinned until a webhook
+  happens to fire. One minute is the floor under the webhook, not a
+  replacement for it.
+*/
+export const revalidate = 60;
+
 export const metadata: Metadata = buildMetadata({
   title: "Join the Community",
   description:

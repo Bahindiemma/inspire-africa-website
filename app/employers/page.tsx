@@ -22,11 +22,17 @@ import { DynamicZoneRenderer } from "@/components/cms/DynamicZoneRenderer";
   build-time prerender of CMS content is always empty — and that empty page was
   then pinned for a year. It served for thirteen days.
 
-  Fifteen minutes is the compromise: the webhook still gives editors an instant
-  update, and if it never fires, or a build ships something wrong, the damage
-  expires by itself instead of lasting until somebody notices.
+  It was fifteen minutes, and on 4 September 2026 that was still too long: a
+  redeploy served the image-less fallback because the post-deploy revalidation
+  step was skipped, and every page sat there without photographs.
+
+  One minute is the compromise now. The webhook still gives editors an instant
+  update; this is only the floor under it, so a missed signal or a bad build
+  expires by itself in a minute instead of lasting until somebody notices. The
+  cost is one background regeneration per page per minute, and only when that
+  page is actually being viewed.
 */
-export const revalidate = 900;
+export const revalidate = 60;
 
 export const metadata: Metadata = buildMetadata({
   title: "For Employers",

@@ -45,8 +45,8 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
   // Brand/meta imagery comes from the CMS Media Library (no static files).
-  const ogUrl = strapiMedia(s.defaultOgImage?.url);
-  const faviconUrl = strapiMedia(s.favicon?.url);
+  const ogUrl = strapiMedia(s.defaultOgImage?.url, s.defaultOgImage?.updatedAt);
+  const faviconUrl = strapiMedia(s.favicon?.url, s.favicon?.updatedAt);
   return {
     metadataBase: new URL(s.baseUrl),
     ...(faviconUrl ? { icons: { icon: faviconUrl, shortcut: faviconUrl, apple: faviconUrl } } : {}),
@@ -128,8 +128,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Logo + default share image for Organization JSON-LD come from the CMS.
   const s = await getSiteSettings();
   const orgJsonLd = organizationJsonLd({
-    logoUrl: strapiMedia(s.logo?.url),
-    imageUrl: strapiMedia(s.defaultOgImage?.url),
+    logoUrl: strapiMedia(s.logo?.url, s.logo?.updatedAt),
+    imageUrl: strapiMedia(s.defaultOgImage?.url, s.defaultOgImage?.updatedAt),
   });
   return (
     <html lang="en-GB" suppressHydrationWarning className={madimi.variable}>

@@ -8,7 +8,7 @@ import { strapiMedia } from "@/lib/cms/media";
 // referencing a bundled file.
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const s = await getSiteSettings();
-  const iconUrl = strapiMedia(s.favicon?.url);
+  const iconUrl = strapiMedia(s.favicon?.url, s.favicon?.updatedAt);
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,

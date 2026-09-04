@@ -17,7 +17,7 @@ interface StrapiBlogPost {
   heroAlt: string;
   readMinutes: number;
   publishedAt: string;
-  heroImage?: { url: string; alternativeText?: string } | null;
+  heroImage?: { url: string; alternativeText?: string; updatedAt?: string } | null;
   author?: { name: string; role?: string } | null;
   tags?: Array<{ name: string; slug: string }>;
   body?: any[];
@@ -36,7 +36,7 @@ function adapt(s: StrapiBlogPost): BlogPost {
     authorRole: s.author?.role ?? 'INSPIRE AFRICA',
     date: (s.publishedAt ?? '').slice(0, 10),
     readMinutes: s.readMinutes ?? 5,
-    heroImage: strapiMedia(s.heroImage?.url),
+    heroImage: strapiMedia(s.heroImage?.url, s.heroImage?.updatedAt),
     heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : s.title,
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape

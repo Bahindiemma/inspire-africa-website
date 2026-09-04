@@ -14,6 +14,26 @@ images built by GitHub Actions and published to **GHCR**:
 
 ---
 
+## Redeploying the web app — use the script
+
+Once the stack is up, **do not** hand-run `docker compose pull web`. CI builds
+the image where the CMS is unreachable, so every CMS-driven page is prerendered
+with the image-less fallback; a bare pull-and-recreate ships a site with no
+photographs. That failure has happened twice — thirteen days in August 2026,
+and again on 4 September 2026.
+
+```bash
+ssh -i ~/.ssh/contabo_deploy -p 2021 root@37.60.225.220 bash -s < deploy/redeploy-web.sh
+```
+
+`deploy/redeploy-web.sh` clears stale GHCR credentials, pulls, recreates,
+revalidates every page and collection, warms each URL twice, then **verifies**
+— it exits non-zero if any page has lost its photography or if any join CTA
+skips the signup page. Pages also carry `revalidate = 60` as a floor, so a
+missed run self-heals within a minute; that is the net, not the plan.
+
+---
+
 ## Phase 0 — Push code so CI builds the images (your laptop)
 
 Both repos now contain a `Dockerfile` + `.github/workflows/docker-publish.yml`.

@@ -59,22 +59,52 @@ if (!MEDIA_ORIGIN) {
   );
 }
 
+/*
+  WHY THE URL CARRIES A VERSION.
+
+  Strapi's "replace media" keeps the SAME filename, hash and url when you swap
+  an image's binary — that is the point of it. next/image keys its optimised
+  blob on the source URL, so a replaced photo produces a cache hit on the OLD
+  bytes and the site keeps serving the previous picture indefinitely. Editors
+  see the new image in the Media Library, the CMS is right, the page is right,
+  and the photograph is still wrong. The documented workaround was to recreate
+  the web container to wipe .next/cache/images — an ops step nobody should
+  need to remember.
+
+  Appending the file's `updatedAt` gives a replaced image a new optimiser key,
+  so the swap shows up on its own. Query strings do not affect `remotePatterns`
+  matching (that checks protocol/host/port/pathname), and Strapi ignores the
+  extra param when serving the file.
+*/
+function withVersion(absoluteUrl: string, updatedAt: string | null | undefined): string {
+  if (!updatedAt) return absoluteUrl;
+  const v = Date.parse(updatedAt);
+  if (Number.isNaN(v)) return absoluteUrl;
+  return `${absoluteUrl}${absoluteUrl.includes('?') ? '&' : '?'}v=${v}`;
+}
+
 /**
  * @param url Raw `.url` from a Strapi media object (absolute, or a
  *            relative `/uploads/*` path). May be null/undefined.
+ * @param updatedAt The media object's `updatedAt`. Pass it wherever you have
+ *            it: it cache-busts next/image when an editor replaces the file
+ *            in place. Omitting it is safe, just not self-healing.
  * @returns An absolute URL, or null when there's nothing to render.
  */
-export function strapiMedia(url: string | null | undefined): string | null {
+export function strapiMedia(
+  url: string | null | undefined,
+  updatedAt?: string | null,
+): string | null {
   if (!url) return null;
   // Already absolute (https://cdn… or http://host…) — leave as-is.
-  if (/^https?:\/\//i.test(url)) return url;
+  if (/^https?:\/\//i.test(url)) return withVersion(url, updatedAt);
   // NOTE: the site no longer ships any static /images/* fallbacks — every
   // visitor-facing image is served from the Strapi Media Library. A bare
   // /images/* path reaching here is stale CMS data; it's treated like any
   // other relative path (prefixed with the media origin), not a local file.
   // Strapi-relative upload path (e.g. "/uploads/foo.jpg") — make absolute.
-  if (url.startsWith('/uploads/')) return MEDIA_ORIGIN ? `${MEDIA_ORIGIN}${url}` : url;
+  if (url.startsWith('/uploads/')) return withVersion(`${MEDIA_ORIGIN}${url}`, updatedAt);
   // Anything else relative: best-effort prefix with the media origin.
-  if (url.startsWith('/')) return MEDIA_ORIGIN ? `${MEDIA_ORIGIN}${url}` : url;
-  return url;
+  if (url.startsWith('/')) return withVersion(`${MEDIA_ORIGIN}${url}`, updatedAt);
+  return withVersion(url, updatedAt);
 }

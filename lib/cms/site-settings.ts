@@ -19,7 +19,7 @@ import type { BrandLogo } from '@/components/ui/Brand';
  * The site ships no bundled logo file.
  */
 export function brandLogoFrom(settings: SiteSettings): BrandLogo | null {
-  const src = strapiMedia(settings.logo?.url);
+  const src = strapiMedia(settings.logo?.url, settings.logo?.updatedAt);
   if (!src || !settings.logo?.width || !settings.logo?.height) return null;
   return {
     src,
@@ -61,9 +61,12 @@ export interface SiteSettings {
     order?: number;
   }>;
   communityBaseUrl: string;
-  logo?: { url: string; alternativeText?: string; width?: number; height?: number };
-  favicon?: { url: string };
-  defaultOgImage?: { url: string };
+  // `updatedAt` is what cache-busts next/image when an editor replaces a
+  // file in place — Strapi keeps the same url, so without it the optimiser
+  // keeps serving the old bytes. See lib/cms/media.ts.
+  logo?: { url: string; alternativeText?: string; width?: number; height?: number; updatedAt?: string };
+  favicon?: { url: string; updatedAt?: string };
+  defaultOgImage?: { url: string; updatedAt?: string };
 }
 
 export interface NavLinkCms {

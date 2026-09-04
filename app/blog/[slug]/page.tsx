@@ -15,6 +15,15 @@ interface RouteParams {
 }
 
 /** Pre-render every known post at build time, sourcing slugs from the CMS. */
+/*
+  Same reason as every other CMS-driven page (see app/page.tsx): with no
+  revalidate window Next pins the prerender with `s-maxage=31536000`, and a
+  build that rendered the image-less fallback stays pinned until a webhook
+  happens to fire. One minute is the floor under the webhook, not a
+  replacement for it.
+*/
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const posts = await getBlogPosts(100);
   return posts.map((p) => ({ slug: p.slug }));

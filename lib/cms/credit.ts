@@ -6,17 +6,22 @@
  * use it, so a photo keeps its attribution wherever it is placed and an editor
  * sets it once.
  *
- * Resolution order — explicit beats derived, and nothing beats a guess:
+ * Resolution order — most specific beats general, and nothing beats a guess:
  *
- *   1. The file's `caption` in the Media Library. This is the editor's own
- *      words and always wins.
- *   2. The filename, when it follows the house convention
+ *   1. The `Photo Credit` field sitting next to the image in the Content
+ *      Manager (`photoCredit` on the hero and audience card, `heroImageCredit`
+ *      on a blog post). Per-placement, so the same photo can be credited
+ *      differently in two contexts, and it is editable right where the image
+ *      is chosen.
+ *   2. The file's `caption` in the Media Library. Set once, follows the photo
+ *      everywhere it is used — the right place for the usual case.
+ *   3. The filename, when it follows the house convention
  *      `First-Last-Source.jpg` (e.g. `Benjamin-Lehman-Unsplash.jpg`), which is
  *      how the photographs are named on upload. This means a correctly named
  *      file is credited the moment it lands, with no second step to forget.
- *   3. Nothing. A photo with no known photographer renders no overlay.
+ *   4. Nothing. A photo with no known photographer renders no overlay.
  *
- * Rule three matters: a wrong credit attributes someone's work to the wrong
+ * The last rule matters: a wrong credit attributes someone's work to the wrong
  * person, which is worse than no credit at all. Never infer a name from a
  * filename that does not clearly carry one.
  */
@@ -57,8 +62,17 @@ function creditFromFilename(name: string): string | null {
 /**
  * The credit line for a Strapi media object, or null when we don't know who
  * took the photograph.
+ *
+ * @param media    the Strapi file
+ * @param override the `Photo Credit` field next to the image in the CMS,
+ *                 which wins over everything when an editor has filled it in
  */
-export function photoCredit(media: CreditableMedia | null | undefined): string | null {
+export function photoCredit(
+  media: CreditableMedia | null | undefined,
+  override?: string | null,
+): string | null {
+  const explicit = override?.trim();
+  if (explicit) return explicit;
   if (!media) return null;
   const caption = media.caption?.trim();
   if (caption) return caption;

@@ -19,6 +19,8 @@ interface StrapiBlogPost {
   readMinutes: number;
   publishedAt: string;
   heroImage?: { url: string; alternativeText?: string; updatedAt?: string; name?: string; caption?: string } | null;
+  /** The `Photo Credit` field next to the image in the CMS; wins over the caption. */
+  heroImageCredit?: string | null;
   author?: { name: string; role?: string } | null;
   tags?: Array<{ name: string; slug: string }>;
   body?: any[];
@@ -38,7 +40,7 @@ function adapt(s: StrapiBlogPost): BlogPost {
     date: (s.publishedAt ?? '').slice(0, 10),
     readMinutes: s.readMinutes ?? 5,
     heroImage: strapiMedia(s.heroImage?.url, s.heroImage?.updatedAt),
-    heroImageCredit: photoCredit(s.heroImage),
+    heroImageCredit: photoCredit(s.heroImage, s.heroImageCredit),
     heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : s.title,
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape

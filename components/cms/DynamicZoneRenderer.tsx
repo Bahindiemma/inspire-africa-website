@@ -156,7 +156,7 @@ function SectionSwitch({
                   captionTitle: s.photoCaptionTitle ?? "",
                   captionSub: s.photoCaptionSub ?? "",
                   priority: s.priority ?? i === 0,
-                  credit: photoCredit(s.photo),
+                  credit: photoCredit(s.photo, s.photoCredit),
                 }
               : undefined
           }
@@ -416,7 +416,7 @@ function SectionSwitch({
                         {c.tag ? (
                           <span className="audience-card-photo-tag">{c.tag}</span>
                         ) : null}
-                        <PhotoCredit credit={photoCredit(c.photo)} size="sm" />
+                        <PhotoCredit credit={photoCredit(c.photo, c.photoCredit)} size="sm" />
                       </div>
                     ) : null}
                     <div className="audience-card-body">

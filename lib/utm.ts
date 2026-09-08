@@ -81,6 +81,24 @@ export function isJoinGateHref(href: string): boolean {
   return href.startsWith("/join/start");
 }
 
+/**
+ * A gate link that carries no `source` records a click we cannot attribute.
+ *
+ * The seeded CMS CTAs point at a bare `/join/start`, which is correct as a
+ * destination and useless as data: the funnel would show those clicks under
+ * no campaign at all. So a gate href without a source is rebuilt with the
+ * section's own attribution, while an editor who set their own `?source=`
+ * keeps it.
+ */
+function isUnattributedGateHref(href: string): boolean {
+  if (!isJoinGateHref(href)) return false;
+  try {
+    return !new URL(href, PARSE_BASE).searchParams.get("source");
+  } catch {
+    return true;
+  }
+}
+
 /** `/join` and `/join/` — our own community landing page, not the gate. */
 function isJoinLandingHref(href: string): boolean {
   try {
@@ -98,7 +116,8 @@ function isJoinLandingHref(href: string): boolean {
  */
 export function normalizeJoinHref(href: string | null | undefined, opts: JoinLinkOptions): string {
   if (!href) return buildJoinGateUrl(opts);
-  return isCommunityHref(href) ? buildJoinGateUrl(opts) : href;
+  if (isCommunityHref(href) || isUnattributedGateHref(href)) return buildJoinGateUrl(opts);
+  return href;
 }
 
 /**
@@ -108,5 +127,8 @@ export function normalizeJoinHref(href: string | null | undefined, opts: JoinLin
  */
 export function normalizeJoinCtaHref(href: string | null | undefined, opts: JoinLinkOptions): string {
   if (!href) return buildJoinGateUrl(opts);
-  return isCommunityHref(href) || isJoinLandingHref(href) ? buildJoinGateUrl(opts) : href;
+  if (isCommunityHref(href) || isJoinLandingHref(href) || isUnattributedGateHref(href)) {
+    return buildJoinGateUrl(opts);
+  }
+  return href;
 }

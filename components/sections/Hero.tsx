@@ -1,5 +1,6 @@
 import Image, { type StaticImageData } from "next/image";
 import type { ReactNode } from "react";
+import { PhotoCredit } from "@/components/ui/PhotoCredit";
 
 interface HeroProps {
   watermark: string;
@@ -13,6 +14,8 @@ interface HeroProps {
     captionTitle: string;
     captionSub: string;
     priority?: boolean;
+    /** Attribution line; renders as an overlay. Null when unknown. */
+    credit?: string | null;
   };
   className?: string;
   /** Hide the photo block when the page should use a centered hero (e.g. contact, legal pages) */
@@ -52,6 +55,7 @@ export function Hero({ watermark, eyebrow, heading, lede, ctas, photo, className
                   priority={photo.priority ?? true}
                   style={{ objectFit: "cover" }}
                 />
+                <PhotoCredit credit={photo.credit} />
               </div>
               <div className="hero-photo-caption">
                 <strong>{photo.captionTitle}</strong>

@@ -62,6 +62,11 @@ services:
       # --- CORS: origins allowed to call the API from a browser ---
       CORS_ORIGINS: ${CORS_ORIGINS}
       # --- revalidation webhook back into the Next.js app (internal network) ---
+      # One-shot seeders. Leave false; set to true for a single recreate,
+      # then recreate again without it. RESEED_CREDITS only fills BLANK
+      # media captions with a photographer derived from the filename —
+      # it never touches page content.
+      RESEED_CREDITS: ${RESEED_CREDITS:-false}
       FRONTEND_REVALIDATE_URL: http://web:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       # --- visitor analytics (consent-gated, first-party) ---

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import Link from "next/link";
 import { getBlogPostsPage, formatBlogDate } from "@/lib/cms/blogs";
 import { buildMetadata } from "@/lib/seo";
@@ -89,6 +90,7 @@ export default async function BlogIndexPage({ searchParams }: BlogIndexProps) {
                       ) : (
                         <span className="insight-card-media-placeholder" aria-hidden="true" />
                       )}
+                      <PhotoCredit credit={p.heroImageCredit} size="sm" />
                       <span className="insight-card-tag">{p.category}</span>
                     </Link>
                     <div className="insight-card-body">

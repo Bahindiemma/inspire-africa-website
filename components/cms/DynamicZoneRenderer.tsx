@@ -29,6 +29,8 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { EmployersForm } from "@/components/forms/EmployersForm";
 import { GovernmentsForm } from "@/components/forms/GovernmentsForm";
 import { strapiMedia } from "@/lib/cms/media";
+import { photoCredit } from "@/lib/cms/credit";
+import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import {
   isJoinGateHref,
   normalizeJoinCtaHref,
@@ -154,6 +156,7 @@ function SectionSwitch({
                   captionTitle: s.photoCaptionTitle ?? "",
                   captionSub: s.photoCaptionSub ?? "",
                   priority: s.priority ?? i === 0,
+                  credit: photoCredit(s.photo),
                 }
               : undefined
           }
@@ -413,6 +416,7 @@ function SectionSwitch({
                         {c.tag ? (
                           <span className="audience-card-photo-tag">{c.tag}</span>
                         ) : null}
+                        <PhotoCredit credit={photoCredit(c.photo)} size="sm" />
                       </div>
                     ) : null}
                     <div className="audience-card-body">
@@ -493,6 +497,7 @@ function SectionSwitch({
                     ) : (
                       <span className="insight-row-media-placeholder" aria-hidden="true" />
                     )}
+                    <PhotoCredit credit={post.heroImageCredit} size="sm" />
                     <span className="insight-row-tag">{post.category}</span>
                   </Link>
                   <div className="insight-row-content">

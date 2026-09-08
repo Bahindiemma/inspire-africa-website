@@ -3874,3 +3874,58 @@ body.menu-open {
     justify-content: center;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PHOTO CREDITS
+
+   Attribution overlay pinned to the bottom of every visitor-facing
+   photograph. The parent image wrapper is already `position: relative`
+   (next/image `fill` requires it) and already paints a bottom scrim via
+   ::after, so this sits above that at z-index 2 and stays legible on a
+   light or dark photo without a second gradient.
+
+   Not applied to the logo, favicon or OG image — those are brand assets,
+   not photographs.
+   ───────────────────────────────────────────────────────────── */
+.photo-credit {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  z-index: 2;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  /* Long credits wrap rather than overflow the frame. */
+  overflow-wrap: anywhere;
+}
+.photo-credit em {
+  font-style: italic;
+  font-weight: 600;
+  opacity: 0.95;
+}
+.photo-credit--sm {
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  font-size: 10px;
+}
+
+/* A card that carries a bottom-left tag would collide with the credit;
+   nudge the credit clear of it. */
+.audience-card-photo .photo-credit {
+  bottom: 10px;
+}
+
+@media (max-width: 640px) {
+  .photo-credit {
+    font-size: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+  }
+}

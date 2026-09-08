@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import Link from "next/link";
 import { getBlogPosts, getBlogPost, getRelatedPosts, formatBlogDate } from "@/lib/cms/blogs";
 import { buildMetadata } from "@/lib/seo";
@@ -99,6 +100,7 @@ export default async function BlogDetailPage({ params }: RouteParams) {
                   sizes="(max-width: 1100px) 100vw, 1100px"
                   style={{ objectFit: "cover" }}
                 />
+                <PhotoCredit credit={post.heroImageCredit} />
               </div>
             </div>
           </div>
@@ -196,6 +198,7 @@ export default async function BlogDetailPage({ params }: RouteParams) {
                       ) : (
                         <span className="insight-card-media-placeholder" aria-hidden="true" />
                       )}
+                      <PhotoCredit credit={r.heroImageCredit} size="sm" />
                       <span className="insight-card-tag">{r.category}</span>
                     </Link>
                     <div className="insight-card-body">

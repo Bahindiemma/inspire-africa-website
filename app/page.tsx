@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PhotoCredit } from "@/components/ui/PhotoCredit";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
@@ -322,6 +323,7 @@ export default async function HomePage() {
                   ) : (
                     <span className="insight-row-media-placeholder" aria-hidden="true" />
                   )}
+                  <PhotoCredit credit={post.heroImageCredit} size="sm" />
                   <span className="insight-row-tag">{post.category}</span>
                 </Link>
                 <div className="insight-row-content">

@@ -28,6 +28,8 @@ export interface BlogPost {
   /** Strapi Media Library URL, or null when no CMS image is set (no
    *  static fallback — the renderer shows a neutral placeholder). */
   heroImage: string | null;
+  /** Attribution for heroImage, rendered as an overlay. Null when unknown. */
+  heroImageCredit?: string | null;
   heroAlt: string;
   tags: string[];
   body: BlogSection[];

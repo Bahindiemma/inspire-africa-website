@@ -140,6 +140,41 @@ Two traps worth knowing, both of which cost the site its photography in producti
   Every URL should carry `%3Fv%3D<epoch>`. If they don't, the page was rendered
   by a build that predates this, and needs revalidating.
 
+### 2.3 Photo credits
+
+Every visitor-facing photograph carries a "Photo By: …" overlay along the
+bottom of the image, the label in italics. Brand assets — the logo, favicon
+and OG image — are not photographs and carry nothing.
+
+**To credit a photo, set its `Caption` in the Media Library.** Type only the
+photographer, e.g. `Ian Kelsall / Unsplash` — the site adds "Photo By:"
+itself, so typing that prefix would render it twice. The credit lives on the
+file, not on the page section, so it follows the photo everywhere it is used
+and is set once. It appears within 60 seconds (the ISR floor), or instantly
+once the media webhook is deployed.
+
+A photo with no caption falls back to its filename when that follows the
+house convention `First-Last-Source.ext`:
+
+| Filename | Renders |
+|---|---|
+| `Benjamin-Lehman-Unsplash.jpg` | Photo By: *Benjamin Lehman / Unsplash* |
+| `Nicholas-Doherty-Unsplash.jpg` | Photo By: *Nicholas Doherty / Unsplash* |
+| `workers-hero-nurse.jpg` | nothing — no photographer in the name |
+| `Picture 1.jpg`, `PES.png` | nothing |
+
+So naming an upload correctly credits it automatically, with no second step.
+The parser only fires on at least two alphabetic tokens plus a recognised
+source (`unsplash`, `pexels`, `pixabay`, `freepik`, `shutterstock`, `getty`,
+`istock`), which is what keeps `home-card-workers-construction.jpg` out. It
+never guesses: a wrong credit attributes someone's work to the wrong person,
+which is worse than no credit.
+
+Code: `lib/cms/credit.ts` resolves it, `components/ui/PhotoCredit.tsx`
+renders it, `.photo-credit` in `app/globals.css` styles it. The CMS-side
+`seedPhotoCredits` (behind `RESEED_CREDITS`) can bulk-fill blank captions
+from filenames; it never overwrites an editor's caption.
+
 ## 3. Data model
 
 `api::community-signup` (CMS repo, `src/api/community-signup/`). One row per click, upgraded in

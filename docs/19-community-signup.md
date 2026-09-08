@@ -146,14 +146,21 @@ Every visitor-facing photograph carries a "Photo By: …" overlay along the
 bottom of the image, the label in italics. Brand assets — the logo, favicon
 and OG image — are not photographs and carry nothing.
 
-**To credit a photo, set its `Caption` in the Media Library.** Type only the
-photographer, e.g. `Ian Kelsall / Unsplash` — the site adds "Photo By:"
-itself, so typing that prefix would render it twice. The credit lives on the
-file, not on the page section, so it follows the photo everywhere it is used
-and is set once. It appears within 60 seconds (the ISR floor), or instantly
-once the media webhook is deployed.
+There are two places to set one, and the more specific wins:
 
-A photo with no caption falls back to its filename when that follows the
+1. **The `Photo Credit` field next to the image in the Content Manager** —
+   `photoCredit` on a hero section and an audience card, `heroImageCredit` on
+   a blog post. Per-placement, so the same photograph can read differently in
+   two contexts.
+2. **The image's `Caption` in the Media Library** — set once, follows the
+   photo everywhere it is used. The right place for the usual case.
+
+Either way, **type only the photographer** — e.g. `Ian Kelsall / Unsplash`.
+The site adds "Photo By:" itself, so including that prefix renders it twice.
+A saved credit appears immediately (the media/entry webhook), and within 60
+seconds at worst (the ISR floor).
+
+With neither set, the credit falls back to the filename when it follows the
 house convention `First-Last-Source.ext`:
 
 | Filename | Renders |

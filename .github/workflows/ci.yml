@@ -1,0 +1,78 @@
+# CI: checks that every push to main and every pull request
+#   - installs dependencies from package-lock.json (npm ci),
+#   - lints (npm run lint = next lint with eslint.config.mjs, including the
+#     no-Mighty-Networks-links rule),
+#   - typechecks (npm run typecheck = tsc --noEmit),
+#   - produces a production build (npm run build; its prebuild runs the
+#     offline join-gate source scan). STRAPI_MEDIA_URL is required at build
+#     time, so a placeholder .invalid origin is used: no CMS is contacted
+#     and no secret is needed.
+#   - on pull requests only, builds the Docker image without pushing it
+#     (pushes to main already build it in docker-publish.yml).
+# Each check runs even when an earlier one fails. No deploy happens here.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  check:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: npm ci
+        id: install
+        run: npm ci
+
+      - name: Lint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint
+
+      - name: Typecheck
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run typecheck
+
+      - name: Production build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          NEXT_PUBLIC_SITE_URL: https://ci.example.invalid
+          STRAPI_MEDIA_URL: https://cms.ci.example.invalid
+        run: npm run build
+
+  docker:
+    name: Docker build (no push)
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=https://ci.example.invalid
+            STRAPI_MEDIA_URL=https://cms.ci.example.invalid
+          cache-from: type=gha

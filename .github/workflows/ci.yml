@@ -41,20 +41,30 @@ jobs:
           node-version: '22'
           cache: npm
 
+      # npm ci is the real check that package-lock.json matches package.json.
+      # When it fails the job stays red, but npm install is then used so that
+      # lint, typecheck and build still report their own results instead of
+      # being hidden behind the install failure. (The Dockerfile uses
+      # npm install for the same lockfile reason.)
       - name: npm ci
-        id: install
+        id: ci
         run: npm ci
 
+      - name: npm install (only because npm ci failed)
+        id: fallback
+        if: ${{ !cancelled() && steps.ci.outcome == 'failure' }}
+        run: npm install --no-audit --no-fund
+
       - name: Lint
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && (steps.ci.outcome == 'success' || steps.fallback.outcome == 'success') }}
         run: npm run lint
 
       - name: Typecheck
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && (steps.ci.outcome == 'success' || steps.fallback.outcome == 'success') }}
         run: npm run typecheck
 
       - name: Production build
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && (steps.ci.outcome == 'success' || steps.fallback.outcome == 'success') }}
         env:
           NEXT_PUBLIC_SITE_URL: https://ci.example.invalid
           STRAPI_MEDIA_URL: https://cms.ci.example.invalid

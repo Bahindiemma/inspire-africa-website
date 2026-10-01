@@ -8,10 +8,7 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-# Use `npm install` rather than `npm ci`: the lock pins versions, but different
-# npm releases hoist transitive deps (e.g. picomatch) differently, and `npm ci`
-# aborts on any such layout mismatch. `npm install` reconciles it and builds.
-RUN npm install --no-audit --no-fund
+RUN npm ci --no-audit --no-fund
 
 # ---------- 2. Builder ----------
 FROM node:22-alpine AS builder

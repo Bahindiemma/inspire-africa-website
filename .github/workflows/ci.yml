@@ -30,6 +30,7 @@ env:
 
 jobs:
   check:
+    if: github.repository_owner == 'cotetech-client-projects'
     name: Lint, typecheck, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -72,7 +73,7 @@ jobs:
 
   docker:
     name: Docker build (no push)
-    if: github.event_name != 'push'
+    if: github.repository_owner == 'cotetech-client-projects' && github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

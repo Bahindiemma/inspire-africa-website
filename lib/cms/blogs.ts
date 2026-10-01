@@ -6,7 +6,19 @@
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
 import { strapiMedia } from '@/lib/cms/media';
 import { photoCredit } from '@/lib/cms/credit';
-import { BLOG_POSTS as STATIC_POSTS, type BlogPost } from '@/lib/blogs';
+import { BLOG_POSTS as STATIC_POSTS, type BlogPost, type BlogSection } from '@/lib/blogs';
+import type { RtNode } from '@/lib/cms/legal';
+
+/** One entry of a post's `body` dynamic zone — the components POPULATE_DETAIL requests. */
+type StrapiBlogBlock = { id?: number } & (
+  | { __component: 'blocks.lede'; text: string }
+  | { __component: 'blocks.heading'; text: string }
+  | { __component: 'blocks.paragraph'; text?: RtNode[] | string | null }
+  | { __component: 'blocks.list'; ordered?: boolean | null; items?: string[] | null }
+  | { __component: 'blocks.callout'; title: string; text: string }
+  | { __component: 'blocks.quote'; text: string; attribution?: string }
+  | { __component: 'blocks.image'; image?: { url?: string | null } | null }
+);
 
 interface StrapiBlogPost {
   id: number;
@@ -23,7 +35,7 @@ interface StrapiBlogPost {
   heroImageCredit?: string | null;
   author?: { name: string; role?: string } | null;
   tags?: Array<{ name: string; slug: string }>;
-  body?: any[];
+  body?: StrapiBlogBlock[];
 }
 
 function adapt(s: StrapiBlogPost): BlogPost {
@@ -44,11 +56,11 @@ function adapt(s: StrapiBlogPost): BlogPost {
     heroAlt: s.heroImage?.url ? (s.heroAlt ?? s.title) : s.title,
     tags: (s.tags ?? []).map((t) => t.name),
     // Body conversion: Strapi dynamic-zone blocks → BlogSection shape
-    body: (s.body ?? []).map(adaptBlock).filter(Boolean) as any[],
+    body: (s.body ?? []).map(adaptBlock).filter((b): b is BlogSection => b !== null),
   };
 }
 
-function adaptBlock(b: any): any {
+function adaptBlock(b: StrapiBlogBlock): BlogSection | null {
   switch (b.__component) {
     case 'blocks.lede':
       return { kind: 'lede', text: b.text };
@@ -58,7 +70,7 @@ function adaptBlock(b: any): any {
       // Strapi's blocks editor returns an array of nodes; flatten to plain text.
       const text = Array.isArray(b.text)
         ? b.text
-            .map((node: any) => (node.children ?? []).map((c: any) => c.text ?? '').join(''))
+            .map((node) => (node.children ?? []).map((c) => c.text ?? '').join(''))
             .join('\n\n')
         : String(b.text ?? '');
       return { kind: 'p', text };

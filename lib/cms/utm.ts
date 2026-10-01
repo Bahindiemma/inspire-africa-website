@@ -13,7 +13,7 @@
 import { getSiteSettings } from './site-settings';
 import { joinUrl as staticJoinUrl, type JoinLinkOptions } from '@/lib/utm';
 
-export interface JoinUrlOptions extends JoinLinkOptions {}
+export type JoinUrlOptions = JoinLinkOptions;
 
 export function buildJoinUrl(
   baseUrl: string | null | undefined,

@@ -39,12 +39,9 @@ import {
 } from "@/lib/utm";
 import { formatBlogDate, type BlogPost } from "@/lib/blogs";
 import type { CorridorCms } from "@/lib/cms/corridors";
+import type { CmsPageSection } from "@/lib/cms/pages";
 
-export interface DynamicZoneSection {
-  __component: string;
-  id?: number;
-  [k: string]: any;
-}
+export type DynamicZoneSection = CmsPageSection;
 
 /**
  * Attribution for a CMS-authored CTA. Editors can set utmSource/Medium/
@@ -94,7 +91,7 @@ export function DynamicZoneRenderer({ sections, corridors, posts }: Props) {
   );
 }
 
-function html(s: string | undefined): React.ReactNode {
+function html(s: string | null | undefined): React.ReactNode {
   if (!s) return null;
   return <span dangerouslySetInnerHTML={{ __html: s }} />;
 }
@@ -126,11 +123,11 @@ function SectionSwitch({
           heading={html(s.headingHtml)}
           lede={s.lede ?? ""}
           centered={!!s.centered}
-          className={s.className}
+          className={s.className ?? undefined}
           ctas={
             Array.isArray(s.ctas) && s.ctas.length > 0 ? (
               <>
-                {s.ctas.map((c: any, j: number) => {
+                {s.ctas.map((c, j) => {
                   const href = normalizeJoinCtaHref(c.href, ctaOpts(c, "cms_hero"));
                   return (
                     <ButtonLink
@@ -166,8 +163,8 @@ function SectionSwitch({
 
     // ─────────────────────────────────────────────────────────────
     case "sections.feature-list": {
-      const items = (s.items ?? []).map((it: any) => ({
-        marker: it.marker,
+      const items = (s.items ?? []).map((it) => ({
+        marker: it.marker ?? undefined,
         title: it.title,
         body: it.body,
         bad: !!it.isBad,
@@ -186,7 +183,7 @@ function SectionSwitch({
 
     // ─────────────────────────────────────────────────────────────
     case "sections.process-list": {
-      const steps = (s.steps ?? []).map((step: any) => ({
+      const steps = (s.steps ?? []).map((step) => ({
         title: step.title,
         body: step.body,
       }));
@@ -204,7 +201,7 @@ function SectionSwitch({
 
     // ─────────────────────────────────────────────────────────────
     case "sections.step-cards": {
-      const items = (s.items ?? []).map((it: any) => ({
+      const items = (s.items ?? []).map((it) => ({
         marker: it.marker,
         title: it.title,
         body: it.body,
@@ -229,7 +226,7 @@ function SectionSwitch({
 
     // ─────────────────────────────────────────────────────────────
     case "sections.numbers": {
-      const stats = (s.stats ?? []).map((st: any) => ({
+      const stats = (s.stats ?? []).map((st) => ({
         value: st.value,
         label: st.label,
       }));
@@ -267,7 +264,7 @@ function SectionSwitch({
           secondary={
             Array.isArray(s.secondaryLinks) && s.secondaryLinks.length > 0 ? (
               <>
-                {s.secondaryLinks.map((l: any, j: number) => (
+                {s.secondaryLinks.map((l, j) => (
                   <a key={j} href={normalizeJoinHref(l.href, { source: "cms_final_cta_secondary" })}>
                     {l.label}
                   </a>
@@ -322,7 +319,7 @@ function SectionSwitch({
       const list: Array<{ country: string; sectors: string }> =
         corridors && corridors.length > 0
           ? corridors.map((c) => ({ country: c.country, sectors: c.sectors }))
-          : (s.corridors ?? []).map((c: any) => ({
+          : (s.corridors ?? []).map((c) => ({
               country: c.displayName ?? c.country ?? "",
               sectors: c.sectors ?? "",
             }));
@@ -378,7 +375,7 @@ function SectionSwitch({
 
     // ─────────────────────────────────────────────────────────────
     case "sections.audiences": {
-      const cards: any[] = s.cards ?? [];
+      const cards = s.cards ?? [];
       if (cards.length === 0) return null;
       return (
         <section className="audiences">

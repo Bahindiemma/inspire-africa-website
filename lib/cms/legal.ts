@@ -10,6 +10,43 @@
  */
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
 
+/** A node of Strapi's Blocks (rich text) AST, as used by `blocks.paragraph`. */
+export interface RtNode {
+  type?: string;
+  /** `ordered` | `unordered` on a `list` node. */
+  format?: string;
+  text?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  url?: string;
+  children?: RtNode[];
+}
+
+/**
+ * One entry of a legal document's `body` dynamic zone — exactly the
+ * components LEGAL_POPULATE requests.
+ */
+export type LegalBlock = { id?: number } & (
+  | { __component: 'blocks.lede'; text?: string | null }
+  | {
+      __component: 'blocks.heading';
+      text?: string | null;
+      level?: 'h2' | 'h3' | 'h4' | null;
+      anchorId?: string | null;
+    }
+  | { __component: 'blocks.paragraph'; text?: RtNode[] | null }
+  | { __component: 'blocks.list'; items?: string[] | null; ordered?: boolean | null }
+  | { __component: 'blocks.callout'; title?: string | null; text?: string | null }
+  | {
+      __component: 'blocks.table';
+      caption?: string | null;
+      headers?: string[] | null;
+      rows?: string[][] | null;
+    }
+  | { __component: 'blocks.quote'; text?: string | null; attribution?: string | null }
+);
+
 export interface LegalTocAnchor {
   label: string;
   anchorId: string;
@@ -26,7 +63,7 @@ export interface LegalDocumentMeta {
   controllerName?: string;
   /** CMS-authored body — a Strapi dynamic zone of `blocks.*` components.
    *  Empty/undefined → the page falls back to its in-repo JSX body. */
-  body?: Array<{ __component: string; [k: string]: any }>;
+  body?: LegalBlock[];
   /** Sticky-TOC entries; empty → the page uses its in-repo TOC. */
   tocAnchors?: LegalTocAnchor[];
 }

@@ -98,18 +98,18 @@ export async function strapiFetch<T>(
  *   buildQs({ populate: '*', sort: 'order:asc', filters: { country: { $eq: 'UK' } } })
  *   → "populate=*&sort=order%3Aasc&filters%5Bcountry%5D%5B%24eq%5D=UK"
  */
-export function buildQs(params: Record<string, any>): string {
+export function buildQs(params: Record<string, unknown>): string {
   const out: string[] = [];
-  const walk = (prefix: string, value: any) => {
+  const walk = (prefix: string, value: unknown) => {
     if (value === null || value === undefined) return;
     if (Array.isArray(value)) {
       value.forEach((v, i) => walk(`${prefix}[${i}]`, v));
     } else if (typeof value === 'object') {
       for (const k of Object.keys(value)) {
-        walk(prefix ? `${prefix}[${k}]` : k, value[k]);
+        walk(prefix ? `${prefix}[${k}]` : k, (value as Record<string, unknown>)[k]);
       }
     } else {
-      out.push(`${encodeURIComponent(prefix)}=${encodeURIComponent(value)}`);
+      out.push(`${encodeURIComponent(prefix)}=${encodeURIComponent(String(value))}`);
     }
   };
   for (const k of Object.keys(params)) walk(k, params[k]);

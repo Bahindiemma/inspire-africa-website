@@ -7,10 +7,111 @@
  */
 import { strapiFetch, isStrapiAvailable } from '@/lib/strapi';
 
+/** A Strapi media object, as populated under a section (`photo`, `flagIcon`). */
+export interface CmsMedia {
+  url?: string | null;
+  updatedAt?: string | null;
+  /** Original filename; photoCredit() reads a credit from it. */
+  name?: string | null;
+  caption?: string | null;
+}
+
+/** The `shared.cta` component. */
+export interface CmsCta {
+  href?: string | null;
+  label?: string | null;
+  variant?: 'primary' | 'ghost' | 'dark' | null;
+  withArrow?: boolean | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+}
+
+export interface CmsLink {
+  href?: string | null;
+  label?: string | null;
+}
+
+/** Items of `sections.feature-list` and `sections.step-cards`. */
+export interface CmsListItem {
+  marker?: string | null;
+  title?: string | null;
+  body?: string | null;
+  isBad?: boolean | null;
+}
+
+export interface CmsStat {
+  value: string;
+  label: string;
+}
+
+/** Cards of `sections.audiences`. */
+export interface CmsAudienceCard {
+  id?: number;
+  photo?: CmsMedia | null;
+  photoAlt?: string | null;
+  photoCredit?: string | null;
+  tag?: string | null;
+  isPrimary?: boolean | null;
+  number?: string | null;
+  title?: string | null;
+  body?: string | null;
+  ctaHref?: string | null;
+  ctaLabel?: string | null;
+}
+
+/** The corridor relation populated on `sections.corridors-marquee`. */
+export interface CmsSectionCorridor {
+  displayName?: string | null;
+  country?: string | null;
+  sectors?: string | null;
+}
+
+/**
+ * One entry of a Page's `sections` Dynamic Zone. Every `sections.*`
+ * component shares this flat shape; each field is present only on the
+ * components that declare it (see SECTION_POPULATE below and
+ * components/cms/DynamicZoneRenderer.tsx).
+ */
 export interface CmsPageSection {
   __component: string;
   id?: number;
-  [k: string]: any;
+  // shared copy
+  eyebrow?: string | null;
+  headingHtml?: string | null;
+  lede?: string | null;
+  tone?: 'default' | 'alt' | 'yellow' | null;
+  // sections.hero
+  watermark?: string | null;
+  centered?: boolean | null;
+  className?: string | null;
+  photo?: CmsMedia | null;
+  photoAlt?: string | null;
+  photoCaptionTitle?: string | null;
+  photoCaptionSub?: string | null;
+  photoCredit?: string | null;
+  priority?: boolean | null;
+  ctas?: CmsCta[] | null;
+  // sections.feature-list, sections.step-cards
+  items?: CmsListItem[] | null;
+  // sections.process-list
+  steps?: CmsListItem[] | null;
+  // sections.numbers
+  stats?: CmsStat[] | null;
+  // sections.final-cta
+  primaryCta?: CmsCta | null;
+  secondaryLinks?: CmsLink[] | null;
+  // sections.form-block
+  formKey?: string | null;
+  anchorId?: string | null;
+  // sections.corridors-marquee
+  label?: string | null;
+  corridors?: CmsSectionCorridor[] | null;
+  // sections.audiences
+  cards?: CmsAudienceCard[] | null;
+  // sections.insights-strip
+  limit?: number | null;
+  ctaLabel?: string | null;
 }
 
 export interface CmsPage {

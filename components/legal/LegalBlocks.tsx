@@ -22,12 +22,9 @@ import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { LegalHeading, LegalCallout } from "@/components/legal/LegalLayout";
 import type { SiteSettings } from "@/lib/cms/site-settings";
+import type { LegalBlock, RtNode } from "@/lib/cms/legal";
 
-export interface LegalBlock {
-  __component: string;
-  id?: number;
-  [k: string]: any;
-}
+export type { LegalBlock };
 
 /** Build the {{token}} → value map from site settings. */
 export function legalTokens(s: SiteSettings): Record<string, string> {
@@ -57,16 +54,6 @@ function substitute(text: string, tokens: Record<string, string>): string {
 }
 
 // ---- Strapi Blocks (rich text) inline rendering ----------------------
-
-interface RtNode {
-  type?: string;
-  text?: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  url?: string;
-  children?: RtNode[];
-}
 
 function withLineBreaks(text: string): ReactNode {
   const parts = text.split("\n");
@@ -111,11 +98,11 @@ function renderInline(children: RtNode[] | undefined, tokens: Record<string, str
 }
 
 /** Render the Strapi Blocks AST (paragraph block `text` field). */
-function renderRichText(nodes: RtNode[] | undefined, tokens: Record<string, string>): ReactNode {
+function renderRichText(nodes: RtNode[] | null | undefined, tokens: Record<string, string>): ReactNode {
   if (!Array.isArray(nodes)) return null;
   return nodes.map((n, i) => {
     if (n.type === "list") {
-      const ordered = (n as any).format === "ordered";
+      const ordered = n.format === "ordered";
       const Tag = ordered ? "ol" : "ul";
       return (
         <Tag key={i}>

@@ -62,6 +62,26 @@ export function isRegisterConfigured(): boolean {
   return Boolean(BASE && KEY);
 }
 
+/*
+  THE VISITOR'S ADDRESS, FOR THE REGISTER'S PER-VISITOR LIMIT.
+
+  The register only believes `X-Candidate-Address` on a request that also
+  carried the website key, and limits invitations per visitor on it — so a
+  script cannot send thousands of invitations from one machine by walking a
+  list of addresses (which would exhaust the single mailbox every register
+  email leaves from).
+
+  Taken from the LAST entry of the forwarded chain, not the first: our nginx
+  appends the address it actually saw, so the last entry is the real peer,
+  while anything earlier is whatever the visitor chose to send. Anything that
+  does not look like an IPv4/IPv6 literal is dropped rather than forwarded.
+*/
+function visitorAddress(chain: string | null | undefined): string | null {
+  if (!chain) return null;
+  const last = chain.split(',').pop()?.trim() ?? '';
+  return /^[0-9a-fA-F:.]{2,45}$/.test(last) ? last : null;
+}
+
 async function call(
   path: string,
   body: unknown,
@@ -83,6 +103,7 @@ async function call(
         Accept: 'application/json',
         'X-Website-Key': KEY,
         ...(forward.ip ? { 'x-forwarded-for': forward.ip } : {}),
+        ...(visitorAddress(forward.ip) ? { 'X-Candidate-Address': visitorAddress(forward.ip)! } : {}),
         ...(forward.ua ? { 'user-agent': forward.ua } : {}),
       },
       body: JSON.stringify(body),

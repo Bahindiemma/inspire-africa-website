@@ -1,0 +1,189 @@
+From 6a4366c10d5ac434da0fcb76f84036fa1057e2d0 Mon Sep 17 00:00:00 2001
+From: Mugamba669 <brunohectre@gmail.com>
+Date: Tue, 3 Nov 2026 07:29:46 +0300
+Subject: [PATCH] A worker who joins is emailed only by the register's
+ readiness invitation, and everyone else gets a thank-you with no link
+
+Joining no longer ends in Mighty Networks. The register now invites workers
+into the readiness portal, so this endpoint stops minting confirmation links:
+workers get nothing from here, other audiences a short note with no link.
+
+Claude-Session: https://claude.ai/code/session_01WBw8oF9rXofvLwxjHWqDZy
+---
+ .../controllers/community-signup.ts           | 81 ++++++++++++++++---
+ src/utils/community/verification.ts           | 28 +++++++
+ 2 files changed, 97 insertions(+), 12 deletions(-)
+
+diff --git a/src/api/community-signup/controllers/community-signup.ts b/src/api/community-signup/controllers/community-signup.ts
+index 632a053..dbaae0e 100644
+--- a/src/api/community-signup/controllers/community-signup.ts
++++ b/src/api/community-signup/controllers/community-signup.ts
+@@ -33,6 +33,7 @@ import {
+   tokenMatches,
+   expiryFrom,
+   verificationEmail,
++  thankYouEmail,
+   MAX_SENDS,
+ } from '../../../utils/community/verification';
+ 
+@@ -128,6 +129,36 @@ async function sendVerification(
+   }
+ }
+ 
++/**
++ * The non-worker's note: received, thank you, no link. Same send cap and
++ * failure reporting as the verification email, for the same reason — a relay
++ * that stalls must not hold the visitor's request open.
++ */
++async function sendThankYou(
++  strapi: any,
++  row: { email: string; firstName: string | null }
++): Promise<boolean> {
++  const mail = thankYouEmail({ firstName: row.firstName, siteName: 'INSPIRE AFRICA' });
++  const SEND_TIMEOUT_MS = 12000;
++  try {
++    await Promise.race([
++      strapi.plugin('email').service('email').send({
++        to: row.email,
++        subject: mail.subject,
++        text: mail.text,
++        html: mail.html,
++      }),
++      new Promise((_, reject) =>
++        setTimeout(() => reject(new Error(`send timed out after ${SEND_TIMEOUT_MS}ms`)), SEND_TIMEOUT_MS)
++      ),
++    ]);
++    return true;
++  } catch (err) {
++    strapi.log.error(`[community-signup] thank-you email failed: ${(err as Error).message}`);
++    return false;
++  }
++}
++
+ export default factories.createCoreController(UID, ({ strapi }) => ({
+   /* ------------------------------------------------------------------ *
+    * POST /community/track
+@@ -268,7 +299,27 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
+       userAgent,
+     });
+ 
+-    const token = newToken();
++    /*
++      WHO GETS WHICH EMAIL — AND WHY THIS ENDPOINT NO LONGER SENDS A LINK.
++
++      Joining used to end in Mighty Networks, behind a confirmation link this
++      endpoint emailed. The readiness portal replaces the community (owner
++      decision, 3 Nov 2026; see the website repo's
++      docs/superpowers/specs/2026-11-03-join-to-readiness-design.md):
++
++        worker      the REGISTER emails them an invitation into readiness.
++                    The website asks for it straight after this call. Sending
++                    our confirmation too would put two emails, with two
++                    different links, in front of the same person.
++        everyone    a short "thanks, we've received your details" note with
++        else        NO link — there is nowhere for them to go yet (owner
++                    decision), and a link to nowhere is worse than none.
++
++      So no verification token is minted here any more. Clearing it on an
++      existing row also retires any confirmation link still sitting in an
++      inbox, which the website now answers with "joining has moved".
++    */
++    const isWorker = signup.registrantType === 'worker';
+     const data: Record<string, unknown> = {
+       ...optional,
+       status: 'Submitted',
+@@ -280,9 +331,9 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
+       deviceType,
+       botScore,
+       emailVerified: false,
+-      verificationTokenHash: hashToken(token),
+-      verificationSentAt: now,
+-      verificationExpiresAt: expiryFrom(now),
++      verificationTokenHash: null,
++      verificationSentAt: isWorker ? null : now,
++      verificationExpiresAt: null,
+     };
+ 
+     try {
+@@ -313,7 +364,7 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
+             utmMedium: target.utmMedium ?? signup.utmMedium,
+             utmCampaign: target.utmCampaign ?? signup.utmCampaign,
+             clickedAt: target.clickedAt ?? now,
+-            verificationSendCount: (target.verificationSendCount || 0) + 1,
++            verificationSendCount: (target.verificationSendCount || 0) + (isWorker ? 0 : 1),
+           },
+         });
+         if (byEmail && byClick && byClick.id !== byEmail.id) {
+@@ -321,17 +372,23 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
+         }
+       } else {
+         await repo.create({
+-          data: { ...data, clickId: signup.clickId, clickedAt: now, attempts: 1, verificationSendCount: 1 },
++          data: {
++            ...data,
++            clickId: signup.clickId,
++            clickedAt: now,
++            attempts: 1,
++            verificationSendCount: isWorker ? 0 : 1,
++          },
+         });
+       }
+ 
+-      const sent = alreadyVerified
++      // `verificationSent` keeps its old meaning for a non-worker ("the
++      // thank-you left"). For a worker nothing is sent from here, which is
++      // the intended outcome, so it reads true; the website takes a worker's
++      // result from the register instead.
++      const sent = isWorker
+         ? true
+-        : await sendVerification(
+-            strapi,
+-            { email: signup.email, firstName: signup.firstName },
+-            token
+-          );
++        : await sendThankYou(strapi, { email: signup.email, firstName: signup.firstName });
+ 
+       ctx.status = 200;
+       ctx.body = {
+diff --git a/src/utils/community/verification.ts b/src/utils/community/verification.ts
+index 30d05a3..b7009ae 100644
+--- a/src/utils/community/verification.ts
++++ b/src/utils/community/verification.ts
+@@ -37,6 +37,34 @@ export function expiryFrom(now: Date): Date {
+   return new Date(now.getTime() + TOKEN_TTL_HOURS * 60 * 60 * 1000);
+ }
+ 
++/**
++ * The note a non-worker receives after joining: we have your details, we will
++ * be in touch. Deliberately NO link — there is no destination for these
++ * audiences yet (owner decision, 3 Nov 2026), and the verification link is now
++ * the register's job, for workers only.
++ */
++export function thankYouEmail(opts: { firstName: string | null; siteName: string }) {
++  const name = opts.firstName ? ` ${opts.firstName}` : '';
++  return {
++    subject: `Thank you for joining ${opts.siteName}`,
++    text: [
++      `Hello${name},`,
++      '',
++      `Thank you for joining ${opts.siteName}. We have received your details, and a member of our team will be in touch.`,
++      '',
++      'If you did not ask to join, you can ignore this message.',
++      '',
++      opts.siteName,
++    ].join('\n'),
++    html: [
++      `<p>Hello${name},</p>`,
++      `<p>Thank you for joining ${opts.siteName}. We have received your details, and a member of our team will be in touch.</p>`,
++      `<p style="font-size:13px;color:#555">If you did not ask to join, you can ignore this message.</p>`,
++      `<p style="font-size:13px;color:#555">${opts.siteName}</p>`,
++    ].join(''),
++  };
++}
++
+ /**
+  * The verification email. Plain text as well as HTML — a worker on a basic
+  * phone or a text-only client must be able to complete signup, and this is
+-- 
+2.54.0 (Apple Git-157)
+

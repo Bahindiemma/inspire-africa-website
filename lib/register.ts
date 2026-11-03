@@ -50,13 +50,33 @@ export interface InviteInput {
   utm_campaign?: string | null;
 }
 
+type Failure = { ok: false; reason: 'validation' | 'rate_limited' | 'unavailable'; message?: string };
+
 export type InviteResult =
   | {
       ok: true;
-      /** "failed" only when the register's mail transport is down. */
-      mail: 'sent' | 'failed';
+      /** Validated https://<readiness>/invite?token=… link. Never log it. */
+      startUrl: string;
     }
-  | { ok: false; reason: 'validation' | 'rate_limited' | 'unavailable'; message?: string };
+  | Failure;
+
+/** Result of the legacy resend helper (the /join/check-email page). */
+export type ResendResult =
+  | { ok: true; mail: 'sent' | 'failed' }
+  | Failure;
+
+/** startUrl must be https (http only on localhost) and point at /invite. */
+function validStartUrl(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  try {
+    const u = new URL(raw);
+    const local = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+    const okProto = u.protocol === 'https:' || (u.protocol === 'http:' && local);
+    return okProto && u.pathname === '/invite' ? raw : null;
+  } catch {
+    return null;
+  }
+}
 
 export function isRegisterConfigured(): boolean {
   return Boolean(BASE && KEY);
@@ -82,11 +102,13 @@ function visitorAddress(chain: string | null | undefined): string | null {
   return /^[0-9a-fA-F:.]{2,45}$/.test(last) ? last : null;
 }
 
-async function call(
+async function call<T>(
   path: string,
   body: unknown,
-  forward: { ip?: string | null; ua?: string | null } = {}
-): Promise<InviteResult> {
+  forward: { ip?: string | null; ua?: string | null },
+  okStatuses: number[],
+  parse: (res: Response) => Promise<T | null>
+): Promise<T | Failure> {
   if (!BASE || !KEY) {
     // Misconfiguration, not a visitor problem: every worker signup fails
     // closed until this is set, so make it loud in the logs (names only).
@@ -128,9 +150,9 @@ async function call(
     return { ok: false, reason: 'validation', message };
   }
 
-  // Anything but 202 (401 wrong/unset key, 5xx, a proxy's HTML error page…)
-  // is "unavailable": we cannot claim a link is on its way.
-  if (res.status !== 202) {
+  // Anything but an expected success status (401 wrong/unset key, 5xx, a
+  // proxy's HTML error page…) is "unavailable".
+  if (!okStatuses.includes(res.status)) {
     // Status only — never the body or the key. A 401 here means
     // REGISTER_WEBSITE_KEY does not match the register's WEBSITE_INVITE_KEY.
     console.error(`[register] ${path} answered HTTP ${res.status}`);
@@ -138,13 +160,11 @@ async function call(
   }
 
   try {
-    const json = (await res.json()) as { data?: { mail?: string } };
-    if (json.data?.mail === 'sent') return { ok: true, mail: 'sent' };
-    if (json.data?.mail === 'failed') return { ok: true, mail: 'failed' };
+    const parsed = await parse(res);
+    if (parsed) return parsed;
   } catch {
     /* fall through */
   }
-  // A 202 we cannot read is not proof that mail left.
   return { ok: false, reason: 'unavailable' };
 }
 
@@ -153,7 +173,15 @@ export function requestInvitation(
   input: InviteInput,
   forward?: { ip?: string | null; ua?: string | null }
 ): Promise<InviteResult> {
-  return call('/website/invitations', input, forward);
+  return call<InviteResult>('/website/invitations', input, forward ?? {}, [200, 201, 202], async (res) => {
+    const json = (await res.json()) as { data?: { start_url?: unknown } };
+    const startUrl = validStartUrl(json.data?.start_url);
+    if (!startUrl) {
+      console.error('[register] invitation answered without a valid start_url');
+      return null;
+    }
+    return { ok: true, startUrl };
+  });
 }
 
 /**
@@ -164,6 +192,11 @@ export function requestInvitation(
 export function resendInvitation(
   clickId: string,
   forward?: { ip?: string | null; ua?: string | null }
-): Promise<InviteResult> {
-  return call('/website/invitations/resend', { click_id: clickId }, forward);
+): Promise<ResendResult> {
+  return call<ResendResult>('/website/invitations/resend', { click_id: clickId }, forward ?? {}, [202], async (res) => {
+    const json = (await res.json()) as { data?: { mail?: string } };
+    if (json.data?.mail === 'sent') return { ok: true, mail: 'sent' };
+    if (json.data?.mail === 'failed') return { ok: true, mail: 'failed' };
+    return null;
+  });
 }

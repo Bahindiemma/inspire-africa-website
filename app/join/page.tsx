@@ -38,7 +38,7 @@ const BENEFITS = [
 ];
 
 const FIRST_WEEK = [
-  { title: "Day 1 — Welcome", body: "You land in the community, set up your profile, and meet a welcome team member." },
+  { title: "Day 1 — Welcome", body: "You open your emailed link to INSPIRE AFRICA Readiness, choose a password, and set up your profile." },
   { title: "Day 2–3 — Orient", body: "You're guided through the spaces that matter most for your sector and destination." },
   { title: "Day 4–5 — Connect", body: "Introduced to peers already on a similar path — and to a recruiter if your readiness profile matches." },
   { title: "Day 6–7 — Start a journey", body: "If you're ready, the structured pathway begins. If not, you continue learning at your own pace." },
@@ -47,7 +47,7 @@ const FIRST_WEEK = [
 const AUDIENCES = [
   { marker: "A", title: "African workers", body: "Healthcare, engineering, mechanics, hospitality, mining, construction, care, teaching — if you have skill and ambition, this is your space." },
   { marker: "B", title: "Recruiters", body: "Trusted partners who source ethically and pay fees themselves. Open access for screened, registered recruiters." },
-  { marker: "C", title: "Employers", body: "Direct line to readiness-screened candidates. Build your pipeline from inside the community, not above it." },
+  { marker: "C", title: "Employers", body: "Direct line to readiness-screened candidates. Build your pipeline from the inside, not above it." },
 ];
 
 export default async function JoinPage() {

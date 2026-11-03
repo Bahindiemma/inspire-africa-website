@@ -9,7 +9,7 @@ import { newClickId, trackClick } from "@/lib/cms/community";
 export const metadata: Metadata = buildMetadata({
   title: "Join the Community",
   description:
-    "One short step before you land in the INSPIRE AFRICA community. Tell us who you are so we can welcome you properly.",
+    "One short step to join INSPIRE AFRICA. Tell us who you are so we can welcome you properly.",
   path: "/join/start",
 });
 
@@ -83,7 +83,7 @@ export default async function JoinStartPage({ searchParams }: Props) {
             you are.
           </>
         }
-        lede="Membership is free. Tell us who you are, confirm your email, and you're in."
+        lede="Joining is free. Tell us who you are and, if you're a worker, we'll email you a link to continue to INSPIRE AFRICA Readiness."
         centered
       />
 
@@ -97,9 +97,9 @@ export default async function JoinStartPage({ searchParams }: Props) {
             utmCampaign={utmCampaign}
           />
           <p style={{ marginTop: 28, fontSize: 14, opacity: 0.75 }}>
-            We store your name and email to support your journey, and send you a link to
-            confirm the address. The community itself is hosted on Mighty Networks, who will
-            ask you to create an account with them when you arrive. See our{" "}
+            We store your name and email to support your journey. Workers are emailed a link
+            to continue to INSPIRE AFRICA Readiness, where you choose a password and build your
+            profile; everyone else, we&apos;ll be in touch. See our{" "}
             <a href="/privacy">Privacy Policy</a> for how long we keep this and how to ask
             us to delete it.
           </p>

@@ -10,13 +10,19 @@
  * site where losing a submission has a direct commercial cost, so it should
  * degrade the least.
  *
- * Flow: validate → persist → CMS sends a verification email → land on
- * /join/check-email. The community link is only reachable after the email is
- * confirmed, so unlike before we do NOT hand off to Mighty Networks here.
+ * Flow: validate → record the lead in the CMS (everyone) → for a worker, ask
+ * the register to email an invitation into INSPIRE AFRICA Readiness → land on
+ * /join/check-email. There is no Mighty Networks hand-off any more.
+ *
+ * The CMS stays the measurement record for every registrant type (join
+ * statistics, attribution), but for a worker it is ONLY that: the worker's
+ * email comes from the register, so a CMS outage must not stop a worker being
+ * invited. Non-workers have no register step and keep today's CMS behaviour.
  */
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { submitSignup, newClickId } from "@/lib/cms/community";
+import { requestInvitation } from "@/lib/register";
 import { toRegistrantType, type RegistrantType } from "@/lib/registrant";
 
 export interface SignupState {
@@ -97,6 +103,70 @@ export async function submitCommunitySignup(
     forward
   );
 
+  if (registrantType === "worker") {
+    // Honeypot: the CMS quietly swallows a bot's submission, but the register
+    // has no such field, so a bot must never reach it — that would make us
+    // email links to whatever addresses spam fills in. Show the neutral
+    // "received" page, which promises no email.
+    if (company) {
+      redirect(`/join/check-email?for=other&clickId=${encodeURIComponent(clickId)}`);
+    }
+
+    // CMS result is deliberately ignored beyond this point: the lead row is a
+    // measurement, the invitation is the product. Use the id the CMS settled
+    // on when it answered (it folds a second tab into the existing row), else
+    // the one we proposed, so "send it again" can find the invitation.
+    const inviteClickId = result.ok ? result.clickId : clickId;
+
+    const invite = await requestInvitation(
+      {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        registrant_type: "worker",
+        click_id: inviteClickId,
+        source,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+      },
+      forward
+    );
+
+    if (!invite.ok) {
+      if (invite.reason === "rate_limited") {
+        return {
+          error: "Too many attempts. Please wait a few minutes and try again.",
+          values,
+        };
+      }
+      if (invite.reason === "validation") {
+        return {
+          error:
+            invite.message || "We couldn't accept those details. Please check and try again.",
+          values,
+        };
+      }
+      // The register is unreachable or not configured, so no link has been
+      // sent. There is no honest "check your inbox" to show — say so and let
+      // them retry. (Their details are not lost: the CMS row, if it saved,
+      // already holds them.)
+      return {
+        error:
+          "We couldn't complete your signup just now. Please try again in a moment — nothing has been lost.",
+        values,
+      };
+    }
+
+    // The same page whether the address is new, already a member, or on a
+    // suppression list: the difference lives only in the email, never on
+    // screen, so this form cannot be used to find out who has an account.
+    const query = new URLSearchParams({ for: "worker", clickId: inviteClickId });
+    if (invite.mail === "failed") query.set("mail", "failed");
+    // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
+    redirect(`/join/check-email?${query.toString()}`);
+  }
+
   if (!result.ok) {
     if (result.reason === "rate_limited") {
       return {
@@ -110,10 +180,8 @@ export async function submitCommunitySignup(
         values,
       };
     }
-    // The CMS is unreachable. We cannot send a verification email, so there
-    // is no honest "check your inbox" to show — say so and let them retry.
-    // Previously this path fell through to the community; it must not now,
-    // because an unverified visitor is not supposed to get there.
+    // The CMS is unreachable, so this (non-worker) signup was not recorded.
+    // Say so and let them retry rather than claim we have their details.
     return {
       error:
         "We couldn't complete your signup just now. Please try again in a moment — nothing has been lost.",
@@ -121,13 +189,7 @@ export async function submitCommunitySignup(
     };
   }
 
-  // Saved, but the verification email did not go out. Telling them to check
-  // their inbox would strand them, so send them to a page that offers a
-  // resend instead.
-  const query = new URLSearchParams({ clickId: result.clickId });
-  if (result.alreadyVerified) query.set("verified", "1");
-  if (!result.verificationSent) query.set("mail", "failed");
-
+  // Non-workers are only recorded: no register step, no link, no resend.
   // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
-  redirect(`/join/check-email?${query.toString()}`);
+  redirect(`/join/check-email?for=other&clickId=${encodeURIComponent(result.clickId)}`);
 }

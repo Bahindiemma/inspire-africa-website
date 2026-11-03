@@ -4,8 +4,10 @@
  * "Send it again" on the check-email page.
  *
  * Server Action so it works without JavaScript, like the rest of signup.
- * The response is deliberately the same whatever happens — the endpoint must
- * not reveal whether a given clickId exists or is already verified.
+ * Only rendered for workers (the register emails them a link into readiness).
+ * The `for` field is posted so the action can refuse a forged resend for
+ * anyone else. The register answers the same for a known and an unknown
+ * clickId, so this cannot reveal which ids exist.
  */
 import { useActionState } from "react";
 import { ArrowIcon } from "@/components/ui/ArrowIcon";
@@ -19,6 +21,7 @@ export function ResendVerificationForm({ clickId }: { clickId: string }) {
   return (
     <form action={formAction} style={{ marginTop: 24 }}>
       <input type="hidden" name="clickId" value={clickId} />
+      <input type="hidden" name="for" value="worker" />
       {state.sent ? (
         <p role="status" style={{ fontWeight: 600 }}>
           Sent. Give it a minute, then check your inbox and spam folder.

@@ -53,7 +53,8 @@ export function joinUrl({ source, medium = "website", campaign = "join_community
  * `inspire-africa.mn.co/sign_up?...&space_id=20105633`, bypassing signup.
  *
  * So every href that comes from outside the codebase passes through here.
- * `app/join/continue/route.ts` is the ONE place allowed to emit an mn.co URL.
+ * `app/join/continue/route.ts` was the one place allowed to emit an mn.co URL; it is now
+ * a retired redirect to the join form and emits none (the allowlist entry remains).
  * ──────────────────────────────────────────────────────────────────────── */
 
 /** Hosts that mean "the community". Matched on hostname, never substring. */

@@ -34,6 +34,13 @@ Three requirements followed:
 
 ## 2. The flow
 
+> **Superseded by the join-to-readiness spec** (`docs/superpowers/specs/2026-11-03-join-to-readiness-design.md`).
+> Workers are no longer confirmed by the CMS and handed to Mighty Networks: after the CMS records the
+> lead, `lib/register.ts` asks the member register to email an invitation into INSPIRE AFRICA Readiness
+> (`/join/check-email?for=worker`). Non-workers are only recorded (`for=other`: no link, no resend).
+> `/join/continue` is a retired redirect to `/join/start`; `/join/verify` only explains the change for
+> old emailed links. The diagram below describes the previous flow.
+
 ```
 CTA (any page)                  → /join/start?source=workers_hero&utm_*
   buildJoinGateUrl() in lib/utm.ts, prefetch={false}

@@ -26,6 +26,8 @@ Source: `.env.example`, `Dockerfile`, `deploy/docker-compose.yml`, `lib/strapi.t
 | `REVALIDATE_SECRET` | Shared secret to authorise the CMS → web revalidate webhook | Yes (for live content refresh) | compose/.env; **must match the CMS value** |
 | `ANALYTICS_INGEST_URL` | CMS collect endpoint the proxy forwards to | No (no-op if unset) | compose `web` = `http://cms:1337/api/analytics/collect` |
 | `ANALYTICS_INGEST_TOKEN` | Bearer secret for the analytics proxy → CMS | No (no-op if unset) | compose/.env; **must match the CMS value** |
+| `REGISTER_API_URL` | Member register API base for worker invitations, e.g. `https://db.inspireafricans.com/api/v1` (`lib/register.ts`) | Yes for worker signup (fails closed if unset) | compose/.env |
+| `REGISTER_WEBSITE_KEY` | Sent as `X-Website-Key` to the register; separate from `COMMUNITY_SIGNUP_TOKEN` | Yes for worker signup (fails closed if unset) | compose/.env; **must match the register's `WEBSITE_INVITE_KEY`** |
 | `NODE_ENV`, `PORT`, `HOSTNAME` | Runtime | set by Docker | `Dockerfile` / compose |
 | `NEXT_TELEMETRY_DISABLED` | Disable Next telemetry | No | `Dockerfile` |
 

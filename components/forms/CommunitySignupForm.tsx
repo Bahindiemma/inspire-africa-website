@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * The INSPIRE AFRICA signup layer that sits in front of the Mighty Networks
- * handoff.
+ * The INSPIRE AFRICA join form.
  *
  * Captures who you are (the audience taxonomy in lib/registrant.ts), your
- * name and your email — nothing else. Everyone then confirms their email
- * before reaching the community.
+ * name and your email — nothing else. A worker is then emailed a link into
+ * INSPIRE AFRICA Readiness (see app/join/start/actions.ts); everyone else is
+ * just recorded.
  *
  * Progressive enhancement is the point: `action={formAction}` posts natively
  * when JavaScript is unavailable, and upgrades to inline errors and a
@@ -85,7 +85,7 @@ export function CommunitySignupForm({
           ))}
         </select>
         <p id="cs-type-hint" style={{ fontSize: 13, opacity: 0.7, margin: "6px 0 0" }}>
-          Everyone is welcome in the community.
+          Everyone is welcome.
         </p>
       </div>
 
@@ -146,7 +146,7 @@ export function CommunitySignupForm({
           </p>
         ) : (
           <p id="email-hint" style={{ fontSize: 13, opacity: 0.7, margin: "6px 0 0" }}>
-            We send a confirmation link here — check it is one you can open.
+            Workers: we email your link here — check it is an address you can open.
           </p>
         )}
       </div>
@@ -167,8 +167,7 @@ export function CommunitySignupForm({
           />
           <span>
             I accept the <a href="/terms">Terms</a> and{" "}
-            <a href="/privacy">Privacy Policy</a>, and understand that the community is
-            hosted on Mighty Networks.
+            <a href="/privacy">Privacy Policy</a>.
           </span>
         </label>
         {err.consentTerms ? (
@@ -180,7 +179,7 @@ export function CommunitySignupForm({
 
       <div className="form-submit">
         <button type="submit" className="btn btn--primary" disabled={pending}>
-          {pending ? "Sending your link…" : "Join the Community — Free"}
+          {pending ? "Sending…" : "Join the Community — Free"}
           <ArrowIcon />
         </button>
       </div>

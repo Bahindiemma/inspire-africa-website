@@ -39,9 +39,9 @@ const BENEFITS = [
 
 const FIRST_WEEK = [
   { title: "Day 1 — Welcome", body: "You open your emailed link to INSPIRE AFRICA Readiness, choose a password, and set up your profile." },
-  { title: "Day 2–3 — Orient", body: "You're guided through the spaces that matter most for your sector and destination." },
-  { title: "Day 4–5 — Connect", body: "Introduced to peers already on a similar path — and to a recruiter if your readiness profile matches." },
-  { title: "Day 6–7 — Start a journey", body: "If you're ready, the structured pathway begins. If not, you continue learning at your own pace." },
+  { title: "Day 2–3 — Orient", body: "You add your CV and your work history, so your profile reflects what you have actually done." },
+  { title: "Day 4–5 — Connect", body: "You keep building your readiness profile, which is what employers and partners work from." },
+  { title: "Day 6–7 — Start a journey", body: "You carry on at your own pace, and come back to improve your profile whenever you like." },
 ];
 
 const AUDIENCES = [
@@ -97,8 +97,8 @@ export default async function JoinPage() {
             }
           >
             <p>
-              The Inspire community is your free entry point — a structured, peer-rich space
-              designed to help you move from preparation to placement.
+              Joining is free and takes you into INSPIRE AFRICA Readiness — a structured place
+              to build your profile and prepare for work abroad.
             </p>
           </SectionLeft>
           <FeatureList items={BENEFITS} />

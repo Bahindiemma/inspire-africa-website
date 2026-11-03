@@ -136,7 +136,7 @@ export async function submitCommunitySignup(
     if (!invite.ok) {
       if (invite.reason === "rate_limited") {
         return {
-          error: "Too many attempts. Please wait a few minutes and try again.",
+          error: "Too many attempts for this email address. Please wait an hour and try again.",
           values,
         };
       }

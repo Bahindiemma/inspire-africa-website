@@ -67,7 +67,12 @@ async function call(
   body: unknown,
   forward: { ip?: string | null; ua?: string | null } = {}
 ): Promise<InviteResult> {
-  if (!BASE || !KEY) return { ok: false, reason: 'unavailable' };
+  if (!BASE || !KEY) {
+    // Misconfiguration, not a visitor problem: every worker signup fails
+    // closed until this is set, so make it loud in the logs (names only).
+    console.error('[register] REGISTER_API_URL or REGISTER_WEBSITE_KEY is unset — worker invitations are disabled');
+    return { ok: false, reason: 'unavailable' };
+  }
 
   let res: Response;
   try {
@@ -84,8 +89,9 @@ async function call(
       cache: 'no-store',
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-  } catch {
+  } catch (err) {
     // Network error or timeout — nothing is known to have been sent.
+    console.warn('[register] request failed:', (err as Error).name, path);
     return { ok: false, reason: 'unavailable' };
   }
 
@@ -103,7 +109,12 @@ async function call(
 
   // Anything but 202 (401 wrong/unset key, 5xx, a proxy's HTML error page…)
   // is "unavailable": we cannot claim a link is on its way.
-  if (res.status !== 202) return { ok: false, reason: 'unavailable' };
+  if (res.status !== 202) {
+    // Status only — never the body or the key. A 401 here means
+    // REGISTER_WEBSITE_KEY does not match the register's WEBSITE_INVITE_KEY.
+    console.error(`[register] ${path} answered HTTP ${res.status}`);
+    return { ok: false, reason: 'unavailable' };
+  }
 
   try {
     const json = (await res.json()) as { data?: { mail?: string } };

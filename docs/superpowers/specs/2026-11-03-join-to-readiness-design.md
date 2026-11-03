@@ -129,7 +129,7 @@ Website join form ──► website server action
                          └─► Register  invitation        (workers only)
                                           └─► email: "Continue to INSPIRE AFRICA Readiness"
                                                        │
-Readiness  /start?invite=<token> ◄─────────────────────┘
+Readiness  /invite?token=… → /start ◄─────────────────────┘
    steps 1–3  (where you are · topics · your starting point)
    step 4     your account: password + permission  ──► Register accepts invite:
                                                           person + account + onboarding + session
@@ -200,8 +200,8 @@ every case** except "mail transport down" (§4.2):
   applies: control of the inbox stands in for a coordinator. No duplicate
   person, no coordinator queue. **[call]** (§4.6, path B)
 - **A person whose account staff have deactivated** (`is_active = false`) → no
-  invitation; the email says to contact info@inspireafricans.com, as
-  `AccountSetup` treats them as not eligible. **[call]**
+  invitation and no email, and an audit entry, as `AccountSetup` treats them as
+  not eligible; staff deactivated them deliberately. **[call]**
 - **An address on the suppression list** → nothing is sent, as `/register` does.
 
 Resubmitting the join form with the same address re-sends (subject to a send
@@ -218,18 +218,18 @@ workers check email infrequently.
 
 **The invitation email** (sent through the register's existing `MailTransport`):
 "Continue to INSPIRE AFRICA Readiness", greeting by first name, one button to
-`https://readiness.inspireafricans.com/start?invite=<token>`, the link also as
+`https://readiness.inspireafricans.com/invite?token=<token>` (which lands on `/start`, §4.4), the link also as
 plain text, and how long it lasts. Plain-text and HTML versions. **[call; final
 wording is the owner's]**
 
 ### 4.4 Opening the link (readiness)
 
-`/start?invite=<token>`:
+`/invite?token=<token>` (a readiness route handler; the email link):
 1. The readiness server asks the register whether the token is valid and gets
    back only what the screens need: first name, last name, email, and status
    (`valid | expired | used | already-a-member`). **[call]**
 2. If valid, it puts the token in a short-lived httpOnly cookie and redirects
-   to `/start` without it, so the token is not left in browser history, in
+   to `/start` (no token in the address), so the token is not left in browser history, in
    `Referer` headers or in analytics. **[call]**
 3. Steps 1–3 then work exactly as today, with the invitation recognised from
    the cookie. The page greets them by first name.
@@ -250,7 +250,7 @@ wording is the owner's]**
 | 3 | Your starting point | unchanged, except the "Create your profile / Sign in" call to action becomes **Continue** → step 4 | URL only |
 | 4 | **Your account** | Name and email shown, **not editable** here; password + confirm (register's `MemberPassword` rules); the permission tick with the readiness consent wording, and the short "what we keep and why" from the existing registration permission step | **Creates account, saves onboarding, signs in** (§4.6) |
 | 5 | **Your CV** *(optional)* | "We read it so you type less." Upload → read → review → confirm, using the signed-in `/me/cv/parse` + `/me/cv/confirm` flow so what is read is **kept** in their profile. Skip is always available. | Profile, via the existing CV reader |
-| 6 | **Your work** *(skippable)* | Only what is still missing after step 5: what they do (profession), nationality, phone (optional). Pre-filled from whatever the CV gave. | Profile, via existing `/me` endpoints |
+| 6 | **Your work** *(skippable)* | Only what is still missing after step 5: what they do (profession), nationality, phone (optional). Pre-filled from whatever the CV gave. | Profile, via a small onboarding endpoint that fills **empty** fields directly, as registration does (the ordinary profile edit holds nationality for staff review, which would tell a brand-new member their nationality is "pending") |
 | — | Done | → portal home | — |
 
 Notes:
@@ -403,7 +403,7 @@ The register keeps, for the new person **[call]**:
 - Tests in the house style (real MySQL/MariaDB in CI).
 
 ### 7.4 Readiness portal (`inspire-readiness`)
-- `/start?invite=` handling, invite cookie, link-state pages (§4.4).
+- `/invite?token=` route handler, invite cookie, link-state pages (§4.4).
 - Steps 4–6 for invited workers (§4.5), reusing existing pieces: password
   rules and permission copy from `components/register`, the CV reader from
   `/cv`, profile fields from My profile.

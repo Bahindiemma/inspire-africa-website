@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 #
-# Redeploy the Next.js web container — the WHOLE procedure, not just the pull.
+# Recreate, revalidate and verify the web container that is ALREADY on the VPS.
+#
+# NOT the way to ship. Every push to main that passes CI deploys itself
+# (.github/workflows/deploy.yml -> the gh-deploy gate). This is the fallback for
+# when the site needs re-warming or re-checking without a new build.
+#
+# It never pulls: GHCR no longer receives website builds, so `docker compose
+# pull web` would bring back an OLD site. Never run that, and never a bare
+# `docker compose pull` in /opt/inspire-africa (name the service: `pull cms`).
 #
 # Run on the VPS, or pipe it in:
 #   ssh -i ~/.ssh/contabo_deploy -p 2021 root@37.60.225.220 bash -s < deploy/redeploy-web.sh
@@ -24,7 +32,7 @@ PAGES=(/ /join /approach /workers /employers /governments /contact /blog)
 SLUGS=(home workers employers governments approach join contact)
 COLLECTIONS=(site-setting navigation blog-post legal-document)
 
-cd "$COMPOSE_DIR"
+cd "$COMPOSE_DIR" || { echo "!! $COMPOSE_DIR not found"; exit 1; }
 
 # NOTE: never `source` this .env — it holds unquoted values containing spaces,
 # so sourcing it executes stray words and aborts the script. Read the one key
@@ -35,20 +43,12 @@ if [ -z "$SECRET" ]; then
   exit 1
 fi
 
-echo "==> 1/5  clearing stale ghcr credentials"
-# An expired login makes the daemon send bad auth instead of pulling
-# anonymously, so even a PUBLIC image fails with "denied".
-docker logout ghcr.io >/dev/null 2>&1 || true
-
-echo "==> 2/5  pulling web"
-docker compose pull web || { echo "!! pull failed"; exit 1; }
-
-echo "==> 3/5  recreating web"
-docker compose up -d --force-recreate web || { echo "!! recreate failed"; exit 1; }
+echo "==> 1/3  recreating web (the image already on the server, never pulled)"
+docker compose up -d --no-deps --force-recreate --pull never web || { echo "!! recreate failed"; exit 1; }
 sleep 8
 docker compose ps web
 
-echo "==> 4/5  revalidating (NOT optional — see header)"
+echo "==> 2/3  revalidating (NOT optional — see header)"
 for s in "${SLUGS[@]}"; do
   printf '    page/%-14s ' "$s"
   curl -s -o /dev/null -w '%{http_code}\n' -X POST \
@@ -65,8 +65,8 @@ done
 # stale-while-revalidate: the first hit serves stale and kicks off the
 # regeneration, the second serves the fresh page. Warm twice or the first
 # real visitor is the one who gets the stale copy.
-echo "==> 5/5  warming pages (twice each)"
-for i in 1 2; do
+echo "==> 3/3  warming pages (twice each)"
+for _ in 1 2; do
   for p in "${PAGES[@]}"; do
     curl -s -o /dev/null "$SITE$p"
   done

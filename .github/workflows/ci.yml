@@ -8,7 +8,7 @@
 #     time, so a placeholder .invalid origin is used: no CMS is contacted
 #     and no secret is needed.
 #   - on pull requests only, builds the Docker image without pushing it
-#     (pushes to main already build it in docker-publish.yml).
+#     (pushes to main build it in deploy.yml, which ships it).
 # Each check runs even when an earlier one fails. No deploy happens here.
 name: CI
 

@@ -27,7 +27,7 @@ Status legend: Accepted = in effect in code today.
 **Consequences.** Full control + no SaaS fees; the team operates the DB, backups, and upgrades. Strapi v5's verbose `populate[...][on][...]` syntax for Dynamic Zones is a known sharp edge (see ADR-007). MySQL must be created with `utf8mb4`.
 
 ## ADR-002 GHCR + GitHub Actions for image delivery
-**Status:** Accepted
+**Status:** Accepted for the CMS. Superseded for the website (Nov 2026): the website now builds and ships its image in `deploy.yml` through the `gh-deploy` gate, like the register and readiness, and `docker-publish.yml` is gone. See [CI/CD](./11-ci-cd.md).
 
 **Context.** Two apps need reproducible deploys to a single VPS without building on the laptop or the server by default.
 

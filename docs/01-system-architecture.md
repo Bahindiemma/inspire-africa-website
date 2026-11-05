@@ -39,8 +39,8 @@ Verified anchors:
 | **web (Next.js)** | SSR/ISR marketing pages; server-side fetches from CMS; analytics proxy; revalidate webhook receiver | `app/`, `lib/`, `Dockerfile` |
 | **cms (Strapi)** | Content REST API (public read token), admin panel, analytics ingest/storage, RBAC, revalidation webhook sender, nightly cron | `/tmp/cms-edit/src/`, `/tmp/cms-edit/config/` |
 | **db (MySQL 8)** | Persistent store for all CMS content + analytics | `deploy/docker-compose.yml` `db` service |
-| **GHCR** | Container registry. `website` package is PUBLIC; `cms` package is PRIVATE | `.github/workflows/docker-publish.yml` |
-| **GitHub Actions** | Build + push images on push to `main` | both repos' `docker-publish.yml` |
+| **GHCR** | Container registry for the `cms` image (PRIVATE). Website builds are no longer published there (Nov 2026) | CMS repo `docker-publish.yml` |
+| **GitHub Actions** | Website: CI, then deploy-on-merge through the `gh-deploy` gate. CMS: build + push its image | this repo's `ci.yml` + `deploy.yml`; CMS `docker-publish.yml` |
 | **geoip-lite (offline MaxMind GeoLite2)** | Coarse country/region/city from the visitor IP, in-process, no external call | `/tmp/cms-edit/src/utils/analytics/geo.ts` |
 | **Email provider (SendGrid default)** | Transactional/notification email; form-notify target | `/tmp/cms-edit/config/plugins.ts`, `.env.example` |
 | **Upload provider (local / AWS S3 / Cloudinary)** | Media storage. Production compose uses `local` volume `cms_uploads` | `/tmp/cms-edit/config/plugins.ts`, `deploy/docker-compose.yml` |
@@ -125,13 +125,13 @@ Rel(ghcr, cms, "image pull (private; on-host build fallback)")
 - **Page view**: browser → nginx → web (ISR, may fetch cms) → HTML. See [Content flow](./09-content-flow-and-editing.md) sequence diagram.
 - **Analytics**: browser tracker → web `/api/analytics` (same-origin) → cms `/api/analytics/collect` (Bearer ingest token, X-Forwarded-For) → MySQL. See [Frontend/analytics guide](./05-frontend-analytics-guide.md).
 - **Publish**: editor publishes in cms admin → cms lifecycle → web `/api/revalidate?secret=…` → `revalidateTag`/`revalidatePath`.
-- **Deploy**: push to `main` → Actions → GHCR → server `docker compose pull && up -d`.
+- **Deploy**: website: merge to `main` → CI → `deploy.yml` builds the image and the server recreates `web` only ([CI/CD](./11-ci-cd.md)). CMS: push → GHCR → server `docker compose pull cms && up -d --no-deps cms`.
 
 ## 7. Repository ↔ runtime mapping
 
 | Runtime container | Built from | Image |
 |-------------------|------------|-------|
-| `web` | this repo `Dockerfile` (`output: 'standalone'`) | `ghcr.io/bahindiemma/inspire-africa-website:latest` (PUBLIC) |
+| `web` | this repo `Dockerfile` (`output: 'standalone'`) | `ghcr.io/bahindiemma/inspire-africa-website:latest` (name only: built by `deploy.yml` and loaded on the server, not pulled) |
 | `cms` | CMS repo `Dockerfile` (3-stage Strapi build) | `ghcr.io/bahindiemma/inspire-africa-cms:latest` (PRIVATE) |
 | `db` | official image | `mysql:8.0` |
 

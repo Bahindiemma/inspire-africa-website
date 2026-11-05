@@ -1,0 +1,144 @@
+name: Deploy to production
+
+# Deploys inspireafricans.com EVERY TIME CI PASSES ON A PUSH TO MAIN, and by
+# hand from "Run workflow" for a redeploy or a rollback. Nobody has to log in
+# to the server.
+#
+# Merging to main is the approval step. The org's free plan cannot protect main
+# on a private repository, so anybody who can push to main can deploy; what
+# still stands between a push and production is CI, which must have passed on
+# that exact commit.
+#
+# It deploys the commit CI tested, never "whatever main is now", and passes over
+# a commit main has already moved beyond, so a slow run can never put an older
+# site over a newer one. It builds the docker image here and hands it to the VPS
+# through the gh-deploy gate, whose key can deploy the website and nothing else.
+# The server loads it and recreates ONLY the stateless web container in
+# /opt/inspire-africa: the CMS, its database and the uploads are never touched,
+# and the previous image comes back if the new one does not start. The server
+# side is deploy/github-actions/ in inspire-africa-community-vault (app: website).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or full commit SHA to deploy
+        default: main
+        required: true
+
+concurrency:
+  group: deploy-production-website
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  # The name the server's compose file runs for `web`. The image is loaded
+  # under it on the server and never pushed to or pulled from GHCR.
+  IMAGE: ghcr.io/bahindiemma/inspire-africa-website:latest
+
+jobs:
+  deploy:
+    # A workflow_run fires for every finished CI run: only a passed run of a
+    # push to main, in the real repository (not the mirror), deploys.
+    if: >-
+      github.repository_owner == 'cotetech-client-projects' && (
+        github.event_name == 'workflow_dispatch' || (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main'
+        )
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref }}
+          fetch-depth: 0
+
+      - name: Still the newest commit on main
+        if: github.event_name == 'workflow_run'
+        run: |
+          sha=$(git rev-parse HEAD)
+          git fetch --quiet origin main
+          tip=$(git rev-parse origin/main)
+          if [ "$sha" != "$tip" ]; then
+            echo "::notice::$sha is no longer the tip of main ($tip). The newer commit's CI deploys it."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: CI must have passed on this commit
+        if: env.SKIP != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          echo "commit $sha"
+          runs=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=$sha&status=completed" \
+            --jq '[.workflow_runs[] | .conclusion]')
+          echo "CI conclusions for this commit: $runs"
+          echo "$runs" | grep -q '"success"' || {
+            echo "::error::CI has not passed on $sha. Push it and let CI finish, or run CI on it first."
+            exit 1
+          }
+
+      - uses: docker/setup-buildx-action@v3
+        if: env.SKIP != '1'
+
+      # STRAPI_MEDIA_URL must be the real origin or the build prerenders every
+      # page without photographs (the Aug and Sep 2026 outages).
+      - name: Build image
+        if: env.SKIP != '1'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: ${{ env.IMAGE }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=https://inspireafricans.com
+            STRAPI_MEDIA_URL=https://inspireafricans.com
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Package
+        if: env.SKIP != '1'
+        run: |
+          echo "BUILD_ID=$(docker run --rm --entrypoint cat "$IMAGE" /app/.next/BUILD_ID)" >> "$GITHUB_ENV"
+          docker save "$IMAGE" | gzip > app.tgz
+          ls -lh app.tgz
+
+      - name: Hand over and deploy
+        if: env.SKIP != '1'
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          SSH="ssh -i $HOME/.ssh/deploy -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=30 -o ServerAliveInterval=30 gh-deploy@$HOST"
+          $SSH receive website < app.tgz
+          $SSH deploy website
+
+      # The server checked from inside. This one is from outside, through nginx
+      # and TLS, and asks for this build's own id: an old build still answering
+      # 200 is exactly what a half-done deploy looks like.
+      - name: The live site serves this build
+        if: env.SKIP != '1'
+        run: |
+          for _ in $(seq 1 10); do
+            if curl -s https://inspireafricans.com/ | grep -q "$BUILD_ID"; then
+              echo "inspireafricans.com serves $BUILD_ID"; exit 0
+            fi
+            sleep 6
+          done
+          echo "::error::inspireafricans.com is not serving $BUILD_ID after the deploy"; exit 1

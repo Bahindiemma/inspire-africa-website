@@ -1,11 +1,11 @@
 # CI/CD
 
 > Purpose: the GitHub Actions workflows for both repos — triggers, steps, image tags, secrets.
-> Last reviewed: 2026-05-27 (commit 49a621a)
+> Last reviewed: 2026-11-05 (website moved to deploy-on-merge, `docker-publish.yml` removed)
 
 ## Table of contents
 - [1. Overview](#1-overview)
-- [2. Website workflow](#2-website-workflow)
+- [2. Website workflows](#2-website-workflows)
 - [3. CMS workflow](#3-cms-workflow)
 - [4. Build → deploy sequence](#4-build--deploy-sequence)
 - [5. Secrets & permissions](#5-secrets--permissions)
@@ -14,27 +14,25 @@
 
 ## 1. Overview
 
-Each repo has one workflow: `.github/workflows/docker-publish.yml`. Both build a Docker image and push it to GHCR on push to `main` (or manual `workflow_dispatch`). There is **no test/lint/typecheck job** — CI only builds and publishes. Deployment itself is a manual step on the VPS (`docker compose pull && up -d`).
+The website deploys itself the same way as the register and readiness: **merging to `main` deploys**. Its three workflows:
 
-| | Website | CMS |
-|--|---------|-----|
-| Workflow name | "Build and publish web image" | "Build and publish CMS image" |
-| Image | `ghcr.io/bahindiemma/inspire-africa-website` (PUBLIC) | `ghcr.io/bahindiemma/inspire-africa-cms` (PRIVATE) |
-| Tags | `latest` + `sha-<short>` | `latest` + `sha-<short>` |
+| Workflow | File | Does |
+|----------|------|------|
+| CI | `ci.yml` | lint, typecheck, production build on every push to `main` and every PR; on PRs also a Docker build (no push) |
+| Deploy to production | `deploy.yml` | after CI passes on a push to `main`: builds the image of that commit and ships it to the VPS through the `gh-deploy` gate |
+| Mirror to personal repository | `mirror.yml` | copies branches and tags to `Bahindiemma/inspire-africa-website` (org-wide policy, not a deploy) |
 
-## 2. Website workflow
+Website builds are **no longer published to GHCR**. The image is built in the deploy run, handed over as a `docker save` tarball and loaded on the server under the name its compose file runs (`ghcr.io/bahindiemma/inspire-africa-website:latest`). The CMS still publishes to GHCR (section 3).
 
-Source: `.github/workflows/docker-publish.yml`.
+## 2. Website workflows
 
-- **Triggers**: `push` to `main` (ignoring `deploy/**` and `**.md`), and `workflow_dispatch`.
-- **Permissions**: `contents: read`, `packages: write`.
-- **Steps**:
-  1. `actions/checkout@v4`
-  2. `docker/login-action@v3` to `ghcr.io` (user `${{ github.actor }}`, password `${{ secrets.GITHUB_TOKEN }}`)
-  3. `docker/metadata-action@v5` → tags `latest` + `sha,format=short`
-  4. `docker/setup-buildx-action@v3`
-  5. `docker/build-push-action@v6` — `context: .`, `push: true`, build-arg `NEXT_PUBLIC_SITE_URL=https://inspireafricans.com`, GHA layer cache (`cache-from/to: type=gha`).
-- **Dockerfile**: 3-stage (`deps` via `npm install` → `builder` `npm run build` with `output: 'standalone'` → `runner` `node server.js` as non-root `nextjs`, EXPOSE 3000).
+**`ci.yml`**: `npm ci` → `npm run lint` → `npm run typecheck` → `npm run build` (whose `prebuild` runs the join-gate source scan), with placeholder `.invalid` origins so no CMS or secret is needed. Org repository only.
+
+**`deploy.yml`**:
+- **Triggers**: `workflow_run` of CI completing on `main` (deploys only a *successful* run of a *push*), and `workflow_dispatch` with a `ref` (branch, tag or full SHA) for redeploys and rollbacks.
+- **Guards**: org repository only; skips a commit `main` has moved past; refuses a commit whose CI has not passed; `concurrency: deploy-production-website`, never cancelled mid-deploy.
+- **Steps**: checkout the tested SHA → buildx build with `NEXT_PUBLIC_SITE_URL` and `STRAPI_MEDIA_URL` = `https://inspireafricans.com` (GHA cache) → read `/app/.next/BUILD_ID` from the image → `docker save | gzip` → `ssh gh-deploy@VPS receive website < app.tgz` → `ssh gh-deploy@VPS deploy website` → poll https://inspireafricans.com/ until it serves this BUILD_ID.
+- **On the server** (`inspire-deploy website`, root-owned, in `inspire-africa-community-vault/deploy/github-actions/`): one deploy at a time across all Inspire apps (flock); checks `/opt/inspire-africa` runs that image name for `web`; `docker load`; `docker compose up -d --no-deps --force-recreate --pull never web`; confirms the container runs the new image and answers; otherwise puts the previous image (kept as `:rollback`) back; revalidates every CMS page and collection; warms each page twice; verifies photographs and gated join links on every page; removes only the image from two deploys ago (shared host: never a global prune). Log: `/var/log/inspire-deploy.log`.
 
 ## 3. CMS workflow
 
@@ -42,7 +40,7 @@ Source: `inspire-africa-cms/.github/workflows/docker-publish.yml`.
 
 - **Triggers**: `push` to `main` (ignoring `**.md`, `docs/**`, `render.yaml`), and `workflow_dispatch`.
 - **Permissions**: `contents: read`, `packages: write`.
-- **Steps**: identical structure to the website (checkout → GHCR login → metadata → buildx → build-push). No `NEXT_PUBLIC_*` build-arg (Strapi reads env at runtime).
+- **Steps**: checkout → GHCR login → metadata → buildx → build-push. No `NEXT_PUBLIC_*` build-arg (Strapi reads env at runtime).
 - **Dockerfile**: 3-stage (builder with `npm ci --legacy-peer-deps` + `vips-dev` for sharp → prod-deps-only → runner with `vips` + `tini`, non-root `node`, `npm run start`, EXPOSE 1337).
 
 ## 4. Build → deploy sequence
@@ -52,22 +50,26 @@ sequenceDiagram
   participant Dev as Developer
   participant GH as GitHub (main)
   participant GA as GitHub Actions
-  participant R as GHCR
+  participant G as VPS gh-deploy gate
   participant S as VPS /opt/inspire-africa
 
-  Dev->>GH: git push origin main
-  GH->>GA: trigger docker-publish.yml
-  GA->>GA: checkout → buildx build (GHA cache)
-  GA->>R: push :latest + :sha-xxxx
-  Note over S: manual deploy step (SSH :2021, 2FA)
-  S->>R: docker compose pull (web public; cms private/on-host build)
-  S->>S: docker compose up -d
-  S->>S: docker image prune -f
+  Dev->>GH: merge / push to main
+  GH->>GA: CI (lint, typecheck, build)
+  GA->>GA: CI passed → Deploy to production
+  GA->>GA: build image of the tested SHA, docker save
+  GA->>G: receive website (tarball over SSH :2021)
+  GA->>G: deploy website
+  G->>S: docker load, recreate web only (--no-deps)
+  S->>S: health → else roll back to :rollback
+  S->>S: revalidate, warm, verify pages
+  GA->>GA: https://inspireafricans.com serves BUILD_ID?
 ```
 
 ## 5. Secrets & permissions
 
-- **`GITHUB_TOKEN`** (auto-provided): used to push to GHCR; needs `packages: write` (granted in the workflow). No extra repo secrets are required for the build.
-- **GHCR visibility**: the `website` package is PUBLIC (server pulls without auth). The `cms` package is PRIVATE — the server either logs in with a PAT (`read:packages`) to pull, or **builds the CMS image on-host** (ADR-008). Making the CMS package public would remove the friction.
-- **Deploy secrets** (DB passwords, Strapi secrets, tokens) are **not** in CI — they live only in `/opt/inspire-africa/.env` on the VPS (see [Environment variables](./10-environment-variables.md) and [Deployment runbook](./12-deployment-runbook.md)).
-- `paths-ignore` keeps docs/compose-only changes from triggering image rebuilds.
+- **Website repo secrets** (same names as readiness and the register): `DEPLOY_SSH_KEY` (the website's own key, pinned on the server to `inspire-deploy-gate website`: it can hand over and deploy the website and nothing else; no shell), `DEPLOY_KNOWN_HOSTS`, `DEPLOY_HOST`, `DEPLOY_PORT`. `MIRROR_SSH_KEY` for the mirror.
+- **Workflow permissions**: `contents: read`, `actions: read` (to read CI results). No `packages: write`: nothing is pushed to GHCR.
+- **Server side**: installed once, as root, by `provision-gh-deploy.sh` in the vault repo (`keep keep keep "<website key>"` adds the website to a server that already deploys the others).
+- **App secrets** (DB passwords, Strapi secrets, tokens) are **not** in CI. They live only in `/opt/inspire-africa/.env` on the VPS (see [Environment variables](./10-environment-variables.md) and [Deployment runbook](./12-deployment-runbook.md)).
+- **CMS**: `GITHUB_TOKEN` pushes its image to GHCR (`packages: write`). The `cms` package is PRIVATE: the server logs in with a `read:packages` PAT or builds on-host (ADR-008).
+- **Never `docker compose pull web`** (or a bare `docker compose pull`) on the server: the website is no longer in GHCR, so a pull would bring back an old build.

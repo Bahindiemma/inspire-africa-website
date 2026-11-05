@@ -1,38 +1,72 @@
 # INSPIRE AFRICA — Production Deployment Runbook
 
-Deploys two apps to the Contabo host **37.60.225.220** with Docker, using
-images built by GitHub Actions and published to **GHCR**:
+Runs two apps on the COTE Contabo host **37.60.225.220** (the same server as
+the register and readiness) in the docker compose stack in `/opt/inspire-africa`:
 
-| Service | Source repo | GHCR image | Host port |
-|---------|-------------|------------|-----------|
-| Web (Next.js) | `Bahindiemma/inspire-africa-website` | `ghcr.io/bahindiemma/inspire-africa-website` | **80** |
-| CMS (Strapi)  | `Bahindiemma/inspire-africa-cms`      | `ghcr.io/bahindiemma/inspire-africa-cms`      | **1337** |
-| MySQL 8       | — (official image)                    | `mysql:8.0`                                   | internal |
+| Service | Source repo | Image | How it gets there |
+|---------|-------------|-------|-------------------|
+| Web (Next.js) | `cotetech-client-projects/inspire-africa-website` | `ghcr.io/bahindiemma/inspire-africa-website:latest` (name only) | built by `deploy.yml`, loaded on the server; **not** in GHCR any more |
+| CMS (Strapi)  | `cotetech-client-projects/inspire-africa-cms`      | `ghcr.io/bahindiemma/inspire-africa-cms`      | GHCR, `docker compose pull cms` |
+| MySQL 8       | — (official image)                    | `mysql:8.0`                                   | — |
 
 > **Note:** Claude could not perform these server steps — SSH is protected by
 > 2FA. Run them yourself in your SSH session (`ssh -p 2021 root@37.60.225.220`).
 
 ---
 
-## Redeploying the web app — use the script
+## How a deploy happens now: merge to main
 
-Once the stack is up, **do not** hand-run `docker compose pull web`. CI builds
-the image where the CMS is unreachable, so every CMS-driven page is prerendered
-with the image-less fallback; a bare pull-and-recreate ships a site with no
-photographs. That failure has happened twice — thirteen days in August 2026,
-and again on 4 September 2026.
+**Merging to `main` deploys. Nobody logs in to the server.** It works exactly
+like the register and readiness:
+
+1. A push to `main` runs **CI** (`.github/workflows/ci.yml`: lint, typecheck,
+   production build).
+2. When CI passes, **Deploy to production** (`.github/workflows/deploy.yml`)
+   builds the docker image of that exact commit, hands it to the VPS as
+   `gh-deploy` (a key that can deploy the website and nothing else) and runs
+   `inspire-deploy website` on the server
+   (`inspire-africa-community-vault/deploy/github-actions/`).
+3. The server loads the image, recreates **only** `web` (`--no-deps`, so the CMS,
+   MySQL and the uploads are untouched), puts the previous image back if the new
+   one does not answer, revalidates every CMS page and collection, warms each
+   page twice and checks every page for photographs and gated join links.
+4. The workflow then checks from outside, through nginx and TLS, that
+   https://inspireafricans.com serves this build's id.
+
+A commit `main` has already moved past is skipped. To redeploy or roll back,
+press **Actions → Deploy to production → Run workflow** with a branch, tag or
+full SHA. Server log: `/var/log/inspire-deploy.log`. The previous image stays
+on the server as `ghcr.io/bahindiemma/inspire-africa-website:rollback`.
+
+Repo secrets (same names as readiness and the register): `DEPLOY_SSH_KEY` (the
+website key), `DEPLOY_KNOWN_HOSTS`, `DEPLOY_HOST`, `DEPLOY_PORT`. The server
+side is installed once by `provision-gh-deploy.sh` in the vault repo.
+
+**Never `docker compose pull web`**, and never a bare `docker compose pull`, in
+`/opt/inspire-africa`. Website builds are no longer published to GHCR, so a pull
+would put an old site back. Update the CMS with `docker compose pull cms`.
+
+## Re-warming without a new build — the script
 
 ```bash
 ssh -i ~/.ssh/contabo_deploy -p 2021 root@37.60.225.220 bash -s < deploy/redeploy-web.sh
 ```
 
-`deploy/redeploy-web.sh` clears stale GHCR credentials, pulls, recreates,
-revalidates every page and collection, warms each URL twice, then **verifies**
-— it exits non-zero if any page has lost its photography or if any join CTA
-skips the signup page. Pages also carry `revalidate = 60` as a floor, so a
-missed run self-heals within a minute; that is the net, not the plan.
+`deploy/redeploy-web.sh` recreates the `web` container from the image already
+on the server (it never pulls), revalidates every page and collection, warms
+each URL twice, then **verifies**: it exits non-zero if any page has lost its
+photography or if any join CTA skips the signup page. CI builds where the CMS is
+unreachable, so without the revalidation every CMS page ships with the
+image-less fallback; that happened for thirteen days in August 2026 and again on
+4 September 2026. Pages also carry `revalidate = 60` as a floor.
 
 ---
+
+## First install (history, May 2026)
+
+The phases below are how the stack was first stood up. The website half of
+Phase 0 is out of date: `docker-publish.yml` was removed from this repo in
+November 2026 and the website now ships through `deploy.yml` (above).
 
 ## Phase 0 — Push code so CI builds the images (your laptop)
 
@@ -164,13 +198,14 @@ publish/unpublish. (The CMS reaches `web` over the internal docker network.)
 
 ## Updating later
 
-Push to `main` → Actions rebuilds the image → on the server:
+- **Website:** merge to `main`. That is the whole procedure (see the top of
+  this file).
+- **CMS:** push to its `main` → Actions publishes the image → on the server:
 
 ```bash
 cd /opt/inspire-africa
-docker compose pull
-docker compose up -d
-docker image prune -f
+docker compose pull cms          # name the service: a bare pull would downgrade web
+docker compose up -d --no-deps cms
 ```
 
 ## Backups (do this before you rely on it)

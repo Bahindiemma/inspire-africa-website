@@ -125,14 +125,14 @@ Three separate mechanisms, because no single one covers every case:
 | Editor publishes an entry | Strapi lifecycle subscriber (`src/middlewares/revalidate-frontend.ts`) → `POST /api/revalidate` → `revalidateTag` + `revalidatePath` | instant |
 | Editor replaces a file in the Media Library | same subscriber — `plugin::upload.file` is in the revalidatable set, mapped to a whole-layout refresh | instant |
 | Anything missed, or a redeploy | `export const revalidate = 60` on every CMS-driven page | ≤ 60s |
-| Redeploy | `deploy/redeploy-web.sh` revalidates and warms, then verifies | immediate |
+| Redeploy | the deploy pipeline revalidates and warms, then verifies | immediate |
 
 Two traps worth knowing, both of which cost the site its photography in production:
 
 - **A redeploy serves the image-less fallback.** CI builds the image in GitHub
   Actions, where the CMS is unreachable, so `getPage()` returns null and every
   page prerenders with the static TSX fallback — which ships no images. Nothing
-  fails; the build is green. Always redeploy with `deploy/redeploy-web.sh`,
+  fails; the build is green. Always redeploy with the deploy pipeline,
   which revalidates and then *checks*. The 60s window is the net under it.
 - **A replaced image keeps its URL.** Strapi's "replace media" deliberately
   reuses the filename and hash, and `next/image` keys its optimised blob on the

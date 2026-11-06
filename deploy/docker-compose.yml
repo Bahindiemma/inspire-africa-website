@@ -1,10 +1,11 @@
-# INSPIRE AFRICA — production stack for a single Contabo host (bare IP).
+# INSPIRE AFRICA — the CMS stack on the COTE server (/opt/inspire-africa).
 #
-#   web  : Next.js site        -> published on host port 80
 #   cms  : Strapi v5 admin/API -> published on host port 1337
 #   db   : MySQL 8             -> internal only (no host port)
 #
-# Images are pulled from GHCR (built by each repo's GitHub Actions workflow).
+# The website is NOT in this stack any more. It deploys itself from the root
+# docker-compose.yml into its own directory, joins this stack's `internal` network
+# and answers to the name `web` there, so the addresses below still work.
 # Copy .env.production.example -> .env and fill it in before `docker compose up`.
 
 name: inspire-africa
@@ -79,32 +80,6 @@ services:
       - "1337:1337"
     networks: [internal]
 
-  web:
-    image: ghcr.io/bahindiemma/inspire-africa-website:latest
-    restart: unless-stopped
-    depends_on:
-      - cms
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOSTNAME: 0.0.0.0
-      # Server-side fetches go over the internal docker network (fast, no egress).
-      STRAPI_BASE_URL: http://cms:1337
-      STRAPI_PUBLIC_TOKEN: ${STRAPI_PUBLIC_TOKEN}
-      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      NEXT_PUBLIC_SITE_URL: ${SITE_URL}
-      # --- visitor analytics: server-side ingest proxy → CMS (internal network) ---
-      ANALYTICS_INGEST_URL: http://cms:1337/api/analytics/collect
-      ANALYTICS_INGEST_TOKEN: ${ANALYTICS_INGEST_TOKEN}
-      # --- join form: lead capture in the CMS (internal network) ---
-      COMMUNITY_SIGNUP_URL: http://cms:1337
-      COMMUNITY_SIGNUP_TOKEN: ${COMMUNITY_SIGNUP_TOKEN}
-      # --- join form: worker invitations from the member register (public API) ---
-      REGISTER_API_URL: ${REGISTER_API_URL}
-      REGISTER_WEBSITE_KEY: ${REGISTER_WEBSITE_KEY}
-    ports:
-      - "80:3000"
-    networks: [internal]
 
 volumes:
   db_data:

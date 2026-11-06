@@ -11,7 +11,7 @@
 
 ## 1. Website
 
-One workflow, `.github/workflows/deploy.yml`, the same pipeline as agribz. `mirror.yml` still copies the repo to the personal mirror.
+One workflow, `.github/workflows/deploy.yml`, the same pipeline as agribz.
 
 | Job | Runs on | Does |
 |-----|---------|------|

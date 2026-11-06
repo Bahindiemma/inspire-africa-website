@@ -23,7 +23,7 @@ jobs:
   # LINT & TYPECHECK
   # ============================================
   check:
-    # The mirror at Bahindiemma/ carries this file too; only the org runs it.
+    # Old copies at Bahindiemma/ still hold this file; only the org runs it.
     if: github.repository_owner == 'cotetech-client-projects'
     name: Lint, typecheck
     runs-on: ubuntu-latest

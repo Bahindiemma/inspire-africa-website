@@ -39,8 +39,8 @@ Verified anchors:
 | **web (Next.js)** | SSR/ISR marketing pages; server-side fetches from CMS; analytics proxy; revalidate webhook receiver | `app/`, `lib/`, `Dockerfile` |
 | **cms (Strapi)** | Content REST API (public read token), admin panel, analytics ingest/storage, RBAC, revalidation webhook sender, nightly cron | `/tmp/cms-edit/src/`, `/tmp/cms-edit/config/` |
 | **db (MySQL 8)** | Persistent store for all CMS content + analytics | `deploy/docker-compose.yml` `db` service |
-| **GHCR** | Container registry. `website` package is PUBLIC; `cms` package is PRIVATE | `.github/workflows/docker-publish.yml` |
-| **GitHub Actions** | Build + push images on push to `main` | both repos' `docker-publish.yml` |
+| **GHCR** | Container registry. Both packages are PRIVATE; the deploy job logs the server in with its own token | `.github/workflows/deploy.yml` |
+| **GitHub Actions** | Build + push images on push to `main` | `deploy.yml` (website), `docker-publish.yml` (CMS) |
 | **geoip-lite (offline MaxMind GeoLite2)** | Coarse country/region/city from the visitor IP, in-process, no external call | `/tmp/cms-edit/src/utils/analytics/geo.ts` |
 | **Email provider (SendGrid default)** | Transactional/notification email; form-notify target | `/tmp/cms-edit/config/plugins.ts`, `.env.example` |
 | **Upload provider (local / AWS S3 / Cloudinary)** | Media storage. Production compose uses `local` volume `cms_uploads` | `/tmp/cms-edit/config/plugins.ts`, `deploy/docker-compose.yml` |

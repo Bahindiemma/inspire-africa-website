@@ -1,0 +1,369 @@
+name: 'Deploy Inspire Website'
+description: 'Deploy the INSPIRE AFRICA website to the COTE server'
+
+inputs:
+  ssh_key:
+    description: 'SSH private key'
+    required: true
+  vps_host:
+    description: 'VPS hostname/IP'
+    required: true
+  vps_user:
+    description: 'VPS SSH user'
+    required: true
+  vps_port:
+    description: 'VPS SSH port'
+    default: '2021'
+  project_dir:
+    description: 'Project directory on server'
+    required: true
+  app_port:
+    description: 'Loopback port host nginx proxies to'
+    required: true
+  environment:
+    description: 'Environment name (development/production)'
+    required: true
+  app_url:
+    description: 'Public site URL, no trailing slash'
+    required: true
+  image_tag:
+    description: 'Docker image tag to deploy'
+    required: true
+  network_alias:
+    description: 'Name the CMS reaches this container by'
+    required: true
+  cms_network:
+    description: 'Docker network the CMS is on'
+    required: true
+  strapi_base_url:
+    description: 'CMS address from inside the container'
+    required: true
+  strapi_media_url:
+    description: 'Public origin serving /uploads'
+    required: true
+  strapi_public_token:
+    description: 'CMS read token'
+    required: true
+  revalidate_secret:
+    description: 'Shared with the CMS for /api/revalidate'
+    required: true
+  register_api_url:
+    description: 'Register API base (production only)'
+    default: ''
+  analytics_ingest_token:
+    description: 'Shared with the CMS (production only)'
+    default: ''
+  community_signup_token:
+    description: 'Shared with the CMS (production only)'
+    default: ''
+  register_website_key:
+    description: 'The register WEBSITE_INVITE_KEY (production only)'
+    default: ''
+  github_token:
+    description: 'GitHub token for GHCR access'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    # Nothing has touched the server yet. A variable set under the wrong name would
+    # otherwise reach the site as a blank, and the site would quietly lose its CMS
+    # content or its join form.
+    - name: Check configuration
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.environment }}
+        SSH_KEY: ${{ inputs.ssh_key }}
+        VPS_HOST: ${{ inputs.vps_host }}
+        VPS_USER: ${{ inputs.vps_user }}
+        STRAPI_PUBLIC_TOKEN: ${{ inputs.strapi_public_token }}
+        REVALIDATE_SECRET: ${{ inputs.revalidate_secret }}
+        REGISTER_API_URL: ${{ inputs.register_api_url }}
+        ANALYTICS_INGEST_TOKEN: ${{ inputs.analytics_ingest_token }}
+        COMMUNITY_SIGNUP_TOKEN: ${{ inputs.community_signup_token }}
+        REGISTER_WEBSITE_KEY: ${{ inputs.register_website_key }}
+      run: |
+        required="SSH_KEY VPS_HOST VPS_USER STRAPI_PUBLIC_TOKEN REVALIDATE_SECRET"
+        if [ "$ENV_NAME" = "production" ]; then
+          required="$required REGISTER_API_URL ANALYTICS_INGEST_TOKEN COMMUNITY_SIGNUP_TOKEN REGISTER_WEBSITE_KEY"
+        fi
+        missing=""
+        for name in $required; do
+          [ -n "${!name}" ] || missing="$missing $name"
+        done
+        if [ -n "$missing" ]; then
+          echo "::error::Set these GitHub variables/secrets before deploying:$missing"
+          exit 1
+        fi
+
+    - name: Setup SSH
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh_key }}
+      run: |
+        mkdir -p ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p ${{ inputs.vps_port }} -H ${{ inputs.vps_host }} >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: Create deployment files
+      shell: bash
+      env:
+        ENV_NAME: ${{ inputs.environment }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        APP_PORT: ${{ inputs.app_port }}
+        APP_URL: ${{ inputs.app_url }}
+        NETWORK_ALIAS: ${{ inputs.network_alias }}
+        CMS_NETWORK: ${{ inputs.cms_network }}
+        STRAPI_BASE_URL: ${{ inputs.strapi_base_url }}
+        STRAPI_MEDIA_URL: ${{ inputs.strapi_media_url }}
+        STRAPI_PUBLIC_TOKEN: ${{ inputs.strapi_public_token }}
+        REVALIDATE_SECRET: ${{ inputs.revalidate_secret }}
+        REGISTER_API_URL: ${{ inputs.register_api_url }}
+        ANALYTICS_INGEST_TOKEN: ${{ inputs.analytics_ingest_token }}
+        COMMUNITY_SIGNUP_TOKEN: ${{ inputs.community_signup_token }}
+        REGISTER_WEBSITE_KEY: ${{ inputs.register_website_key }}
+      run: |
+        # Analytics and signup only get a CMS address where they get a token, so a
+        # development site leaves both off.
+        ANALYTICS_INGEST_URL=""
+        [ -z "$ANALYTICS_INGEST_TOKEN" ] || ANALYTICS_INGEST_URL="${STRAPI_BASE_URL}/api/analytics/collect"
+        COMMUNITY_SIGNUP_URL=""
+        [ -z "$COMMUNITY_SIGNUP_TOKEN" ] || COMMUNITY_SIGNUP_URL="${STRAPI_BASE_URL}"
+
+        umask 077
+        cat > .env.deploy << EOFENV
+        COMPOSE_PROJECT_NAME=inspire-website-${ENV_NAME}
+        DOCKER_IMAGE=${IMAGE_TAG}
+        CONTAINER_NAME=inspire-website-${ENV_NAME}
+        APP_PORT=${APP_PORT}
+        NETWORK_ALIAS=${NETWORK_ALIAS}
+        CMS_NETWORK=${CMS_NETWORK}
+
+        NEXT_PUBLIC_SITE_URL=${APP_URL%/}
+        STRAPI_BASE_URL=${STRAPI_BASE_URL}
+        STRAPI_MEDIA_URL=${STRAPI_MEDIA_URL}
+        STRAPI_PUBLIC_TOKEN='${STRAPI_PUBLIC_TOKEN}'
+        REVALIDATE_SECRET='${REVALIDATE_SECRET}'
+
+        ANALYTICS_INGEST_URL=${ANALYTICS_INGEST_URL}
+        ANALYTICS_INGEST_TOKEN='${ANALYTICS_INGEST_TOKEN}'
+        COMMUNITY_SIGNUP_URL=${COMMUNITY_SIGNUP_URL}
+        COMMUNITY_SIGNUP_TOKEN='${COMMUNITY_SIGNUP_TOKEN}'
+        REGISTER_API_URL=${REGISTER_API_URL}
+        REGISTER_WEBSITE_KEY='${REGISTER_WEBSITE_KEY}'
+        EOFENV
+
+    - name: Transfer files to server
+      shell: bash
+      run: |
+        INCOMING="/tmp/inspire-website-${{ inputs.environment }}-deploy"
+        ssh -p ${{ inputs.vps_port }} -o StrictHostKeyChecking=no \
+          ${{ inputs.vps_user }}@${{ inputs.vps_host }} "mkdir -p -m 700 ${INCOMING}"
+
+        scp -P ${{ inputs.vps_port }} -o StrictHostKeyChecking=no \
+          docker-compose.yml \
+          docker-compose.prod.yml \
+          .env.deploy \
+          ${{ inputs.vps_user }}@${{ inputs.vps_host }}:${INCOMING}/
+
+    - name: Deploy on server
+      shell: bash
+      run: |
+        ssh -p ${{ inputs.vps_port }} -o StrictHostKeyChecking=no -o ServerAliveInterval=30 ${{ inputs.vps_user }}@${{ inputs.vps_host }} bash -s << 'ENDSSH'
+        set -euo pipefail
+
+        ENV_NAME="${{ inputs.environment }}"
+        PROJECT_DIR="${{ inputs.project_dir }}"
+        IMAGE_TAG="${{ inputs.image_tag }}"
+        APP_PORT="${{ inputs.app_port }}"
+        APP_URL="${{ inputs.app_url }}"
+        CMS_NETWORK="${{ inputs.cms_network }}"
+        GITHUB_TOKEN="${{ inputs.github_token }}"
+        GITHUB_ACTOR="${{ github.actor }}"
+
+        PROJECT="inspire-website-${ENV_NAME}"
+        CONTAINER="${PROJECT}"
+        INCOMING="/tmp/${PROJECT}-deploy"
+        ROLLBACK_TAG="${IMAGE_TAG%:*}:rollback-${ENV_NAME}"
+
+        # This login stays out of root's docker config, which the other apps on
+        # this server use for their own GHCR logins.
+        DOCKER_CONFIG="$(mktemp -d)"
+        export DOCKER_CONFIG
+        trap 'rm -rf "$DOCKER_CONFIG" "$INCOMING"' EXIT
+
+        echo "==> Deploying ${ENV_NAME} environment"
+
+        # `down --remove-orphans` and the .env below would destroy another app's
+        # stack. /opt/inspire-africa (the CMS and its database) is the one to fear.
+        if [ -e "${PROJECT_DIR}/.env" ] || [ -e "${PROJECT_DIR}/docker-compose.yml" ]; then
+          if ! grep -qx "COMPOSE_PROJECT_NAME=${PROJECT}" "${PROJECT_DIR}/.env" 2>/dev/null; then
+            echo "!! ${PROJECT_DIR} belongs to something else. Refusing to deploy over it."
+            exit 1
+          fi
+        fi
+
+        docker network inspect "${CMS_NETWORK}" > /dev/null 2>&1 || {
+          echo "!! Docker network ${CMS_NETWORK} not found. Set the CMS_NETWORK variable to the network the cms container is on."
+          exit 1
+        }
+
+        mkdir -p "${PROJECT_DIR}"
+        cd "${PROJECT_DIR}"
+
+        echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+
+        echo "==> Pulling image: ${IMAGE_TAG}"
+        docker pull "${IMAGE_TAG}"
+        NEW_IMAGE=$(docker image inspect --format '{{.Id}}' "${IMAGE_TAG}")
+
+        # Tagged by id, so it still names the old image once the tag above has moved.
+        PREVIOUS_IMAGE=$(docker inspect --format '{{.Image}}' "${CONTAINER}" 2>/dev/null || true)
+        STALE_IMAGE=$(docker image inspect --format '{{.Id}}' "${ROLLBACK_TAG}" 2>/dev/null || true)
+        if [ -n "${PREVIOUS_IMAGE}" ] && [ "${PREVIOUS_IMAGE}" != "${NEW_IMAGE}" ]; then
+          docker tag "${PREVIOUS_IMAGE}" "${ROLLBACK_TAG}"
+        fi
+
+        mv "${INCOMING}/docker-compose.yml" "${INCOMING}/docker-compose.prod.yml" .
+        mv "${INCOMING}/.env.deploy" .env
+        chmod 600 .env
+
+        if docker compose version > /dev/null 2>&1; then
+          COMPOSE="docker compose"
+        else
+          COMPOSE="docker-compose"
+        fi
+        COMPOSE="${COMPOSE} -p ${PROJECT} -f docker-compose.yml -f docker-compose.prod.yml"
+
+        site_answers() {
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:${APP_PORT}/" || true)
+            if [ "${code}" = "200" ]; then
+              echo "✓ Site answered on port ${APP_PORT}"
+              return 0
+            fi
+            echo "  Waiting for the site... (${i}/30) - HTTP ${code}"
+            sleep 3
+          done
+          return 1
+        }
+
+        echo "==> Stopping existing containers..."
+        ${COMPOSE} down --remove-orphans 2>/dev/null || true
+
+        echo "==> Starting containers..."
+        started=yes
+        ${COMPOSE} up -d --no-build || started=no
+
+        if [ "${started}" != "yes" ] || ! site_answers; then
+          echo "✗ The new image did not come up"
+          docker logs "${CONTAINER}" --tail 50 2>&1 || true
+          if [ -n "${PREVIOUS_IMAGE}" ] && [ "${PREVIOUS_IMAGE}" != "${NEW_IMAGE}" ]; then
+            echo "==> Rolling back to the previous image"
+            docker tag "${PREVIOUS_IMAGE}" "${IMAGE_TAG}"
+            ${COMPOSE} up -d --no-build --force-recreate || true
+            site_answers || true
+          fi
+          exit 1
+        fi
+
+        RUNNING_IMAGE=$(docker inspect --format '{{.Image}}' "${CONTAINER}")
+        if [ "${RUNNING_IMAGE}" != "${NEW_IMAGE}" ]; then
+          echo "✗ ${CONTAINER} runs ${RUNNING_IMAGE}, expected ${NEW_IMAGE}"
+          exit 1
+        fi
+
+        # Only this app's old image: this host is shared, so never a global prune.
+        if [ -n "${STALE_IMAGE}" ] && [ "${STALE_IMAGE}" != "${PREVIOUS_IMAGE}" ] && [ "${STALE_IMAGE}" != "${NEW_IMAGE}" ]; then
+          docker image rm "${STALE_IMAGE}" > /dev/null 2>&1 || true
+        fi
+
+        echo ""
+        echo "============================================"
+        echo "  DEPLOYMENT COMPLETE - ${ENV_NAME}"
+        echo "  URL: ${APP_URL}"
+        echo "============================================"
+        ENDSSH
+
+    # NOT OPTIONAL. The image is built where the CMS is unreachable, so every CMS page
+    # starts as the image-less fallback until it is revalidated. Skipping this shipped
+    # a site with no photographs on 2026-08-04 (thirteen days) and again on 2026-09-04.
+    # It talks to the container directly, so it checks this build even while host nginx
+    # still points somewhere else.
+    - name: Verify deployment
+      shell: bash
+      run: |
+        ssh -p ${{ inputs.vps_port }} -o StrictHostKeyChecking=no -o ServerAliveInterval=30 ${{ inputs.vps_user }}@${{ inputs.vps_host }} bash -s << 'ENDSSH'
+        set -uo pipefail
+
+        PROJECT_DIR="${{ inputs.project_dir }}"
+        BASE="http://127.0.0.1:${{ inputs.app_port }}"
+        CONTAINER="inspire-website-${{ inputs.environment }}"
+        PAGES="/ /join /approach /workers /employers /governments /contact /blog"
+
+        docker ps --filter "name=${CONTAINER}" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+        # Read the one key: values in .env are not meant to be sourced.
+        SECRET=$(sed -n 's/^REVALIDATE_SECRET=//p' "${PROJECT_DIR}/.env" | head -1 | tr -d "\"'\r")
+
+        revalidate() {
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -X POST "${BASE}/api/revalidate?secret=${SECRET}" \
+            -H 'Content-Type: application/json' -d "$1")
+          echo "  revalidate $1 -> ${code}"
+          if [ "${code}" = "403" ]; then
+            echo "✗ The container refused REVALIDATE_SECRET"
+            exit 1
+          fi
+        }
+
+        echo "==> Revalidating"
+        for slug in home workers employers governments approach join contact; do
+          revalidate "{\"collection\":\"page\",\"slug\":\"${slug}\"}"
+        done
+        for collection in site-setting navigation blog-post legal-document; do
+          revalidate "{\"collection\":\"${collection}\"}"
+        done
+
+        # Under `pipefail`, grep finding nothing on a clean page must not end the count.
+        count() { printf '%s' "${html}" | { grep -o "$1" || true; } | wc -l | tr -d ' '; }
+
+        pages_clean() {
+          clean=yes
+          for page in ${PAGES}; do
+            html=$(curl -s --max-time 30 "${BASE}${page}" || true)
+            community=$(count 'href="[^"]*mn\.co[^"]*"')
+            gate=$(count 'href="/join/start')
+            images=$(count '_next/image')
+            status=ok
+            [ "${community}" -eq 0 ] || status=FAIL
+            [ "${gate}" -gt 0 ] || status=FAIL
+            case "${page}" in
+              /blog|/contact) ;;
+              *) [ "${images}" -gt 0 ] || status=FAIL ;;
+            esac
+            [ "${status}" = "ok" ] || clean=no
+            printf '  %-5s %-14s community:%-3s gate:%-3s images:%s\n' "${status}" "${page}" "${community}" "${gate}" "${images}"
+          done
+          [ "${clean}" = "yes" ]
+        }
+
+        # Stale-while-revalidate: the first hit serves the old page and starts the
+        # new one, so give each round time to land before believing a failure.
+        for attempt in 1 2 3 4; do
+          echo "==> Checking pages (attempt ${attempt}/4)"
+          for page in ${PAGES}; do curl -s -o /dev/null --max-time 30 "${BASE}${page}" || true; done
+          sleep 10
+          if pages_clean; then
+            echo "✓ Every page has its photographs and every join button goes through the signup page"
+            exit 0
+          fi
+        done
+
+        echo "✗ Deployed but NOT clean."
+        echo "  community != 0 -> a CTA skips the signup page (check CMS CTA hrefs)."
+        echo "  gate == 0      -> the header or footer did not render."
+        echo "  images == 0    -> still the fallback: check the CMS is reachable from the container and STRAPI_PUBLIC_TOKEN."
+        docker logs "${CONTAINER}" --tail 50 2>&1 | tail -30
+        exit 1
+        ENDSSH

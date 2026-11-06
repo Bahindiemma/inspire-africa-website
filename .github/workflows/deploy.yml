@@ -1,0 +1,187 @@
+name: Website CI/CD
+
+# The same pipeline as the other COTE apps (agribz): build, push to GHCR, SSH to
+# the COTE server, docker compose. Merging to main deploys production; pushing to
+# dev deploys the test site. Variables and secrets are listed in deploy/README.md.
+on:
+  push:
+    branches: ["main", "dev"]
+    paths-ignore: ["docs/**", "**.md"]
+  pull_request:
+    branches: ["main", "dev"]
+    paths-ignore: ["docs/**", "**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ============================================
+  # LINT & TYPECHECK
+  # ============================================
+  check:
+    # The mirror at Bahindiemma/ carries this file too; only the org runs it.
+    if: github.repository_owner == 'cotetech-client-projects'
+    name: Lint, typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      # next build skips ESLint, so the join-gate lint rule only runs here.
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+  # ============================================
+  # BUILD & PUSH TO REGISTRY (with caching)
+  # ============================================
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_name: ${{ steps.lowercase.outputs.image_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lowercase image name
+        id: lowercase
+        run: |
+          IMAGE_NAME="${{ github.repository }}"
+          echo "image_name=${IMAGE_NAME,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.lowercase.outputs.image_name }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # A pull request only proves the image builds. STRAPI_MEDIA_URL must be the
+      # real origin, or every page prerenders without photographs.
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ github.ref == 'refs/heads/dev' && (vars.APP_URL_DEV || 'https://test.inspireafricans.com') || (vars.APP_URL || 'https://inspireafricans.com') }}
+            STRAPI_MEDIA_URL=${{ vars.STRAPI_MEDIA_URL || 'https://inspireafricans.com' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+  # ============================================
+  # DEPLOY TO DEVELOPMENT
+  # ============================================
+  # Reads the live CMS, but gets no signup, analytics or register keys: its forms
+  # fail closed instead of writing to the production funnel.
+  deploy-dev:
+    needs: build
+    if: github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: development
+    permissions:
+      contents: read
+      packages: read
+    concurrency:
+      group: deploy-dev
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Development
+        uses: ./.github/actions/deploy
+        with:
+          ssh_key: ${{ secrets.SSH_KEY }}
+          vps_host: ${{ vars.VPS_HOST }}
+          vps_user: ${{ vars.VPS_USER }}
+          vps_port: ${{ vars.VPS_PORT || '2021' }}
+          project_dir: ${{ vars.PROJECT_DIR_DEV || '/var/www/clients/inspire-website-dev' }}
+          app_port: ${{ vars.APP_PORT_DEV || '9601' }}
+          environment: development
+          app_url: ${{ vars.APP_URL_DEV || 'https://test.inspireafricans.com' }}
+          image_tag: ${{ env.REGISTRY }}/${{ needs.build.outputs.image_name }}:dev
+          network_alias: web-dev
+          cms_network: ${{ vars.CMS_NETWORK || 'inspire-africa_internal' }}
+          strapi_base_url: ${{ vars.STRAPI_BASE_URL || 'http://cms:1337' }}
+          strapi_media_url: ${{ vars.STRAPI_MEDIA_URL || 'https://inspireafricans.com' }}
+          strapi_public_token: ${{ secrets.STRAPI_PUBLIC_TOKEN }}
+          revalidate_secret: ${{ secrets.REVALIDATE_SECRET }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # DEPLOY TO PRODUCTION
+  # ============================================
+  deploy-production:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Production
+        uses: ./.github/actions/deploy
+        with:
+          ssh_key: ${{ secrets.SSH_KEY }}
+          vps_host: ${{ vars.VPS_HOST }}
+          vps_user: ${{ vars.VPS_USER }}
+          vps_port: ${{ vars.VPS_PORT || '2021' }}
+          project_dir: ${{ vars.PROJECT_DIR || '/var/www/clients/inspire-website' }}
+          app_port: ${{ vars.APP_PORT || '9600' }}
+          environment: production
+          app_url: ${{ vars.APP_URL || 'https://inspireafricans.com' }}
+          image_tag: ${{ env.REGISTRY }}/${{ needs.build.outputs.image_name }}:latest
+          network_alias: web
+          cms_network: ${{ vars.CMS_NETWORK || 'inspire-africa_internal' }}
+          strapi_base_url: ${{ vars.STRAPI_BASE_URL || 'http://cms:1337' }}
+          strapi_media_url: ${{ vars.STRAPI_MEDIA_URL || 'https://inspireafricans.com' }}
+          register_api_url: ${{ vars.REGISTER_API_URL }}
+          strapi_public_token: ${{ secrets.STRAPI_PUBLIC_TOKEN }}
+          revalidate_secret: ${{ secrets.REVALIDATE_SECRET }}
+          analytics_ingest_token: ${{ secrets.ANALYTICS_INGEST_TOKEN }}
+          community_signup_token: ${{ secrets.COMMUNITY_SIGNUP_TOKEN }}
+          register_website_key: ${{ secrets.REGISTER_WEBSITE_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

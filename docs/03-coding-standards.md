@@ -98,7 +98,7 @@ deploy/               docker-compose + prod env example + deploy README
 
 `TODO/UNVERIFIED`: no `CONTRIBUTING.md`, PR template, branch-protection, or pre-commit hooks are present in the repo. The conventions below are the observed/recommended baseline — confirm with the team and codify if desired.
 
-- **Default branch**: `main`. CI builds + publishes the web image on every push to `main` (`.github/workflows/docker-publish.yml`).
+- **Default branch**: `main`. Every push to `main` lints, typechecks, builds, publishes and deploys the site (`.github/workflows/deploy.yml`).
 - **Recommended**: feature branches → PR into `main`; run `npm run lint` and `npm run typecheck` locally first (CI does not lint/typecheck — it only builds the image).
 - **Commits**: recent history uses short imperative subjects (e.g. `SEO: HTTPS canonical/OG URLs…`, `Make system (OS) the default colour theme`). Keep that style. Docs commits in this set are prefixed `docs:`.
 - **Secrets**: never commit `.env*`; `.gitignore` already excludes them and the deployment `.docx`/`.md`. This repo is PUBLIC.

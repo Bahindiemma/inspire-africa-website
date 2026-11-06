@@ -3,6 +3,8 @@
 > Purpose: deploy and operate the platform on the shared Contabo VPS — compose topology, nginx routing, the Caddy→nginx history, normal deploys, the on-server CMS build fallback, SSL renewal, and shared-VPS guardrails.
 > Last reviewed: 2026-05-27 (commit 49a621a)
 
+> **The website no longer deploys this way.** It deploys itself on merge to `main`: see [CI/CD](./11-ci-cd.md) and [deploy/README.md](../deploy/README.md). What follows still applies to the CMS.
+
 ## Table of contents
 - [1. Topology](#1-topology)
 - [2. Deployment diagram](#2-deployment-diagram)

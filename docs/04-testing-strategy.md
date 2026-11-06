@@ -13,7 +13,7 @@
 
 ## 1. Current state
 
-**There is no automated test suite in the website repo.** `package.json` defines no `test` script; there is no test runner (Jest/Vitest/Playwright), no `__tests__`, and no `coverage` config (though `.gitignore` reserves `/coverage`). CI (`.github/workflows/docker-publish.yml`) only builds and pushes the Docker image — it does not run tests, lint, or typecheck.
+**There is no automated test suite in the website repo.** `package.json` defines no `test` script; there is no test runner (Jest/Vitest/Playwright), no `__tests__`, and no `coverage` config (though `.gitignore` reserves `/coverage`). CI (`.github/workflows/deploy.yml`) runs lint and typecheck, then builds, pushes and deploys the Docker image. There are no unit tests to run.
 
 The only quality gates available today:
 - `npm run lint` — ESLint (manual; not in CI; not in build).

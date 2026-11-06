@@ -1,36 +1,72 @@
 # INSPIRE AFRICA — Production Deployment Runbook
 
-Deploys two apps to the Contabo host **37.60.225.220** with Docker, using
-images built by GitHub Actions and published to **GHCR**:
+## The website
 
-| Service | Source repo | GHCR image | Host port |
-|---------|-------------|------------|-----------|
-| Web (Next.js) | `Bahindiemma/inspire-africa-website` | `ghcr.io/bahindiemma/inspire-africa-website` | **80** |
-| CMS (Strapi)  | `Bahindiemma/inspire-africa-cms`      | `ghcr.io/bahindiemma/inspire-africa-cms`      | **1337** |
-| MySQL 8       | — (official image)                    | `mysql:8.0`                                   | internal |
+`.github/workflows/deploy.yml` builds the image, pushes it to GHCR and runs it on the COTE
+server with docker compose, the same way as agribz. Merging to `main` deploys production.
+Lint and typecheck must pass first. Use **Run workflow** on `main` to redeploy by hand.
 
-> **Note:** Claude could not perform these server steps — SSH is protected by
-> 2FA. Run them yourself in your SSH session (`ssh -p 2021 root@37.60.225.220`).
+Every deploy also revalidates each page and checks it from inside the server. CI builds where
+the CMS is unreachable, so without that step the site ships with no photographs, which happened
+for thirteen days in August 2026 and again on 4 September 2026. If a new image does not answer,
+the previous one is put back and the job fails.
+
+### GitHub settings (repo level, not per environment)
+
+The org is on the free plan, so a private repo cannot hold environment secrets. The tokens must
+match the CMS, so copy them from `/opt/inspire-africa/.env`.
+
+| Kind | Name | Value |
+|---|---|---|
+| Secret | `SSH_KEY` | Private key that can log in to the server |
+| Variable | `VPS_HOST` | `37.60.225.220` |
+| Variable | `VPS_USER` | `root` |
+| Variable | `VPS_PORT` | Optional, default `2021` |
+| Variable | `REGISTER_API_URL` | From `/opt/inspire-africa/.env` |
+| Secret | `STRAPI_PUBLIC_TOKEN` | From `/opt/inspire-africa/.env` |
+| Secret | `REVALIDATE_SECRET` | From `/opt/inspire-africa/.env` |
+| Secret | `ANALYTICS_INGEST_TOKEN` | From `/opt/inspire-africa/.env` |
+| Secret | `COMMUNITY_SIGNUP_TOKEN` | From `/opt/inspire-africa/.env` |
+| Secret | `REGISTER_WEBSITE_KEY` | From `/opt/inspire-africa/.env` |
+
+Optional, with these defaults: `PROJECT_DIR` (`/var/www/clients/inspire-website`), `APP_PORT`
+(`9600`), `APP_URL`, `STRAPI_MEDIA_URL` (`https://inspireafricans.com`), `STRAPI_BASE_URL`
+(`http://cms:1337`) and `CMS_NETWORK` (`inspire-africa_internal`). A deploy with a required value
+missing stops before it touches the server and names what is missing.
+
+The dev job only runs if a `dev` branch is pushed (`APP_URL_DEV`, `PROJECT_DIR_DEV`, `APP_PORT_DEV`).
+It reads the live CMS but gets no signup, analytics or register keys, so its forms fail closed.
+
+### Moving off the old `web` container (once)
+
+The first deploy starts the new container next to the old one, on `127.0.0.1:9600`. The live site
+does not change until host nginx is pointed at it.
+
+```bash
+curl -I http://127.0.0.1:9600/      # expect 200
+
+# In the inspireafricans.com vhost, on the site's own location only (not /admin, /api, /uploads):
+#   proxy_pass http://127.0.0.1:3000;  ->  proxy_pass http://127.0.0.1:9600;
+nginx -t && systemctl reload nginx
+
+cd /opt/inspire-africa
+docker compose stop web && docker compose rm -f web
+# Then delete the `web:` service from /opt/inspire-africa/docker-compose.yml, or the next
+# `docker compose up` there brings the old site back.
+```
+
+To undo before removing the container, put 3000 back and reload nginx.
+
+**Never set `PROJECT_DIR` to `/opt/inspire-africa`.** The pipeline runs `down --remove-orphans` and
+rewrites `.env` in that directory, which would take the CMS and its database with it. It refuses any
+directory it does not already own.
 
 ---
 
-## Redeploying the web app — use the script
+# The CMS stack
 
-Once the stack is up, **do not** hand-run `docker compose pull web`. CI builds
-the image where the CMS is unreachable, so every CMS-driven page is prerendered
-with the image-less fallback; a bare pull-and-recreate ships a site with no
-photographs. That failure has happened twice — thirteen days in August 2026,
-and again on 4 September 2026.
-
-```bash
-ssh -i ~/.ssh/contabo_deploy -p 2021 root@37.60.225.220 bash -s < deploy/redeploy-web.sh
-```
-
-`deploy/redeploy-web.sh` clears stale GHCR credentials, pulls, recreates,
-revalidates every page and collection, warms each URL twice, then **verifies**
-— it exits non-zero if any page has lost its photography or if any join CTA
-skips the signup page. Pages also carry `revalidate = 60` as a floor, so a
-missed run self-heals within a minute; that is the net, not the plan.
+The steps below still describe the CMS and MySQL in `/opt/inspire-africa`. Ignore what they say about
+`web`. Logging in to the server by hand needs 2FA (`ssh -p 2021 root@37.60.225.220`).
 
 ---
 
@@ -164,13 +200,11 @@ publish/unpublish. (The CMS reaches `web` over the internal docker network.)
 
 ## Updating later
 
-Push to `main` → Actions rebuilds the image → on the server:
+The website deploys itself when a change merges to `main`. For the CMS, in `/opt/inspire-africa`:
 
 ```bash
-cd /opt/inspire-africa
-docker compose pull
-docker compose up -d
-docker image prune -f
+docker compose pull cms
+docker compose up -d cms
 ```
 
 ## Backups (do this before you rely on it)

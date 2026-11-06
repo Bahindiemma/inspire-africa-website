@@ -1,0 +1,43 @@
+# INSPIRE AFRICA website on the COTE server. Deployed by .github/workflows/deploy.yml;
+# every value comes from the .env that pipeline writes beside this file.
+#
+# The CMS stays in its own stack (/opt/inspire-africa). This container joins that
+# stack's network, so it still reaches the CMS at http://cms:1337 and the CMS still
+# reaches it at http://web:3000. Host nginx proxies the public site to the port below.
+services:
+  web:
+    image: ${DOCKER_IMAGE:-inspire-africa-website:latest}
+    container_name: ${CONTAINER_NAME:-inspire-website}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_PORT:-9600}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://inspireafricans.com}
+      - STRAPI_BASE_URL=${STRAPI_BASE_URL:-http://cms:1337}
+      - STRAPI_MEDIA_URL=${STRAPI_MEDIA_URL:-https://inspireafricans.com}
+      - STRAPI_PUBLIC_TOKEN=${STRAPI_PUBLIC_TOKEN:-}
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET:-}
+      - ANALYTICS_INGEST_URL=${ANALYTICS_INGEST_URL:-}
+      - ANALYTICS_INGEST_TOKEN=${ANALYTICS_INGEST_TOKEN:-}
+      - COMMUNITY_SIGNUP_URL=${COMMUNITY_SIGNUP_URL:-}
+      - COMMUNITY_SIGNUP_TOKEN=${COMMUNITY_SIGNUP_TOKEN:-}
+      - REGISTER_API_URL=${REGISTER_API_URL:-}
+      - REGISTER_WEBSITE_KEY=${REGISTER_WEBSITE_KEY:-}
+    networks:
+      cms:
+        aliases:
+          - ${NETWORK_ALIAS:-web}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  cms:
+    external: true
+    name: ${CMS_NETWORK:-inspire-africa_internal}

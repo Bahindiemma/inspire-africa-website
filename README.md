@@ -95,8 +95,8 @@ components/
 lib/
   site.ts                           Brand constants, nav links, corridor list,
                                     CORRIDOR_SECTORS (used by home marquee)
-  utm.ts                            Mighty Networks join-link builder
-                                    (UTM-aware, source-attributed)
+  utm.ts                            Signup-gate link builder (UTM-aware,
+                                    source-attributed) + mn.co link rewrite
   seo.ts                            Per-page metadata + Organization JSON-LD
   blogs.ts                          BlogPost type + 3 sample posts +
                                     helpers (getBlogPost, getRelatedPosts,

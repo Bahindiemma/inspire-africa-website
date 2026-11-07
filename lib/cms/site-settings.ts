@@ -60,7 +60,6 @@ export interface SiteSettings {
     iconKey?: string;
     order?: number;
   }>;
-  communityBaseUrl: string;
   // `updatedAt` is what cache-busts next/image when an editor replaces a
   // file in place — Strapi keeps the same url, so without it the optimiser
   // keeps serving the old bytes. See lib/cms/media.ts.
@@ -157,7 +156,6 @@ function fromStatic(): SiteSettings {
         order: 7,
       },
     ],
-    communityBaseUrl: STATIC_SITE.community.baseUrl,
   };
 }
 

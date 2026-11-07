@@ -88,7 +88,7 @@ export default async function TermsPage() {
 
         <LegalHeading num="02" id="definitions">Definitions</LegalHeading>
         <ul>
-          <li><strong>&quot;Platform&quot;</strong> means the INSPIRE AFRICA website, community, applications and any related services we provide.</li>
+          <li><strong>&quot;Platform&quot;</strong> means the INSPIRE AFRICA website, INSPIRE AFRICA Readiness, applications and any related services we provide.</li>
           <li><strong>&quot;Worker&quot;</strong> means an individual seeking or holding international employment through the platform.</li>
           <li><strong>&quot;Employer&quot;</strong> means an organisation engaging the platform to hire workers.</li>
           <li><strong>&quot;Government Partner&quot;</strong> means a public-sector body engaging the platform on migration pathways.</li>
@@ -99,7 +99,7 @@ export default async function TermsPage() {
         <p>You must be at least 18 years old and legally able to enter a contract in your country of residence. If you are using the platform on behalf of an organisation, you confirm that you have the authority to bind that organisation to these terms.</p>
 
         <LegalHeading num="04" id="account">Your account</LegalHeading>
-        <p>Some parts of the platform — including the community — require registration. You agree to:</p>
+        <p>Some parts of the platform — including INSPIRE AFRICA Readiness — require registration. You agree to:</p>
         <ul>
           <li>Provide accurate, current and complete information when you register</li>
           <li>Keep your credentials secure and not share them with others</li>
@@ -107,11 +107,8 @@ export default async function TermsPage() {
           <li>Be responsible for activity carried out under your account</li>
         </ul>
         <p>
-          Joining the community involves two separate steps. First you give your details to INSPIRE AFRICA
-          on our own signup page; we hold those under our <Link href="/privacy">Privacy Policy</Link>. You are
-          then taken to Mighty Networks, where you create a community account governed by their terms. We do
-          not control that account, and cannot log in to, moderate or recover it on your behalf beyond what
-          their platform allows us as the community host.
+          Joining involves up to two steps. First you give your details to INSPIRE AFRICA on our own signup page; we hold those under our <Link href="/privacy">Privacy Policy</Link>.
+          If you are a worker, we then email you a link to continue to INSPIRE AFRICA Readiness, where you choose a password and create an account governed by these terms.
         </p>
 
         <LegalHeading num="05" id="acceptable-use">Acceptable use</LegalHeading>

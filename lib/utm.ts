@@ -1,5 +1,3 @@
-import { SITE } from "./site";
-
 export interface JoinLinkOptions {
   source: string;
   medium?: string;
@@ -11,13 +9,12 @@ export interface JoinLinkOptions {
  *
  * This is what every "Join the Community" CTA points at. The gate records
  * the click server-side (consent-independent, no JS required), collects
- * name / email / phone, then performs the Mighty Networks handoff itself
- * via joinUrl()/buildJoinUrl() — so the outbound URL, its `autojoin` flag
- * and its UTM tags are unchanged from Mighty Networks' point of view.
+ * name / email and the registrant type; a worker is then emailed a link into
+ * INSPIRE AFRICA Readiness. There is no community hand-off any more.
  *
- * Lives HERE rather than in lib/cms/utm.ts on purpose: it needs no site
- * settings, and MobileNav is a client component. Importing the CMS module
- * into a client bundle would pull in lib/strapi and its server-only env.
+ * Lives HERE rather than in lib/cms/ on purpose: it needs no site settings,
+ * and MobileNav is a client component. Importing a CMS module into a client
+ * bundle would pull in lib/strapi and its server-only env.
  */
 export function buildJoinGateUrl({
   source,
@@ -33,15 +30,6 @@ export function buildJoinGateUrl({
   return `/join/start?${qs.toString()}`;
 }
 
-export function joinUrl({ source, medium = "website", campaign = "join_community" }: JoinLinkOptions): string {
-  const url = new URL(SITE.community.baseUrl);
-  url.searchParams.set("autojoin", "1");
-  url.searchParams.set("utm_source", source);
-  url.searchParams.set("utm_medium", medium);
-  url.searchParams.set("utm_campaign", campaign);
-  return url.toString();
-}
-
 /* ────────────────────────────────────────────────────────────────────────
  * The invariant: nobody reaches Mighty Networks except through /join/start.
  *
@@ -53,8 +41,8 @@ export function joinUrl({ source, medium = "website", campaign = "join_community
  * `inspire-africa.mn.co/sign_up?...&space_id=20105633`, bypassing signup.
  *
  * So every href that comes from outside the codebase passes through here.
- * `app/join/continue/route.ts` was the one place allowed to emit an mn.co URL; it is now
- * a retired redirect to the join form and emits none (the allowlist entry remains).
+ * `app/join/continue/route.ts` is a retired redirect to the join form and emits
+ * no community URL. This list is the only place the host is named.
  * ──────────────────────────────────────────────────────────────────────── */
 
 /** Hosts that mean "the community". Matched on hostname, never substring. */

@@ -35,9 +35,6 @@ export const SITE = {
     tiktok: "https://www.tiktok.com/@inspire_africans",
     youtube: "https://www.youtube.com/@InspireGroupTV",
   },
-  community: {
-    baseUrl: "https://inspire-africa.mn.co/spaces/20105635",
-  },
 } as const;
 
 export interface NavLink {

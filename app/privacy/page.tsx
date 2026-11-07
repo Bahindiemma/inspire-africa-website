@@ -106,10 +106,9 @@ export default async function PrivacyPage() {
           <li>Job descriptions, role requirements and placement records</li>
           <li>Compliance documentation related to ethical-recruitment standards</li>
         </ul>
-        <h3>When you join the community</h3>
+        <h3>When you join</h3>
         <p>
-          Our community is hosted on Mighty Networks. Before we hand you over, we ask for your details
-          on our own signup page so that we — not only our community provider — can support you.
+          When you join, we ask for your details on our own signup page.
         </p>
         <ul>
           <li>Whether you are a worker, an employer, a government representative or something else</li>
@@ -119,10 +118,15 @@ export default async function PrivacyPage() {
           <li>A one-way, irreversible hash of your IP address and your browser&apos;s user-agent string, used to block automated abuse — we do not store the IP address itself</li>
         </ul>
         <p>
-          We also record the fact that a &ldquo;Join the Community&rdquo; button was clicked, before any
+          If you tell us you are a worker, we email you a link to continue to INSPIRE AFRICA Readiness, our preparation portal. Opening it proves the address is yours. Only if you open it, choose a password and give your permission do we create your Readiness profile — using the name and email you gave us here, so you do not have to type them again. If you never open the link, no Readiness profile is created. Your Readiness profile is then covered by the privacy notice in the Readiness portal.
+        </p>
+        <p>
+          If you tell us you belong to another audience, we keep your details so our team can be in touch. We do not create a Readiness profile for you.
+        </p>
+        <p>
+          We also record the fact that a &ldquo;Join&rdquo; button was clicked, before any
           details are entered. That record contains no name, email or phone number — only the page it
-          came from and the anonymised values above. Once you arrive at Mighty Networks they will ask
-          you to create an account with them, governed by their own privacy policy.
+          came from and the anonymised values above.
         </p>
 
         <h3>Automatically</h3>
@@ -170,7 +174,7 @@ export default async function PrivacyPage() {
               </tr>
               <tr>
                 <td><strong>Legitimate interests</strong></td>
-                <td>For platform improvement, fraud prevention and operational continuity, balanced against your rights. This includes holding the details you give us when joining the community, and measuring how many people click through to it, so we can support members directly rather than depending solely on a third-party platform.</td>
+                <td>For platform improvement, fraud prevention and operational continuity, balanced against your rights. This includes holding the details you give us when joining, and measuring how many people click through to join, so we can support you and invite workers into INSPIRE AFRICA Readiness.</td>
               </tr>
               <tr>
                 <td><strong>Consent</strong></td>
@@ -184,7 +188,6 @@ export default async function PrivacyPage() {
         <p>We share personal data only with parties necessary to deliver our services — and only under contractual safeguards consistent with this policy.</p>
         <ul>
           <li>Employers and prospective employers — where you have applied or been matched</li>
-          <li>Mighty Networks, Inc. — our community platform. When you continue from our signup page to the community, you create an account with them directly and their privacy policy applies to it</li>
           <li>Government, regulatory and immigration authorities — where legally required</li>
           <li>Service providers (cloud hosting, identity verification, payment, communications) bound by data-processing agreements</li>
           <li>Professional advisers — legal, audit, compliance</li>
@@ -209,8 +212,8 @@ export default async function PrivacyPage() {
           <li>Active candidate and placement records — for the duration of the relationship and up to seven years thereafter</li>
           <li>Financial records — six to ten years, depending on jurisdiction</li>
           <li>Marketing data — until you withdraw consent</li>
-          <li>Community signup details (name and email) — three years from your last interaction with us, unless you ask us to erase them sooner</li>
-          <li>Community click records, which contain no name, email or phone number — fourteen months</li>
+          <li>Signup details (name and email) — three years from your last interaction with us, unless you ask us to erase them sooner</li>
+          <li>Signup click records, which contain no name, email or phone number — fourteen months</li>
           <li>Cookies — as set out in our <Link href="/cookies">Cookie Policy</Link></li>
         </ul>
 

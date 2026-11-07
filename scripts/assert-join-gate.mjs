@@ -37,15 +37,12 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const COMMUNITY = /mn\.co|mightynetworks\.com/i;
 
 /**
- * The handoff route is the one place a visitor may legitimately be sent to
- * Mighty Networks, and the two builders + the base URL constant it calls.
- * Everything else must go through buildJoinGateUrl()/normalizeJoinHref().
+ * No visitor is sent to Mighty Networks any more. The only file allowed to
+ * name the host is lib/utm.ts, whose isCommunityHref() recognises it so a
+ * CMS-authored mn.co link is rewritten to the signup gate.
  */
 const SOURCE_ALLOWLIST = new Set([
-  'app/join/continue/route.ts',
   'lib/utm.ts',
-  'lib/cms/utm.ts',
-  'lib/site.ts',
 ]);
 
 const SCAN_DIRS = ['app', 'components', 'lib'];
@@ -79,7 +76,7 @@ function scanSource() {
     for (const o of offenders) console.error(`      ${o}`);
     console.error('\n  Every join CTA must call buildJoinGateUrl() or pass through');
     console.error('  normalizeJoinHref()/normalizeJoinCtaHref() in lib/utm.ts.');
-    console.error('  Only app/join/continue/route.ts may send a visitor to the community.\n');
+    console.error('  Only lib/utm.ts may name the community host (to rewrite such links).\n');
     process.exit(1);
   }
   console.log(`  ok source scan  no community links outside ${[...SOURCE_ALLOWLIST].join(', ')}`);

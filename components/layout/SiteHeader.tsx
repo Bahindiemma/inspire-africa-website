@@ -10,8 +10,8 @@ import { NavLinks } from "./NavLinks";
 
 export async function SiteHeader() {
   const [settings, nav] = await Promise.all([getSiteSettings(), getNavigation()]);
-  // Both CTAs now go through the internal signup gate, which records the
-  // click server-side and then performs the Mighty Networks handoff.
+  // Both CTAs go through the internal signup gate, which records the click
+  // server-side.
   const headerJoin = buildJoinGateUrl({ source: "header_nav" });
   const drawerJoin = buildJoinGateUrl({ source: "mobile_drawer" });
   const logo = brandLogoFrom(settings);

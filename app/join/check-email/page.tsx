@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Check your email",
-  description: "One last step — open the link we emailed you to continue to INSPIRE AFRICA Readiness.",
+  description: "One last step — open the link we emailed you to verify your email address and continue to INSPIRE AFRICA Readiness.",
   path: "/join/check-email",
 });
 
@@ -86,7 +86,7 @@ export default async function CheckEmailPage({ searchParams }: Props) {
         lede={
           mailFailed
             ? "We saved your details, but we couldn't send your link just now."
-            : "We've sent you a link to continue to INSPIRE AFRICA Readiness."
+            : "We've emailed you a link that verifies your email address and takes you to INSPIRE AFRICA Readiness."
         }
         centered
       />

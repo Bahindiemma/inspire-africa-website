@@ -55,12 +55,23 @@ type Failure = { ok: false; reason: 'validation' | 'rate_limited' | 'unavailable
 export type InviteResult =
   | {
       ok: true;
+      /** "failed" only when the register's mail transport is down. */
+      mail: 'sent' | 'failed';
+      startUrl?: undefined;
+    }
+  | {
+      /**
+       * ROLLOUT ONLY: the OLD register answers 201 with a start_url instead of
+       * emailing. Delete this variant once the register answers 202 everywhere.
+       */
+      ok: true;
+      mail?: undefined;
       /** Validated https://<readiness>/invite?token=… link. Never log it. */
       startUrl: string;
     }
   | Failure;
 
-/** Result of the legacy resend helper (the /join/check-email page). */
+/** Result of the resend helper (the /join/check-email page). */
 export type ResendResult =
   | { ok: true; mail: 'sent' | 'failed' }
   | Failure;
@@ -168,19 +179,27 @@ async function call<T>(
   return { ok: false, reason: 'unavailable' };
 }
 
-/** Ask the register to email this worker a link into readiness. */
+/** Ask the register to email this worker a verification link into readiness. */
 export function requestInvitation(
   input: InviteInput,
   forward?: { ip?: string | null; ua?: string | null }
 ): Promise<InviteResult> {
   return call<InviteResult>('/website/invitations', input, forward ?? {}, [200, 201, 202], async (res) => {
-    const json = (await res.json()) as { data?: { start_url?: unknown } };
+    const json = (await res.json()) as { data?: { mail?: string; start_url?: unknown } };
+
+    // Normal path: the register answers 202 {"data":{"mail":"sent"|"failed"}}.
+    if (json.data?.mail === 'sent') return { ok: true, mail: 'sent' };
+    if (json.data?.mail === 'failed') return { ok: true, mail: 'failed' };
+
+    // ROLLOUT ONLY — DELETE THIS BRANCH once the register answers 202 with
+    // `mail` everywhere. For a few minutes the OLD register may still answer
+    // 201 {"data":{"token","start_url"}}; honour that link so nobody is
+    // stranded mid-deploy. Anything else stays "unavailable".
     const startUrl = validStartUrl(json.data?.start_url);
-    if (!startUrl) {
-      console.error('[register] invitation answered without a valid start_url');
-      return null;
-    }
-    return { ok: true, startUrl };
+    if (startUrl) return { ok: true, startUrl };
+
+    console.error('[register] invitation answered with neither mail status nor a valid start_url');
+    return null;
   });
 }
 

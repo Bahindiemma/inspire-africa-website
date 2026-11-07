@@ -40,8 +40,8 @@ export default async function VerifyPage({ searchParams }: Props) {
     return (
       <Outcome
         eyebrow="Link incomplete"
-        heading="That link is missing its code."
-        lede="Joining now takes you to INSPIRE AFRICA Readiness. Please fill in the join form and we'll email you a link."
+        heading="That link is incomplete."
+        lede="Joining now takes you to INSPIRE AFRICA Readiness. Please fill in the join form and we'll email you a link to verify your email address."
       />
     );
   }
@@ -60,7 +60,7 @@ export default async function VerifyPage({ searchParams }: Props) {
     <Outcome
       eyebrow="Joining has moved"
       heading="Joining now takes you to INSPIRE AFRICA Readiness."
-      lede="Please fill in the join form once more and we'll email you a link."
+      lede="Please fill in the join form once more and we'll email you a link to verify your email address."
     />
   );
 }

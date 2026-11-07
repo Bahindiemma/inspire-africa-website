@@ -10,10 +10,10 @@
  * site where losing a submission has a direct commercial cost, so it should
  * degrade the least.
  *
- * Flow: validate → record the lead in the CMS (everyone) → for a worker: CMS
- * lead row → register issues an invitation → redirect straight into readiness
- * /start. No email is sent at join; the email address is confirmed with a code
- * at readiness step 4. Non-workers land on /join/check-email?for=other.
+ * Flow: validate → record the lead in the CMS (everyone) → for a worker, ask
+ * the register to EMAIL an invitation → land on /join/check-email. The email
+ * carries a link that verifies the address and opens INSPIRE AFRICA
+ * Readiness. Non-workers land on /join/check-email?for=other.
  * There is no Mighty Networks hand-off any more.
  *
  * The CMS stays the measurement record for every registrant type (join
@@ -160,8 +160,18 @@ export async function submitCommunitySignup(
       };
     }
 
+    // ROLLOUT ONLY — DELETE once the register answers 202 everywhere: the old
+    // register answered with a start_url (already validated in lib/register).
     // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
-    redirect(invite.startUrl);
+    if (invite.startUrl) redirect(invite.startUrl);
+
+    // The same page whether the address is new, already a member, or on a
+    // suppression list: the difference lives only in the email, never on
+    // screen, so this form cannot be used to find out who has an account.
+    const query = new URLSearchParams({ for: "worker", clickId: inviteClickId });
+    if (invite.mail === "failed") query.set("mail", "failed");
+    // redirect() throws NEXT_REDIRECT by design — must be outside try/catch.
+    redirect(`/join/check-email?${query.toString()}`);
   }
 
   if (!result.ok) {

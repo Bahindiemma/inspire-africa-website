@@ -83,7 +83,7 @@ export default async function JoinStartPage({ searchParams }: Props) {
             you are.
           </>
         }
-        lede="Joining is free. Tell us who you are and, if you're a worker, we'll email you a link to continue to INSPIRE AFRICA Readiness."
+        lede="Joining is free. Tell us who you are and, if you're a worker, we'll email you a link that verifies your email address and takes you to INSPIRE AFRICA Readiness."
         centered
       />
 
@@ -98,8 +98,8 @@ export default async function JoinStartPage({ searchParams }: Props) {
           />
           <p style={{ marginTop: 28, fontSize: 14, opacity: 0.75 }}>
             We store your name and email to support your journey. Workers are emailed a link
-            to continue to INSPIRE AFRICA Readiness, where you choose a password and build your
-            profile; everyone else, we&apos;ll be in touch. See our{" "}
+            that verifies their email address and takes them to INSPIRE AFRICA Readiness, where
+            they choose a password and build their profile; everyone else, we&apos;ll be in touch. See our{" "}
             <a href="/privacy">Privacy Policy</a> for how long we keep this and how to ask
             us to delete it.
           </p>

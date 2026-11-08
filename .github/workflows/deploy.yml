@@ -143,6 +143,11 @@ jobs:
           strapi_media_url: ${{ vars.STRAPI_MEDIA_URL || 'https://inspireafricans.com' }}
           strapi_public_token: ${{ secrets.STRAPI_PUBLIC_TOKEN }}
           revalidate_secret: ${{ secrets.REVALIDATE_SECRET }}
+          # The development register runs beside this stack, with its own database
+          # and Mailpit, so a dev signup is a real invitation that reaches nobody.
+          # Unset, the join form fails closed exactly as before.
+          register_api_url: ${{ vars.REGISTER_API_URL_DEV }}
+          register_website_key: ${{ secrets.REGISTER_WEBSITE_KEY_DEV }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
   # ============================================

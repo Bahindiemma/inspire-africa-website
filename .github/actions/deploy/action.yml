@@ -20,6 +20,9 @@ inputs:
   app_port:
     description: 'Loopback port host nginx proxies to'
     required: true
+  app_bind:
+    description: 'Interface the published port binds to (0.0.0.0 only for a public dev site)'
+    default: '127.0.0.1'
   environment:
     description: 'Environment name (development/production)'
     required: true
@@ -112,6 +115,7 @@ runs:
         ENV_NAME: ${{ inputs.environment }}
         IMAGE_TAG: ${{ inputs.image_tag }}
         APP_PORT: ${{ inputs.app_port }}
+        APP_BIND: ${{ inputs.app_bind }}
         APP_URL: ${{ inputs.app_url }}
         NETWORK_ALIAS: ${{ inputs.network_alias }}
         CMS_NETWORK: ${{ inputs.cms_network }}
@@ -137,6 +141,7 @@ runs:
         DOCKER_IMAGE=${IMAGE_TAG}
         CONTAINER_NAME=inspire-website-${ENV_NAME}
         APP_PORT=${APP_PORT}
+        APP_BIND=${APP_BIND}
         NETWORK_ALIAS=${NETWORK_ALIAS}
         CMS_NETWORK=${CMS_NETWORK}
 

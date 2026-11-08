@@ -132,6 +132,8 @@ jobs:
           vps_port: ${{ vars.VPS_PORT || '2021' }}
           project_dir: ${{ vars.PROJECT_DIR_DEV || '/var/www/clients/inspire-website-dev' }}
           app_port: ${{ vars.APP_PORT_DEV || '9601' }}
+          # The dev site is reachable directly on its port; production stays loopback-only.
+          app_bind: ${{ vars.APP_BIND_DEV || '0.0.0.0' }}
           environment: development
           app_url: ${{ vars.APP_URL_DEV || 'https://test.inspireafricans.com' }}
           image_tag: ${{ env.REGISTRY }}/${{ needs.build.outputs.image_name }}:dev

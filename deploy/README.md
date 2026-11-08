@@ -36,6 +36,8 @@ missing stops before it touches the server and names what is missing.
 
 The dev job only runs if a `dev` branch is pushed (`APP_URL_DEV`, `PROJECT_DIR_DEV`, `APP_PORT_DEV`).
 It reads the live CMS but gets no signup, analytics or register keys, so its forms fail closed.
+The dev site is published on its port rather than behind nginx (`APP_BIND_DEV`, default `0.0.0.0`,
+so `http://<server>:9601`); production stays bound to `127.0.0.1` unless `APP_BIND_DEV` is changed.
 
 ### Moving off the old `web` container (once)
 

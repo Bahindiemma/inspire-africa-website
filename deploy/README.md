@@ -35,9 +35,57 @@ Optional, with these defaults: `PROJECT_DIR` (`/var/www/clients/inspire-website`
 missing stops before it touches the server and names what is missing.
 
 The dev job only runs if a `dev` branch is pushed (`APP_URL_DEV`, `PROJECT_DIR_DEV`, `APP_PORT_DEV`).
-It reads the live CMS but gets no signup, analytics or register keys, so its forms fail closed.
+It reads the live CMS but never writes leads, analytics or production register invitations: the CMS
+and register secrets from the production job are not passed to it.
 The dev site is published on its port rather than behind nginx (`APP_BIND_DEV`, default `0.0.0.0`,
 so `http://<server>:9601`); production stays bound to `127.0.0.1` unless `APP_BIND_DEV` is changed.
+
+### The development stack
+
+A dev signup is a real invitation that reaches nobody: the website talks to a development register
+with its own database and object store, and that register's mail goes to Mailpit.
+
+| Piece | Public (dev) | Loopback |
+| --- | --- | --- |
+| website | `https://dev.37-60-225-220.sslip.io` | `9601` |
+| readiness | `https://readiness.37-60-225-220.sslip.io` | `9611` |
+| register API | `https://register.37-60-225-220.sslip.io` | `9630` |
+| Mailpit (captured mail) | `https://mail.37-60-225-220.sslip.io` | UI `9634`, SMTP `9633` |
+
+The hostnames are `sslip.io` aliases for the server because `inspireafricans.com`'s DNS lives at Wix.
+They carry a real certificate (`certbot --cert-name inspire-dev-sslip`), so the register API is https
+and the readiness portal's emailed links are clickable. Swapping them for real subdomains is a
+certbot run and three `server_name` lines.
+
+`vars.REGISTER_API_URL_DEV` and `secrets.REGISTER_WEBSITE_KEY_DEV` point the dev site at that
+register; the key is the register's `WEBSITE_INVITE_KEY` (both in `/root/.inspire-dev/`, root only).
+With either unset the join form fails closed, as it did before the dev stack existed.
+
+The register and readiness dev containers are started by hand today, not by this pipeline — neither
+repo has a `dev` job for them. Their compose files and settings:
+
+| | project dir | app settings |
+| --- | --- | --- |
+| register | `/var/www/clients/inspire-register-dev` | `/var/www/inspire-africa-community-vault-dev/.env` |
+| readiness | `/var/www/clients/inspire-readiness-dev` | `.env` beside the compose file |
+
+To update them after a change lands on their `main`:
+
+```bash
+# register (image tag from its workflow; migrations first, then the web container)
+cd /var/www/clients/inspire-register-dev
+sed -i 's|^DOCKER_IMAGE=.*|DOCKER_IMAGE=ghcr.io/cotetech-client-projects/inspire-africa-community-vault:<sha>|' .env
+docker compose pull web && docker compose run --rm -T -e OPTIMIZE=none web php artisan migrate --force
+docker compose up -d web
+
+# readiness
+cd /var/www/clients/inspire-readiness-dev
+docker compose pull app && docker compose up -d
+```
+
+A dev database starts empty: `vault:install --force` applies the authoritative schema from
+`database/sql/` and must run before `migrate` on a fresh database.
+
 
 ### Moving off the old `web` container (once)
 

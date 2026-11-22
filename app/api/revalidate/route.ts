@@ -61,6 +61,12 @@ export async function POST(req: NextRequest) {
     case 'legal-document':
       if (slug) revalidatePath(`/${slug}`);
       break;
+    // A category is shown on every post card, so a rename or recolour has to
+    // reach the home page, the /blog index and every post.
+    case 'category':
+      revalidateTag('blog-post');
+      revalidatePath('/', 'layout');
+      break;
     case 'corridor':
     case 'form-definition':
       revalidatePath('/', 'layout');

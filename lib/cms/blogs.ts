@@ -26,7 +26,12 @@ interface StrapiBlogPost {
   title: string;
   slug: string;
   excerpt: string;
-  category: string;
+  /**
+   * A relation to the Category collection since 2026-11-22 (editors manage the
+   * list in the CMS). A plain string is still accepted so a CMS that has not
+   * been redeployed yet keeps rendering.
+   */
+  category?: { name: string; slug?: string } | string | null;
   heroAlt: string;
   readMinutes: number;
   publishedAt: string;
@@ -38,6 +43,14 @@ interface StrapiBlogPost {
   body?: StrapiBlogBlock[];
 }
 
+/** Label shown on cards when a post somehow has no category (publishing requires one). */
+const NO_CATEGORY = 'Insights';
+
+function categoryName(c: StrapiBlogPost['category']): string {
+  if (typeof c === 'string') return c || NO_CATEGORY;
+  return c?.name || NO_CATEGORY;
+}
+
 function adapt(s: StrapiBlogPost): BlogPost {
   // Hero image is served exclusively from the Strapi Media Library. No
   // static /images/* fallback — if a post has no heroImage uploaded, the
@@ -46,7 +59,7 @@ function adapt(s: StrapiBlogPost): BlogPost {
     slug: s.slug,
     title: s.title,
     excerpt: s.excerpt,
-    category: s.category,
+    category: categoryName(s.category),
     author: s.author?.name ?? 'Editorial Desk',
     authorRole: s.author?.role ?? 'INSPIRE AFRICA',
     date: (s.publishedAt ?? '').slice(0, 10),
@@ -86,9 +99,12 @@ function adaptBlock(b: StrapiBlogBlock): BlogSection | null {
   }
 }
 
-const POPULATE_LIST = 'populate[heroImage]=true&populate[tags]=true&populate[author]=true';
+// Object form for the category's fields: the comma shorthand errors in Strapi 5.
+const POPULATE_CATEGORY = 'populate[category][fields][0]=name&populate[category][fields][1]=slug';
+const POPULATE_LIST = `populate[heroImage]=true&populate[tags]=true&populate[author]=true&${POPULATE_CATEGORY}`;
 const POPULATE_DETAIL =
   'populate[heroImage]=true' +
+  `&${POPULATE_CATEGORY}` +
   '&populate[tags]=true' +
   '&populate[author][populate]=avatar' +
   '&populate[seo][populate]=ogImage' +
